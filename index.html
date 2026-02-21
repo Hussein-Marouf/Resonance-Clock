@@ -3,1000 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Resonance Clock</title>
-
-<!-- PWA -->
+<title>Resonance</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Resonance">
-<meta name="theme-color" content="#0a0a12">
+<meta name="theme-color" content="#0b0b14">
 <meta name="mobile-web-app-capable" content="yes">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
-:root {
-  --bg: #0a0a12;
-  --bg2: #0f0f1a;
-  --bg3: #151525;
-  --card: #12121f;
-  --card2: #181830;
-  --gold: #d4a84b;
-  --gold-soft: #c8a04880;
-  --gold-glow: rgba(212,168,75,0.12);
-  --amber: #f0922a;
-  --cyan: #3ec8c0;
-  --rose: #e05a7a;
-  --mint: #5cc4a0;
-  --violet: #8b6fe0;
-  --blue: #4a7fd4;
-  --text: #eae6dc;
-  --text2: #9a9488;
-  --text3: #555048;
-  --border: rgba(212,168,75,0.12);
-  --radius: 20px;
-  --radius-sm: 12px;
-  --font: 'Outfit', -apple-system, sans-serif;
-  --mono: 'JetBrains Mono', monospace;
-  --safe-top: env(safe-area-inset-top, 20px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-html, body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  height: 100%;
-  overflow: hidden;
-  -webkit-font-smoothing: antialiased;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  touch-action: manipulation;
-}
-
-/* ── APP SHELL ──────────────────────────────────────────────── */
-.app {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  max-width: 500px;
-  margin: 0 auto;
-  position: relative;
-}
-
-/* ── STATUS BAR AREA ────────────────────────────────────────── */
-.status-area {
-  padding: calc(var(--safe-top) + 8px) 24px 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-}
-.status-greeting {
-  font-size: 13px;
-  font-weight: 300;
-  color: var(--text2);
-  letter-spacing: 0.02em;
-}
-.status-time {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--gold);
-  font-weight: 400;
-  letter-spacing: 0.06em;
-}
-
-/* ── MAIN SCROLLABLE AREA ───────────────────────────────────── */
-.main {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  padding: 0 20px 120px;
-  scroll-behavior: smooth;
-}
-.main::-webkit-scrollbar { display: none; }
-
-/* ── VIEWS ──────────────────────────────────────────────────── */
-.view { display: none; }
-.view.active { display: block; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ── CLOCK VIEW ─────────────────────────────────────────────── */
-.clock-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 8px;
-}
-#app-clock {
-  display: block;
-  width: 100%;
-  max-width: 340px;
-  aspect-ratio: 1;
-  touch-action: none;
-}
-
-/* ── PHASE HERO CARD ────────────────────────────────────────── */
-.phase-hero {
-  width: 100%;
-  margin-top: 20px;
-  padding: 24px;
-  border-radius: var(--radius);
-  position: relative;
-  overflow: hidden;
-  transition: all 0.5s ease;
-}
-.phase-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius);
-  border: 1px solid rgba(255,255,255,0.06);
-  pointer-events: none;
-}
-.phase-hero-label {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.5);
-  margin-bottom: 8px;
-}
-.phase-hero-name {
-  font-size: 36px;
-  font-weight: 200;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  margin-bottom: 4px;
-}
-.phase-hero-window {
-  font-family: var(--mono);
-  font-size: 13px;
-  color: rgba(255,255,255,0.5);
-  margin-bottom: 16px;
-  font-weight: 300;
-}
-.phase-hero-bio {
-  font-size: 14px;
-  font-weight: 300;
-  color: rgba(255,255,255,0.7);
-  line-height: 1.65;
-}
-
-/* Progress ring */
-.phase-progress {
-  margin-top: 18px;
-  height: 4px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.phase-progress-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 1s linear;
-}
-
-/* ── ACTION TIPS ────────────────────────────────────────────── */
-.tip-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 20px;
-}
-.tip-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 16px;
-  transition: transform 0.15s, background 0.15s;
-}
-.tip-card:active { transform: scale(0.97); background: var(--card2); }
-.tip-icon {
-  font-size: 22px;
-  margin-bottom: 8px;
-  display: block;
-}
-.tip-title {
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: 4px;
-  letter-spacing: 0.01em;
-}
-.tip-sub {
-  font-size: 11px;
-  color: var(--text2);
-  font-weight: 300;
-  line-height: 1.5;
-}
-
-/* ── TIMELINE VIEW ──────────────────────────────────────────── */
-.timeline-header {
-  font-size: 26px;
-  font-weight: 200;
-  letter-spacing: -0.02em;
-  margin-bottom: 24px;
-  padding-top: 8px;
-}
-.timeline-header em { color: var(--gold); font-style: normal; }
-
-.tl-phase {
-  display: flex;
-  gap: 16px;
-  padding: 18px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  transition: opacity 0.3s;
-  cursor: pointer;
-}
-.tl-phase:active { opacity: 0.7; }
-.tl-phase.is-current { background: var(--gold-glow); margin: 0 -20px; padding: 18px 20px; border-radius: var(--radius-sm); border-bottom: none; }
-
-.tl-time-col {
-  flex-shrink: 0;
-  width: 52px;
-  text-align: right;
-}
-.tl-time {
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--text2);
-}
-.tl-dur {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--text3);
-  margin-top: 2px;
-}
-.tl-indicator {
-  width: 3px;
-  flex-shrink: 0;
-  border-radius: 3px;
-  align-self: stretch;
-  min-height: 40px;
-}
-.tl-content { flex: 1; min-width: 0; }
-.tl-name {
-  font-size: 17px;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  margin-bottom: 3px;
-}
-.tl-bio {
-  font-size: 12px;
-  color: var(--text2);
-  font-weight: 300;
-  line-height: 1.6;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.tl-phase.is-current .tl-time { color: var(--gold); }
-.tl-phase.is-current .tl-name { color: var(--gold); }
-.tl-now-badge {
-  display: inline-block;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 2px 8px;
-  background: var(--gold);
-  color: var(--bg);
-  border-radius: 4px;
-  margin-left: 8px;
-  vertical-align: middle;
-  font-weight: 500;
-}
-
-/* ── INSIGHTS VIEW ──────────────────────────────────────────── */
-.insights-header {
-  font-size: 26px;
-  font-weight: 200;
-  letter-spacing: -0.02em;
-  margin-bottom: 24px;
-  padding-top: 8px;
-}
-.insight-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  margin-bottom: 16px;
-}
-.insight-label {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text3);
-  margin-bottom: 12px;
-}
-.insight-big {
-  font-size: 42px;
-  font-weight: 200;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  margin-bottom: 6px;
-}
-.insight-sub {
-  font-size: 13px;
-  color: var(--text2);
-  font-weight: 300;
-  line-height: 1.5;
-}
-.insight-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.insight-mini {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 18px;
-  text-align: center;
-}
-.insight-mini-val {
-  font-family: var(--mono);
-  font-size: 24px;
-  font-weight: 300;
-  margin-bottom: 4px;
-}
-.insight-mini-lbl {
-  font-size: 11px;
-  color: var(--text3);
-  font-weight: 300;
-}
-
-#insight-chart { display: block; width: 100%; }
-
-/* ── SETTINGS VIEW ──────────────────────────────────────────── */
-.settings-header {
-  font-size: 26px;
-  font-weight: 200;
-  letter-spacing: -0.02em;
-  margin-bottom: 24px;
-  padding-top: 8px;
-}
-.setting-group {
-  margin-bottom: 28px;
-}
-.setting-group-title {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text3);
-  margin-bottom: 14px;
-}
-.setting-item {
-  background: var(--card);
-  border: 1px solid var(--border);
-  padding: 18px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.setting-item:first-of-type { border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
-.setting-item:last-of-type { border-radius: 0 0 var(--radius-sm) var(--radius-sm); }
-.setting-item:only-of-type { border-radius: var(--radius-sm); }
-.setting-item + .setting-item { border-top: none; }
-.setting-label { font-size: 15px; font-weight: 400; }
-.setting-val {
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--gold);
-  font-weight: 400;
-}
-
-.chrono-setting {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 20px;
-}
-.chrono-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-}
-.chrono-type-label {
-  font-size: 15px;
-  font-weight: 400;
-}
-.chrono-type-val {
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--gold);
-}
-input[type=range].app-slider {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, var(--cyan), var(--gold), var(--rose));
-  outline: none;
-  border-radius: 2px;
-}
-input[type=range].app-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 24px;
-  height: 24px;
-  background: var(--bg);
-  border: 3px solid var(--gold);
-  border-radius: 50%;
-  box-shadow: 0 0 12px rgba(212,168,75,0.3);
-}
-.chrono-endpoints {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 8px;
-  font-size: 11px;
-  color: var(--text3);
-  font-weight: 300;
-}
-
-.about-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 20px;
-  margin-top: 12px;
-}
-.about-card p {
-  font-size: 13px;
-  color: var(--text2);
-  line-height: 1.7;
-  font-weight: 300;
-}
-.about-card p + p { margin-top: 10px; }
-.about-card strong { color: var(--text); font-weight: 500; }
-.about-link {
-  color: var(--gold);
-  text-decoration: none;
-  font-weight: 400;
-}
-
-/* ── BOTTOM NAV ─────────────────────────────────────────────── */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 500px;
-  display: flex;
-  justify-content: space-around;
-  padding: 8px 12px calc(var(--safe-bottom) + 8px);
-  background: linear-gradient(to top, var(--bg) 70%, transparent);
-  z-index: 100;
-}
-.nav-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 16px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: transform 0.12s;
-}
-.nav-btn:active { transform: scale(0.92); }
-.nav-icon {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.nav-icon svg {
-  width: 22px;
-  height: 22px;
-  stroke: var(--text3);
-  stroke-width: 1.5;
-  fill: none;
-  transition: stroke 0.2s;
-}
-.nav-label {
-  font-size: 10px;
-  font-weight: 400;
-  color: var(--text3);
-  letter-spacing: 0.04em;
-  transition: color 0.2s;
-}
-.nav-btn.active .nav-icon svg { stroke: var(--gold); }
-.nav-btn.active .nav-label { color: var(--gold); }
-
-/* ── UTILITIES ──────────────────────────────────────────────── */
-@media (min-width: 500px) {
-  .app { border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
-}
+:root{--bg:#0b0b14;--safe-t:env(safe-area-inset-top,20px);--safe-b:env(safe-area-inset-bottom,0px);--font:'Outfit',sans-serif;--mono:'JetBrains Mono',monospace;--gold:#d4a84b;--gold-dim:rgba(212,168,75,.12);--amber:#f0922a;--cyan:#3ec8c0;--rose:#e05a7a;--mint:#5cc4a0;--violet:#8b6fe0;--text:#eae6dc;--text2:#9a9488;--text3:#555048;--glass:rgba(255,255,255,.04);--glass2:rgba(255,255,255,.07);--glass-border:rgba(255,255,255,.08);--radius:22px;--radius-sm:14px;}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);height:100%;overflow:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;user-select:none;touch-action:manipulation;}
+.ambient{position:fixed;inset:0;z-index:0;}.ambient-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.3;transition:background 3s ease;}
+.orb-1{width:300px;height:300px;top:-80px;left:-60px;animation:br 8s ease-in-out infinite;}.orb-2{width:250px;height:250px;bottom:-40px;right:-60px;animation:br 8s ease-in-out infinite -3s;}.orb-3{width:180px;height:180px;top:40%;left:50%;transform:translateX(-50%);animation:br3 8s ease-in-out infinite -5s;}
+@keyframes br{0%,100%{opacity:.25;transform:scale(1)}50%{opacity:.38;transform:scale(1.06)}}@keyframes br3{0%,100%{opacity:.25;transform:translateX(-50%) scale(1)}50%{opacity:.38;transform:translateX(-50%) scale(1.06)}}
+.app{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;max-width:500px;margin:0 auto;}@media(min-width:500px){.app{border-left:1px solid var(--glass-border);border-right:1px solid var(--glass-border);}}
+.status{padding:calc(var(--safe-t) + 8px) 24px 10px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}.status-l{font-size:13px;font-weight:300;color:var(--text2);}.status-r{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:.08em;}
+.main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 20px calc(90px + var(--safe-b));scroll-behavior:smooth;}.main::-webkit-scrollbar{display:none;}
+.view{display:none;}.view.active{display:block;animation:vIn .35s cubic-bezier(.16,1,.3,1);}@keyframes vIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.glass{background:var(--glass);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid var(--glass-border);border-radius:var(--radius);position:relative;overflow:hidden;}.glass::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);}
+.glass-sm{background:var(--glass);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid var(--glass-border);border-radius:var(--radius-sm);overflow:hidden;position:relative;}
+.clock-wrap{display:flex;flex-direction:column;align-items:center;padding-top:4px;}#clock-c{display:block;width:100%;max-width:320px;aspect-ratio:1;}
+.hero{padding:24px;margin-top:16px;transition:background .6s;}.hero-top{display:flex;align-items:center;gap:10px;margin-bottom:14px;}.hero-badge{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);}.hero-cd{font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:auto;}.hero-icon{font-size:32px;line-height:1;margin-bottom:6px;}.hero-name{font-size:34px;font-weight:200;letter-spacing:-.02em;line-height:1.1;margin-bottom:5px;}.hero-win{font-family:var(--mono);font-size:12px;color:rgba(255,255,255,.4);margin-bottom:16px;}.hero-bar{height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-bottom:18px;}.hero-bar-fill{height:100%;border-radius:2px;transition:width 1s linear;}
+.bite{padding:16px 18px;background:rgba(255,255,255,.03);border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,.04);}.bite-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:6px;}.bite-lbl::before{content:'';width:14px;height:1px;background:var(--gold);}.bite-txt{font-size:13.5px;font-weight:300;color:rgba(255,255,255,.72);line-height:1.7;}.bite-txt strong{color:var(--text);font-weight:500;}
+.body-state{margin-top:16px;}.bs-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}.bs-label{font-size:11px;color:var(--text2);width:70px;flex-shrink:0;text-align:right;}.bs-track{flex:1;height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;}.bs-fill{height:100%;border-radius:3px;transition:width 1.5s cubic-bezier(.4,0,.2,1);}.bs-val{font-family:var(--mono);font-size:10px;color:var(--text3);width:32px;}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}.act{padding:16px;transition:transform .12s,background .2s;cursor:pointer;}.act:active{transform:scale(.97);background:var(--glass2);}.act-icon{font-size:20px;margin-bottom:8px;}.act-t{font-size:13px;font-weight:500;margin-bottom:3px;}.act-w{font-size:11px;color:var(--text2);font-weight:300;line-height:1.5;}
+.up-next{margin-top:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;}.un-bar{width:3px;height:36px;border-radius:2px;flex-shrink:0;}.un-content{flex:1;}.un-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:3px;}.un-name{font-size:15px;}.un-time{font-family:var(--mono);font-size:11px;color:var(--text3);flex-shrink:0;}
+.sec-title{font-size:28px;font-weight:200;letter-spacing:-.02em;padding:8px 0 20px;}.sec-title em{color:var(--gold);font-style:normal;}
+.tl{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;transition:all .3s;}.tl:active{opacity:.7;}.tl.now{background:var(--gold-dim);margin:0 -20px;padding:16px 20px;border-radius:var(--radius-sm);border:none;}.tl-l{width:50px;flex-shrink:0;text-align:right;}.tl-t{font-family:var(--mono);font-size:13px;color:var(--text2);}.tl-d{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px;}.tl-bar{width:3px;flex-shrink:0;border-radius:3px;align-self:stretch;min-height:48px;}.tl-r{flex:1;min-width:0;}.tl-name{font-size:16px;font-weight:400;margin-bottom:2px;display:flex;align-items:center;gap:8px;}.tl-pill{font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;background:var(--gold);color:var(--bg);border-radius:10px;font-weight:600;}.tl-bio{font-size:12px;color:var(--text2);font-weight:300;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}.tl-chips{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}.tl-chip{font-size:10px;padding:3px 8px;border-radius:8px;background:rgba(255,255,255,.05);color:var(--text2);}.tl.now .tl-t,.tl.now .tl-name{color:var(--gold);}
+.ins-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}.ins-cell{padding:14px;text-align:center;}.ins-cell-val{font-family:var(--mono);font-size:18px;font-weight:400;line-height:1;margin-bottom:4px;}.ins-cell-lbl{font-size:9px;color:var(--text3);letter-spacing:.04em;}
+.ins-card{padding:20px;margin-bottom:14px;}.ins-card-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}#ins-chart{display:block;width:100%;}.ins-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;}.ins-leg{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text2);}.ins-dot{width:12px;height:2px;border-radius:1px;}
+.rn-card{padding:20px;margin-bottom:14px;}.rn-title{font-size:15px;font-weight:500;margin-bottom:14px;}.rn-meter{margin-bottom:14px;}.rn-meter-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}.rn-meter-lbl{font-size:12px;color:var(--text2);width:80px;flex-shrink:0;}.rn-meter-track{flex:1;height:8px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;}.rn-meter-fill{height:100%;border-radius:4px;transition:width 1.5s cubic-bezier(.4,0,.2,1);}.rn-meter-val{font-family:var(--mono);font-size:11px;color:var(--text2);width:36px;text-align:right;}
+.rn-optimal{padding:14px 16px;background:rgba(255,255,255,.03);border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,.04);}.rn-opt-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mint);margin-bottom:6px;}.rn-opt-items{display:flex;flex-wrap:wrap;gap:6px;}.rn-opt-tag{font-size:11px;padding:4px 10px;border-radius:8px;background:rgba(92,196,160,.08);border:1px solid rgba(92,196,160,.15);color:var(--mint);}.rn-avoid-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--rose);margin:12px 0 6px;}.rn-avoid-tag{font-size:11px;padding:4px 10px;border-radius:8px;background:rgba(224,90,122,.08);border:1px solid rgba(224,90,122,.15);color:var(--rose);}
+.pm-card{padding:20px;margin-bottom:14px;}.pm-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}.pm-num{font-family:var(--mono);font-size:10px;color:var(--text3);width:16px;text-align:center;}.pm-swatch{width:4px;height:20px;border-radius:2px;}.pm-bar-wrap{flex:1;position:relative;height:20px;}.pm-bar{position:absolute;top:2px;height:6px;border-radius:3px;opacity:.7;}.pm-bar-art{top:12px;}.pm-diff{font-family:var(--mono);font-size:9px;color:var(--text3);width:36px;text-align:right;}
+.explainer{font-size:13px;color:var(--text2);font-weight:300;line-height:1.7;}.explainer strong{color:var(--text);font-weight:500;}
+.set-grp{margin-bottom:28px;}.set-grp-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;}.set-card{padding:20px;}.set-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}.set-row-l{font-size:15px;}.set-row-r{font-family:var(--mono);font-size:13px;color:var(--gold);}input[type=range].sl{-webkit-appearance:none;width:100%;height:4px;background:linear-gradient(90deg,var(--cyan),var(--gold),var(--rose));outline:none;border-radius:2px;}input[type=range].sl::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;background:var(--bg);border:3px solid var(--gold);border-radius:50%;box-shadow:0 0 16px rgba(212,168,75,.25);}.set-ends{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--text3);}.set-about p{font-size:13px;color:var(--text2);line-height:1.7;font-weight:300;}.set-about p+p{margin-top:10px;}.set-about strong{color:var(--text);font-weight:500;}.set-ver{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:14px;}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;display:flex;justify-content:space-around;padding:6px 16px calc(var(--safe-b) + 6px);background:linear-gradient(to top,rgba(11,11,20,.97) 60%,transparent);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:100;}.nb{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 14px;background:none;border:none;cursor:pointer;transition:transform .1s;}.nb:active{transform:scale(.9);}.nb svg{width:22px;height:22px;stroke:var(--text3);stroke-width:1.5;fill:none;transition:stroke .25s;}.nb span{font-size:10px;color:var(--text3);transition:color .25s;}.nb.on svg{stroke:var(--gold);}.nb.on span{color:var(--gold);}
 </style>
 </head>
-
 <body>
+<div class="ambient"><div class="ambient-orb orb-1" id="o1"></div><div class="ambient-orb orb-2" id="o2"></div><div class="ambient-orb orb-3" id="o3"></div></div>
 <div class="app">
-
-  <div class="status-area">
-    <div class="status-greeting" id="greeting">Good evening</div>
-    <div class="status-time" id="top-time">--:--</div>
-  </div>
-
-  <div class="main">
-
-    <!-- CLOCK VIEW -->
-    <div class="view active" id="view-clock">
-      <div class="clock-wrap">
-        <canvas id="app-clock"></canvas>
-      </div>
-
-      <div class="phase-hero" id="phase-hero">
-        <div class="phase-hero-label" id="ph-label">Phase 1 of 9</div>
-        <div class="phase-hero-name" id="ph-name">Rest</div>
-        <div class="phase-hero-window" id="ph-window">00:00 → 06:57</div>
-        <div class="phase-hero-bio" id="ph-bio">Loading...</div>
-        <div class="phase-progress">
-          <div class="phase-progress-fill" id="ph-progress" style="width:0%"></div>
-        </div>
-      </div>
-
-      <div class="tip-cards" id="tip-cards"></div>
-    </div>
-
-    <!-- TIMELINE VIEW -->
-    <div class="view" id="view-timeline">
-      <div class="timeline-header">Your <em>Daily Rhythm</em></div>
-      <div id="timeline-list"></div>
-    </div>
-
-    <!-- INSIGHTS VIEW -->
-    <div class="view" id="view-insights">
-      <div class="insights-header">Rhythm Insights</div>
-      <div class="insight-row">
-        <div class="insight-mini">
-          <div class="insight-mini-val" style="color:var(--mint)" id="ins-mae">—</div>
-          <div class="insight-mini-lbl">Model Accuracy (MAE)</div>
-        </div>
-        <div class="insight-mini">
-          <div class="insight-mini-val" style="color:var(--cyan)" id="ins-r2">—</div>
-          <div class="insight-mini-lbl">Correlation (R²)</div>
-        </div>
-      </div>
-      <div class="insight-card">
-        <div class="insight-label">Hormone Composite</div>
-        <canvas id="insight-chart" height="180"></canvas>
-      </div>
-      <div class="insight-card">
-        <div class="insight-label">How this works</div>
-        <div class="insight-sub" style="line-height:1.7">
-          Phase boundaries are computed from a multi-marker composite of <strong style="color:var(--text)">cortisol</strong> (4 harmonics, peak 07:30),
-          <strong style="color:var(--text)">core temperature</strong> (3 harmonics, peak 17:00), and
-          <strong style="color:var(--text)">melatonin</strong> (3 harmonics, peak 03:00).
-          Structural points — extrema and inflections of F(t) = 0.5·C + 0.3·T + 0.2·M — define the 9 phase transitions.
-          Parameters from Brabant 1990, Van Cauter 1999, Refinetti 2010, Lewy 1999.
-        </div>
-      </div>
-    </div>
-
-    <!-- SETTINGS VIEW -->
-    <div class="view" id="view-settings">
-      <div class="settings-header">Settings</div>
-
-      <div class="setting-group">
-        <div class="setting-group-title">Chronotype</div>
-        <div class="chrono-setting">
-          <div class="chrono-row">
-            <div class="chrono-type-label">Chronotype Offset</div>
-            <div class="chrono-type-val" id="set-chrono-val">+0.0 h</div>
-          </div>
-          <input type="range" class="app-slider" id="set-chrono" min="0" max="30" value="0" step="1">
-          <div class="chrono-endpoints">
-            <span>Early Bird</span><span>Intermediate</span><span>Night Owl</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="setting-group">
-        <div class="setting-group-title">About</div>
-        <div class="about-card">
-          <p><strong>The 9-Phase Resonance Clock</strong> maps your circadian biology into 9 actionable phases derived from published biochemical data — not arbitrary time blocks.</p>
-          <p>Based on the research of H.A. Marouf. Phase boundaries emerge from the mathematical structure of hormonal oscillations.</p>
-          <p style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:12px;">Abacus Omega Inc. · v2.0</p>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- main -->
-
-  <!-- BOTTOM NAV -->
-  <div class="bottom-nav">
-    <button class="nav-btn active" onclick="switchView('clock')">
-      <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-      <div class="nav-label">Clock</div>
-    </button>
-    <button class="nav-btn" onclick="switchView('timeline')">
-      <div class="nav-icon"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg></div>
-      <div class="nav-label">Schedule</div>
-    </button>
-    <button class="nav-btn" onclick="switchView('insights')">
-      <div class="nav-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-      <div class="nav-label">Insights</div>
-    </button>
-    <button class="nav-btn" onclick="switchView('settings')">
-      <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-      <div class="nav-label">Settings</div>
-    </button>
-  </div>
-
-</div><!-- app -->
-
+<div class="status"><div class="status-l" id="greet">Good evening</div><div class="status-r" id="ttm">--:--:--</div></div>
+<div class="main">
+<div class="view active" id="v-clock"><div class="clock-wrap"><canvas id="clock-c"></canvas></div><div class="glass hero" id="hero"><div class="hero-top"><div class="hero-badge" id="hb">Phase 1 of 9</div><div class="hero-cd" id="hcd"></div></div><div class="hero-icon" id="hi">🌙</div><div class="hero-name" id="hn">Rest</div><div class="hero-win" id="hw">00:00 → 06:57</div><div class="hero-bar"><div class="hero-bar-fill" id="hp"></div></div><div class="bite"><div class="bite-lbl">Why this matters</div><div class="bite-txt" id="hbt">Loading...</div></div><div class="body-state" id="hbs"></div></div><div class="acts" id="hacts"></div><div class="glass-sm up-next" id="hun"></div></div>
+<div class="view" id="v-sched"><div class="sec-title">Your <em>Daily Rhythm</em></div><div id="slist"></div></div>
+<div class="view" id="v-ins"><div class="sec-title">Body <em>Right Now</em></div><div class="glass rn-card" id="rn-now"></div><div class="glass ins-card"><div class="ins-card-lbl">Hormone Composite · 24 h</div><canvas id="ins-chart" height="170"></canvas><div class="ins-legend"><div class="ins-leg"><div class="ins-dot" style="background:#f0922a"></div>Cortisol</div><div class="ins-leg"><div class="ins-dot" style="background:#3ec8c0"></div>Temp</div><div class="ins-leg"><div class="ins-dot" style="background:#8b6fe0"></div>Melatonin</div><div class="ins-leg"><div class="ins-dot" style="background:var(--gold);height:3px"></div>Composite</div></div></div><div class="glass pm-card"><div class="ins-card-lbl">Model vs Artwork Accuracy</div><div id="pm-bars"></div><div style="display:flex;gap:14px;margin-top:10px;"><div class="ins-leg"><div class="ins-dot" style="background:var(--cyan)"></div>Model</div><div class="ins-leg"><div class="ins-dot" style="background:var(--gold)"></div>Artwork</div></div></div><div class="ins-row"><div class="glass-sm ins-cell"><div class="ins-cell-val" style="color:var(--mint)" id="im"></div><div class="ins-cell-lbl">MAE</div></div><div class="glass-sm ins-cell"><div class="ins-cell-val" style="color:var(--cyan)" id="ir"></div><div class="ins-cell-lbl">R²</div></div><div class="glass-sm ins-cell"><div class="ins-cell-val" style="color:var(--gold)" id="imt"></div><div class="ins-cell-lbl">Phases ≤5°</div></div></div><div class="glass ins-card"><div class="ins-card-lbl">The Science</div><div class="explainer">Phase boundaries computed from a multi-marker composite of <strong>cortisol</strong> (4 harmonics, peak 07:30), <strong>core temperature</strong> (3 harmonics, peak 17:00), and <strong>melatonin</strong> (3 harmonics, peak 03:00). F(t) = 0.5C + 0.3T + 0.2M structural points define 9 transitions. Parameters from <strong>Brabant 1990</strong>, <strong>Van Cauter 1999</strong>, <strong>Refinetti 2010</strong>, <strong>Lewy 1999</strong>. Model derived blindly — MAE 10.1° against artwork (p < 0.001).</div></div></div>
+<div class="view" id="v-set"><div class="sec-title">Settings</div><div class="set-grp"><div class="set-grp-lbl">Chronotype</div><div class="glass set-card"><div class="set-row"><div class="set-row-l">Offset</div><div class="set-row-r" id="sv">+0.0 h · Early Bird</div></div><input type="range" class="sl" id="ss" min="0" max="30" value="0" step="1"><div class="set-ends"><span>Early Bird</span><span>Intermediate</span><span>Night Owl</span></div></div></div><div class="set-grp"><div class="set-grp-lbl">About</div><div class="glass set-card set-about"><p><strong>The 9-Phase Resonance Clock</strong> maps circadian biology into 9 actionable phases from published biochemical data.</p><p>Research by <strong>H.A. Marouf</strong>. Validated against independent artwork (R² = 0.993).</p><div class="set-ver">Abacus Omega Inc. · v3.0</div></div></div></div>
+</div>
+<div class="nav">
+<button class="nb on" data-v="clock"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Clock</span></button>
+<button class="nb" data-v="sched"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg><span>Schedule</span></button>
+<button class="nb" data-v="ins"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Insights</span></button>
+<button class="nb" data-v="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></button>
+</div></div>
 <script>
-// ═══════════════════════════════════════════════════════════════
-// COMPUTATION ENGINE (same corrected model)
-// ═══════════════════════════════════════════════════════════════
-const TAU = 24;
-function arrMin(a){let m=a[0];for(let i=1;i<a.length;i++)if(a[i]<m)m=a[i];return m;}
-function arrMax(a){let m=a[0];for(let i=1;i<a.length;i++)if(a[i]>m)m=a[i];return m;}
-function makeOsc(pk,amps){return t=>{let v=0;for(let n=1;n<=amps.length;n++)v+=amps[n-1]*Math.cos(n*2*Math.PI*t/TAU-2*Math.PI*n*pk/TAU);return v;};}
-function norm(fn){const v=Array.from({length:1000},(_,i)=>fn(i*TAU/1000));const mn=arrMin(v),mx=arrMax(v),r=mx-mn||1;return t=>(fn(t)-mn)/r*2-1;}
-
-const cN=norm(makeOsc(7.5,[1,.38,.18,.08]));
-const tN=norm(makeOsc(17.0,[1,.22,.08]));
-const mN=norm(makeOsc(3.0,[1,.35,.12]));
-const F=t=>0.5*cN(t)+0.3*tN(t)+0.2*mN(t);
-
-const DT=1e-4;
-const d1=(fn,t)=>(fn(t+DT)-fn(t-DT))/(2*DT);
-const d2=(fn,t)=>(fn(t+DT)-2*fn(t)+fn(t-DT))/(DT*DT);
-
-function findZeros(fn){
-  const N=50000,dt=TAU/N,z=[];let p=fn(0);
-  for(let i=1;i<=N;i++){const t=i*dt,c=fn(t);if(p*c<0){let lo=(i-1)*dt,hi=t;for(let k=0;k<30;k++){const mid=(lo+hi)/2;if(fn(lo)*fn(mid)<=0)hi=mid;else lo=mid;}z.push((lo+hi)/2);}p=c;}return z;
-}
-
-function computePhases(){
-  const ext=findZeros(t=>d1(F,t));
-  const inf=findZeros(t=>d2(F,t));
-  const all=[...ext,...inf].sort((a,b)=>a-b);
-  let th=0.5,merged;
-  while(th>=0.1){merged=[];for(const t of all){if(!merged.length||t-merged[merged.length-1]>th)merged.push(t);}if(merged.length>=9)break;th-=0.1;}
-  const scored=merged.map(t=>({t,score:Math.abs(d1(F,t))+0.5*Math.abs(F(t))}));
-  scored.sort((a,b)=>b.score-a.score);
-  const top9=scored.slice(0,9).map(x=>x.t).sort((a,b)=>a-b);
-  const vals=top9.map(t=>F(t));
-  const mi=vals.indexOf(Math.min(...vals));
-  const rot=[...top9.slice(mi),...top9.slice(0,mi)];
-  const off=rot[0];
-  return rot.map(t=>(t-off+TAU)%TAU);
-}
-
-const MODEL_TIMES=computePhases();
-const MODEL_ANGLES=MODEL_TIMES.map(t=>(t/TAU)*360);
-const ARTWORK=[0,40.1,82,128.3,171.1,196.2,237.2,270,317.6];
-const MAE=(MODEL_ANGLES.reduce((s,v,i)=>s+Math.abs(v-ARTWORK[i]),0)/9);
-const aMean=ARTWORK.reduce((a,b)=>a+b,0)/9;
-const ssRes=MODEL_ANGLES.reduce((s,m,i)=>s+Math.pow(ARTWORK[i]-m,2),0);
-const ssTot=ARTWORK.reduce((s,a)=>s+Math.pow(a-aMean,2),0);
-const R2=(1-ssRes/ssTot);
-
-const PHASE_COLORS=['#4a6fa5','#6b9fd4','#f0922a','#e8d060','#e05a7a','#8b6fe0','#3ec8c0','#5cc4a0','#a89fd4'];
-const PHASES=[
-  {name:"Rest",icon:"🌙",tips:[{icon:"😴",t:"Sleep deeply",s:"Body repair and memory consolidation active"},{icon:"📵",t:"Screens off",s:"Melatonin at peak — protect it"}]},
-  {name:"Preparation",icon:"🌅",tips:[{icon:"💧",t:"Hydrate first",s:"Cortisol awakening response starting"},{icon:"🧘",t:"Gentle movement",s:"Ease into the day as HPA axis activates"}]},
-  {name:"Energy Rise",icon:"⚡",tips:[{icon:"☀️",t:"Get sunlight",s:"Light exposure suppresses residual melatonin"},{icon:"🍳",t:"Protein breakfast",s:"Fuel the metabolic acceleration"}]},
-  {name:"Focus",icon:"🎯",tips:[{icon:"🧠",t:"Deep work now",s:"Cortisol + testosterone at daily peak"},{icon:"🚫",t:"Block distractions",s:"Working memory at maximum capacity"}]},
-  {name:"Peak",icon:"💪",tips:[{icon:"🏃",t:"Physical peak",s:"Reaction time and strength at best"},{icon:"📋",t:"Handle challenges",s:"Cardiovascular output at daily max"}]},
-  {name:"Reflection",icon:"🍃",tips:[{icon:"🚶",t:"Take a walk",s:"Post-lunch alertness dip is natural"},{icon:"📖",t:"Creative thinking",s:"Relaxed state aids divergent thought"}]},
-  {name:"Renewal",icon:"🔥",tips:[{icon:"🏋️",t:"Train now",s:"Core temp at peak — optimal for exercise"},{icon:"📊",t:"Review & plan",s:"Second alertness wave supports review"}]},
-  {name:"Transition",icon:"🌆",tips:[{icon:"📴",t:"Dim the lights",s:"Melatonin onset beginning — protect it"},{icon:"🍵",t:"Wind down",s:"Switch from output to recovery mode"}]},
-  {name:"Closure",icon:"🌌",tips:[{icon:"📝",t:"Journal",s:"Process the day before sleep"},{icon:"🛏️",t:"Sleep prep",s:"Sleep pressure at threshold — listen to it"}]},
+const T=24,PI2=Math.PI*2;
+const arrMin=a=>{let m=a[0];for(let i=1;i<a.length;i++)if(a[i]<m)m=a[i];return m;};
+const arrMax=a=>{let m=a[0];for(let i=1;i<a.length;i++)if(a[i]>m)m=a[i];return m;};
+const mkO=(p,a)=>t=>{let v=0;for(let n=1;n<=a.length;n++)v+=a[n-1]*Math.cos(n*PI2*t/T-PI2*n*p/T);return v;};
+const nrm=fn=>{const v=Array.from({length:1e3},(_,i)=>fn(i*T/1e3));const mn=arrMin(v),mx=arrMax(v),r=mx-mn||1;return t=>(fn(t)-mn)/r*2-1;};
+const cN=nrm(mkO(7.5,[1,.38,.18,.08])),tN=nrm(mkO(17,[1,.22,.08])),mN=nrm(mkO(3,[1,.35,.12]));
+const F=t=>.5*cN(t)+.3*tN(t)+.2*mN(t);
+const DT=1e-4,d1=(f,t)=>(f(t+DT)-f(t-DT))/(2*DT),d2=(f,t)=>(f(t+DT)-2*f(t)+f(t-DT))/(DT*DT);
+function fZ(fn){const N=5e4,dt=T/N,z=[];let p=fn(0);for(let i=1;i<=N;i++){const t=i*dt,c=fn(t);if(p*c<0){let lo=(i-1)*dt,hi=t;for(let k=0;k<30;k++){const m=(lo+hi)/2;fn(lo)*fn(m)<=0?hi=m:lo=m;}z.push((lo+hi)/2);}p=c;}return z;}
+function compP(){const e=fZ(t=>d1(F,t)),inf=fZ(t=>d2(F,t)),all=[...e,...inf].sort((a,b)=>a-b);let th=.5,mg;while(th>=.1){mg=[];for(const t of all){if(!mg.length||t-mg[mg.length-1]>th)mg.push(t);}if(mg.length>=9)break;th-=.1;}const sc=mg.map(t=>({t,s:Math.abs(d1(F,t))+.5*Math.abs(F(t))}));sc.sort((a,b)=>b.s-a.s);const t9=sc.slice(0,9).map(x=>x.t).sort((a,b)=>a-b);const v=t9.map(t=>F(t));const mi=v.indexOf(Math.min(...v));const r=[...t9.slice(mi),...t9.slice(0,mi)];const o=r[0];return r.map(t=>(t-o+T)%T);}
+const MT=compP(),MA=MT.map(t=>(t/T)*360);
+const AW=[0,40.1,82,128.3,171.1,196.2,237.2,270,317.6];
+const MAE_V=MA.reduce((s,v,i)=>s+Math.abs(v-AW[i]),0)/9;
+const aM=AW.reduce((a,b)=>a+b,0)/9;
+const R2_V=1-MA.reduce((s,m,i)=>s+Math.pow(AW[i]-m,2),0)/AW.reduce((s,a)=>s+Math.pow(a-aM,2),0);
+const mtch=MA.filter((m,i)=>Math.abs(m-AW[i])<=5).length;
+const COL=['#3a5a8c','#5a8fd0','#f0922a','#d4c040','#e05a7a','#8060d0','#2ab8a8','#48b888','#9488c8'];
+const BG=[['#1a2a40','#0c1828','#101830'],['#1c2e4a','#0e1c30','#182848'],['#3a2810','#201808','#2a2018'],['#2a2808','#1a1a04','#282408'],['#381828','#200e18','#301428'],['#241838','#140c20','#201430'],['#0c2828','#081818','#102428'],['#102820','#081810','#0c2018'],['#1c1830','#100c20','#181428']];
+const PH=[
+{n:'Rest',ic:'🌙',bite:'Your <strong>growth hormone</strong> surges during deep NREM sleep (Takahashi 1968). Melatonin at ~3 AM peak drives cellular repair. Cortisol at its 24-hour minimum — your body is rebuilding itself.',state:{cortisol:5,temperature:15,melatonin:95,alertness:5,performance:10},best:['Deep sleep','Cell repair','Memory consolidation','Immune function'],avoid:['Screens','Stimulants','Bright light'],tips:[{i:'😴',t:'Protect your sleep',w:'Growth hormone pulses during NREM — waking disrupts the cycle'},{i:'🌑',t:'Keep it dark',w:'Even dim light (>5 lux) suppresses melatonin by 50%'}]},
+{n:'Preparation',ic:'🌅',bite:'The <strong>cortisol awakening response</strong> (CAR) fires 20–30 min before waking — a 50–75% surge priming your brain (Pruessner 1997). Core temperature begins lifting from its 36.2°C minimum.',state:{cortisol:45,temperature:25,melatonin:60,alertness:30,performance:20},best:['Hydration','Gentle stretching','Light exposure'],avoid:['Heavy meals','Intense exercise','Complex decisions'],tips:[{i:'💧',t:'Hydrate immediately',w:'8h without water + cortisol rise = dehydration by default'},{i:'🧘',t:'Gentle movement',w:'Matches the gradual sympathetic activation happening now'}]},
+{n:'Energy Rise',ic:'⚡',bite:'Cortisol hits its <strong>acrophase</strong> (daily peak) ~07:30. The most powerful hormonal signal — suppresses melatonin, accelerates metabolism, shifts brain from alpha to beta waves.',state:{cortisol:95,temperature:45,melatonin:10,alertness:70,performance:55},best:['Morning sunlight','Protein breakfast','Planning'],avoid:['Social media','Sugar-heavy meals','Skipping breakfast'],tips:[{i:'☀️',t:'Get bright light',w:'Morning light sharpens cortisol peak and sets your circadian clock'},{i:'🥚',t:'Eat protein',w:'Cortisol is catabolic — protein offsets muscle breakdown'}]},
+{n:'Focus',ic:'🎯',bite:'Working memory and <strong>executive function peak</strong> now (Valdez 2005). Testosterone at morning max. Dopamine + norepinephrine create optimal neurochemistry for demanding cognitive work.',state:{cortisol:75,temperature:60,melatonin:5,alertness:92,performance:85},best:['Deep work','Analysis','Writing','Problem solving'],avoid:['Meetings','Multitasking','Social media'],tips:[{i:'🧠',t:'Do your hardest work',w:'Prefrontal cortex peaks with cortisol — this window closes'},{i:'🚫',t:'Block interruptions',w:'23 min to regain deep focus after each interruption'}]},
+{n:'Peak',ic:'💪',bite:'<strong>Physical performance</strong> at daily maximum. Reaction time 10% faster, grip strength peaks, cardiovascular output highest (Atkinson & Reilly 1996).',state:{cortisol:55,temperature:75,melatonin:3,alertness:85,performance:95},best:['Physical challenges','Big decisions','Presentations'],avoid:['Sedentary work','Routine admin','Passive learning'],tips:[{i:'🏃',t:'Physical challenges',w:'Injury risk lowest — tendon compliance peaks with temperature'},{i:'📋',t:'Make big decisions',w:'Alertness and risk assessment both optimized now'}]},
+{n:'Reflection',ic:'🍃',bite:'The <strong>post-prandial dip</strong> is biology, not laziness. 12-hour ultradian oscillators (Hughes 2009) enter trough. Brain shifts toward diffuse, associative thinking.',state:{cortisol:40,temperature:70,melatonin:5,alertness:50,performance:55},best:['Walking','Creative brainstorming','Light reading'],avoid:['Complex analysis','High-stakes decisions','Caffeine after 2pm'],tips:[{i:'🚶',t:"Walk, don't fight it",w:'15-min walk restores alertness more than caffeine'},{i:'💡',t:'Creative thinking',w:'Reduced prefrontal control enhances divergent creativity'}]},
+{n:'Renewal',ic:'🔥',bite:'Core temperature hits its <strong>daily acrophase</strong> ~17:00 (Refinetti 2010). Your true performance peak — VO₂ max, lung function, cardiovascular efficiency all at maximum.',state:{cortisol:30,temperature:95,melatonin:5,alertness:75,performance:90},best:['Exercise','Strength training','Review & planning'],avoid:['Starting new deep work','Heavy caffeine'],tips:[{i:'🏋️',t:'Train now',w:'Muscle strength 6% higher, perceived exertion 10% lower than morning'},{i:'📊',t:'Review and plan',w:'Second alertness wave supports pattern recognition'}]},
+{n:'Transition',ic:'🌆',bite:'<strong>Dim-light melatonin onset</strong> (DLMO) begins ~20:00 (Lewy 1999). Cortisol in steep decline. Body shifting from output mode to recovery.',state:{cortisol:15,temperature:55,melatonin:40,alertness:40,performance:35},best:['Wind-down ritual','Light social time','Journaling'],avoid:['Blue light','Work emails','Heavy exercise','Big meals'],tips:[{i:'📴',t:'Reduce blue light',w:'Blue wavelengths suppress melatonin onset by up to 90 min'},{i:'🍵',t:'Wind-down ritual',w:'Consistent routine signals SCN to accelerate melatonin'}]},
+{n:'Closure',ic:'🌌',bite:'Melatonin rising toward <strong>nocturnal plateau</strong>. Temperature dropping ~0.3°C/h. Sleep pressure at threshold — your body is ready for deep rest.',state:{cortisol:8,temperature:30,melatonin:80,alertness:15,performance:12},best:['Brief reflection','Sleep preparation','Reading fiction'],avoid:['Screens','Problem-solving','News','Caffeine'],tips:[{i:'📝',t:'Brief reflection',w:'Processing the day reduces rumination and sleep-onset latency'},{i:'🛏️',t:'Honor the signal',w:'Fighting sleep pressure disrupts the first NREM — deepest sleep'}]},
 ];
-
-// State
-let chronoOffset = 0;
-
-// ═══════════════════════════════════════════════════════════════
-// VIEW SWITCHING
-// ═══════════════════════════════════════════════════════════════
-function switchView(name){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('view-'+name).classList.add('active');
-  event.currentTarget.classList.add('active');
-  if(name==='timeline') buildTimeline();
-  if(name==='insights') drawInsightChart();
+let off=0;
+document.querySelectorAll('.nb').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.v;document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on'));document.getElementById('v-'+v).classList.add('active');b.classList.add('on');if(v==='sched')buildS();if(v==='ins')drawI();}));
+function setA(i){const c=BG[i];document.getElementById('o1').style.background=c[0];document.getElementById('o2').style.background=c[1];document.getElementById('o3').style.background=c[2];}
+const cEl=document.getElementById('clock-c'),cCtx=cEl.getContext('2d');
+function drawC(){
+  const dpr=window.devicePixelRatio||1,pw=cEl.parentElement?cEl.parentElement.offsetWidth:300,sz=Math.min(pw||300,320);
+  if(sz<20)return;
+  cEl.style.width=sz+'px';cEl.style.height=sz+'px';cEl.width=sz*dpr;cEl.height=sz*dpr;
+  const ctx=cCtx;ctx.scale(dpr,dpr);
+  const W=sz,cx=W/2,cy=W/2,R=Math.max(W/2-26,30);
+  ctx.clearRect(0,0,W,W);
+  const now=new Date(),sec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
+  const shifted=(sec-off*3600+86400)%86400,curDeg=(shifted/86400)*360,curRad=(curDeg-90)*Math.PI/180;
+  const times=MT.map(t=>(t+off)%T),tR=h=>(h/T)*PI2-Math.PI/2;
+  let cur=0;
+  for(let i=0;i<9;i++){const sT=times[i],eT=times[(i+1)%9],sR=tR(sT);let eR=tR(eT);if(eR<=sR)eR+=PI2;const sD=(sT/T)*360,eD=(eT/T)*360;const inP=eT>sT?(curDeg>=sD&&curDeg<eD):(curDeg>=sD||curDeg<eD);if(inP)cur=i;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,sR,eR);ctx.closePath();ctx.fillStyle=COL[i]+(inP?'47':'14');ctx.fill();
+  ctx.beginPath();ctx.arc(cx,cy,R,sR,eR);ctx.strokeStyle=COL[i]+(inP?'bb':'33');ctx.lineWidth=inP?3.5:1.2;ctx.stroke();
+  const mid=(sR+eR)/2,ir=R-16;ctx.font=(inP?'13px':'10px')+' sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.globalAlpha=inP?1:.6;ctx.fillText(PH[i].ic,cx+ir*Math.cos(mid),cy+ir*Math.sin(mid));ctx.globalAlpha=1;
+  ctx.beginPath();ctx.moveTo(cx+(R-5)*Math.cos(sR),cy+(R-5)*Math.sin(sR));ctx.lineTo(cx+(R+3)*Math.cos(sR),cy+(R+3)*Math.sin(sR));ctx.strokeStyle='rgba(212,168,75,.25)';ctx.lineWidth=1;ctx.stroke();}
+  for(let h=0;h<24;h++){const r=(h/24*360-90)*Math.PI/180,r1=R+7,r2=R+(h%6===0?16:h%3===0?12:9);ctx.beginPath();ctx.moveTo(cx+r1*Math.cos(r),cy+r1*Math.sin(r));ctx.lineTo(cx+r2*Math.cos(r),cy+r2*Math.sin(r));ctx.strokeStyle=h%6===0?'rgba(212,168,75,.5)':'rgba(212,168,75,.12)';ctx.lineWidth=h%6===0?1.5:.7;ctx.stroke();if(h%6===0){ctx.fillStyle='rgba(212,168,75,.45)';ctx.font="500 8px 'JetBrains Mono'";ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(h.toString().padStart(2,'0'),cx+(R+22)*Math.cos(r),cy+(R+22)*Math.sin(r));}}
+  ctx.beginPath();ctx.arc(cx,cy,R*.35,0,PI2);ctx.strokeStyle='rgba(212,168,75,.05)';ctx.lineWidth=1;ctx.stroke();
+  const hx=cx+(R-6)*Math.cos(curRad),hy=cy+(R-6)*Math.sin(curRad);ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(hx,hy);ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=1.5;ctx.stroke();ctx.beginPath();ctx.arc(hx,hy,5,0,PI2);ctx.fillStyle='rgba(255,255,255,.6)';ctx.fill();ctx.beginPath();ctx.arc(cx,cy,4,0,PI2);ctx.fillStyle=COL[cur];ctx.fill();
+  const ts=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');ctx.fillStyle='rgba(255,255,255,.8)';ctx.font="500 15px 'JetBrains Mono'";ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(ts,cx,cy+28);
+  updH(cur,times,curDeg,now);setA(cur);
 }
-
-// ═══════════════════════════════════════════════════════════════
-// CLOCK RENDERING
-// ═══════════════════════════════════════════════════════════════
-const clockEl = document.getElementById('app-clock');
-const clockCtx = clockEl.getContext('2d');
-
-function drawAppClock(){
-  const dpr = window.devicePixelRatio || 1;
-  const size = clockEl.parentElement.offsetWidth;
-  const displaySize = Math.min(size, 340);
-  clockEl.style.width = displaySize+'px';
-  clockEl.style.height = displaySize+'px';
-  clockEl.width = displaySize * dpr;
-  clockEl.height = displaySize * dpr;
-  const ctx = clockCtx;
-  ctx.scale(dpr, dpr);
-
-  const W=displaySize, H=displaySize;
-  const cx=W/2, cy=H/2, R=W/2-28;
-
-  ctx.clearRect(0,0,W,H);
-
-  const now=new Date();
-  const sec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
-  const shifted=(sec-chronoOffset*3600+86400)%86400;
-  const curDeg=(shifted/86400)*360;
-  const curRad=(curDeg-90)*Math.PI/180;
-
-  const times=MODEL_TIMES.map(t=>(t+chronoOffset)%TAU);
-  function tRad(h){return(h/TAU)*Math.PI*2-Math.PI/2;}
-  let curPhase=0;
-
-  // Phase arcs
-  for(let i=0;i<9;i++){
-    const sT=times[i], eT=times[(i+1)%9];
-    const sR=tRad(sT);
-    let eR=tRad(eT);
-    if(eR<=sR) eR+=Math.PI*2;
-
-    const sDeg=(sT/TAU)*360, eDeg=(eT/TAU)*360;
-    const inP = eT>sT ? (curDeg>=sDeg&&curDeg<eDeg) : (curDeg>=sDeg||curDeg<eDeg);
-    if(inP) curPhase=i;
-
-    const a = inP ? 0.28 : 0.08;
-    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,R,sR,eR); ctx.closePath();
-    ctx.fillStyle=PHASE_COLORS[i]+Math.round(a*255).toString(16).padStart(2,'0'); ctx.fill();
-
-    ctx.beginPath(); ctx.arc(cx,cy,R,sR,eR);
-    ctx.strokeStyle=PHASE_COLORS[i]+(inP?'cc':'44'); ctx.lineWidth=inP?3.5:1.5; ctx.stroke();
-
-    // Phase icon
-    const mid=(sR+eR)/2;
-    const ir=R-18;
-    ctx.font=(inP?'14px':'11px')+' sans-serif';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillStyle='#fff';
-    ctx.fillText(PHASES[i].icon, cx+ir*Math.cos(mid), cy+ir*Math.sin(mid));
-
-    // Boundary tick
-    ctx.beginPath();
-    ctx.moveTo(cx+(R-6)*Math.cos(sR), cy+(R-6)*Math.sin(sR));
-    ctx.lineTo(cx+(R+4)*Math.cos(sR), cy+(R+4)*Math.sin(sR));
-    ctx.strokeStyle='rgba(212,168,75,0.3)'; ctx.lineWidth=1; ctx.stroke();
-  }
-
-  // Hour ring
-  for(let h=0;h<24;h++){
-    const r=(h/24*360-90)*Math.PI/180;
-    const r1=R+8, r2=R+(h%6===0?18:h%3===0?13:10);
-    ctx.beginPath(); ctx.moveTo(cx+r1*Math.cos(r),cy+r1*Math.sin(r));
-    ctx.lineTo(cx+r2*Math.cos(r),cy+r2*Math.sin(r));
-    ctx.strokeStyle=h%6===0?'rgba(212,168,75,0.6)':'rgba(212,168,75,0.15)';
-    ctx.lineWidth=h%6===0?1.5:0.8; ctx.stroke();
-    if(h%6===0){
-      const tr=R+24;
-      ctx.fillStyle='rgba(212,168,75,0.55)'; ctx.font="500 9px 'JetBrains Mono'";
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(h.toString().padStart(2,'0'), cx+tr*Math.cos(r), cy+tr*Math.sin(r));
-    }
-  }
-
-  // Inner ring
-  ctx.beginPath(); ctx.arc(cx,cy,R*0.38,0,Math.PI*2);
-  ctx.strokeStyle='rgba(212,168,75,0.06)'; ctx.lineWidth=1; ctx.stroke();
-
-  // Hand
-  ctx.beginPath(); ctx.moveTo(cx,cy);
-  ctx.lineTo(cx+(R-8)*Math.cos(curRad), cy+(R-8)*Math.sin(curRad));
-  ctx.strokeStyle='rgba(255,255,255,0.9)'; ctx.lineWidth=1.5; ctx.stroke();
-
-  // Glow tip
-  const hx=cx+(R-8)*Math.cos(curRad), hy=cy+(R-8)*Math.sin(curRad);
-  const g=ctx.createRadialGradient(hx,hy,0,hx,hy,6);
-  g.addColorStop(0,'rgba(255,255,255,0.8)'); g.addColorStop(1,'transparent');
-  ctx.beginPath(); ctx.arc(hx,hy,6,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
-
-  // Center
-  ctx.beginPath(); ctx.arc(cx,cy,4,0,Math.PI*2);
-  ctx.fillStyle=PHASE_COLORS[curPhase]; ctx.fill();
-
-  // Time
-  const ts=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-  ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.font="500 16px 'JetBrains Mono'";
-  ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(ts,cx,cy+32);
-
-  updatePhaseHero(curPhase, times, curDeg);
+const fm=h=>{h=(h+24)%24;return Math.floor(h).toString().padStart(2,'0')+':'+Math.round((h%1)*60).toString().padStart(2,'0');};
+function updH(idx,times,curDeg,now){
+  const ph=PH[idx],col=COL[idx],sT=times[idx],eT=times[(idx+1)%9];
+  let sD=(sT/T)*360,eD=(eT/T)*360;if(eD<=sD)eD+=360;let cd=curDeg;if(cd<sD)cd+=360;
+  const pct=Math.min(100,Math.max(0,(cd-sD)/(eD-sD)*100)),totalDur=eT>sT?eT-sT:24-sT+eT,remMin=Math.max(0,Math.round(totalDur*(1-pct/100)*60)),remStr=remMin>=60?Math.floor(remMin/60)+'h '+remMin%60+'m left':remMin+'m left';
+  document.getElementById('hb').textContent='Phase '+(idx+1)+' of 9';document.getElementById('hcd').textContent=remStr;document.getElementById('hi').textContent=ph.ic;document.getElementById('hn').textContent=ph.n;document.getElementById('hn').style.color=col;document.getElementById('hw').textContent=fm(sT)+' → '+fm(eT);document.getElementById('hp').style.width=pct+'%';document.getElementById('hp').style.background=col;document.getElementById('hbt').innerHTML=ph.bite;document.getElementById('hero').style.background='linear-gradient(135deg,'+col+'12,'+col+'06)';
+  const colors={cortisol:'#f0922a',temperature:'#3ec8c0',melatonin:'#8b6fe0',alertness:'#d4a84b',performance:'#5cc4a0'},labels={cortisol:'Cortisol',temperature:'Core Temp',melatonin:'Melatonin',alertness:'Alertness',performance:'Performance'};
+  document.getElementById('hbs').innerHTML=Object.entries(ph.state).map(function(e){return '<div class="bs-row"><div class="bs-label">'+labels[e[0]]+'</div><div class="bs-track"><div class="bs-fill" style="width:'+e[1]+'%;background:'+colors[e[0]]+'"></div></div><div class="bs-val">'+e[1]+'%</div></div>';}).join('');
+  document.getElementById('hacts').innerHTML=ph.tips.map(function(t){return '<div class="glass-sm act"><div class="act-icon">'+t.i+'</div><div class="act-t">'+t.t+'</div><div class="act-w">'+t.w+'</div></div>';}).join('');
+  const ni=(idx+1)%9;document.getElementById('hun').innerHTML='<div class="un-bar" style="background:'+COL[ni]+'"></div><div class="un-content"><div class="un-lbl">Up next</div><div class="un-name">'+PH[ni].ic+' '+PH[ni].n+'</div></div><div class="un-time">'+fm(times[ni])+'</div>';
+  document.getElementById('ttm').textContent=now.toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const h=now.getHours();document.getElementById('greet').textContent=h<5?'Good night':h<12?'Good morning':h<17?'Good afternoon':'Good evening';
 }
-
-// ═══════════════════════════════════════════════════════════════
-// PHASE HERO
-// ═══════════════════════════════════════════════════════════════
-function updatePhaseHero(idx, times, curDeg){
-  const sT=times[idx], eT=times[(idx+1)%9];
-  const fmt=h=>{h=(h+24)%24;return Math.floor(h).toString().padStart(2,'0')+':'+Math.round((h%1)*60).toString().padStart(2,'0');};
-
-  document.getElementById('ph-label').textContent=`Phase ${idx+1} of 9`;
-  document.getElementById('ph-name').textContent=PHASES[idx].name;
-  document.getElementById('ph-window').textContent=fmt(sT)+' → '+fmt(eT);
-  document.getElementById('ph-bio').textContent=PHASES[idx===0?0:idx].name==='Rest'?
-    'Deep NREM sleep. Growth hormone pulse. Cellular repair and memory consolidation.':
-    getPhaseBio(idx);
-
-  const hero=document.getElementById('phase-hero');
-  const col=PHASE_COLORS[idx];
-  hero.style.background=`linear-gradient(135deg, ${col}18 0%, ${col}08 100%)`;
-  document.getElementById('ph-name').style.color=col;
-  document.getElementById('ph-progress').style.background=col;
-
-  // Progress
-  const sDeg=(sT/TAU)*360;
-  let eDeg=(eT/TAU)*360;
-  if(eDeg<=sDeg) eDeg+=360;
-  let cur=curDeg; if(cur<sDeg) cur+=360;
-  const pct=Math.min(100,Math.max(0,((cur-sDeg)/(eDeg-sDeg))*100));
-  document.getElementById('ph-progress').style.width=pct+'%';
-
-  // Tips
-  const tips=PHASES[idx].tips;
-  document.getElementById('tip-cards').innerHTML=tips.map(t=>`
-    <div class="tip-card">
-      <span class="tip-icon">${t.icon}</span>
-      <div class="tip-title">${t.t}</div>
-      <div class="tip-sub">${t.s}</div>
-    </div>
-  `).join('');
-
-  // Top time
-  const now=new Date();
-  document.getElementById('top-time').textContent=
-    now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+':'+now.getSeconds().toString().padStart(2,'0');
-
-  // Greeting
-  const h=now.getHours();
-  document.getElementById('greeting').textContent=
-    h<5?'Good night':h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+function buildS(){
+  const times=MT.map(t=>(t+off)%T),now=new Date(),sec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds(),shifted=(sec-off*3600+86400)%86400,curDeg=(shifted/86400)*360;
+  var h='';for(var i=0;i<9;i++){var sT=times[i],eT=times[(i+1)%9],sD=(sT/T)*360,eD=(eT/T)*360,inP=eT>sT?(curDeg>=sD&&curDeg<eD):(curDeg>=sD||curDeg<eD),dur=eT>sT?eT-sT:24-sT+eT,ds=dur>=1?Math.floor(dur)+'h '+Math.round((dur%1)*60)+'m':Math.round(dur*60)+'m',ph=PH[i];
+  h+='<div class="tl '+(inP?'now':'')+'"><div class="tl-l"><div class="tl-t">'+fm(sT)+'</div><div class="tl-d">'+ds+'</div></div><div class="tl-bar" style="background:'+COL[i]+'"></div><div class="tl-r"><div class="tl-name" style="'+(inP?'color:var(--gold)':'')+'">'+ph.ic+' '+ph.n+(inP?'<span class="tl-pill">NOW</span>':'')+'</div><div class="tl-bio">'+ph.bite.replace(/<\/?strong>/g,'')+'</div><div class="tl-chips">'+ph.tips.map(function(t){return '<span class="tl-chip">'+t.i+' '+t.t+'</span>';}).join('')+'</div></div></div>';}
+  document.getElementById('slist').innerHTML=h;
 }
-
-function getPhaseBio(i){
-  const bios=[
-    'Deep NREM sleep. Growth hormone pulse. Cellular repair and memory consolidation. Melatonin at peak.',
-    'Cortisol awakening response activating. Core temperature lifting from overnight minimum. Body preparing for the day.',
-    'Rapid cortisol surge to daily peak. Melatonin suppressed. Metabolic rate accelerating. Full transition to waking state.',
-    'Executive function at circadian peak. Working memory and analytical performance at daily maximum. Ideal for demanding cognitive work.',
-    'Physical performance approaching apex. Reaction time, strength, and cardiovascular output near daily maximum.',
-    'Natural post-lunch alertness dip. Brief reduction in vigilance is normal. Good window for creative and divergent thinking.',
-    'Core temperature at daily peak. Second alertness wave. Cardiovascular efficiency optimal. Best window for exercise.',
-    'Melatonin onset beginning. Cortisol in steep decline. Body shifting from output mode to recovery mode.',
-    'Melatonin rising to nocturnal plateau. Sleep pressure at threshold. Body preparing for deep rest cycle.'
-  ];
-  return bios[i]||'';
+function drawI(){
+  document.getElementById('im').textContent=MAE_V.toFixed(1)+'°';document.getElementById('ir').textContent=R2_V.toFixed(3);document.getElementById('imt').textContent=mtch+'/9';
+  var now=new Date(),sec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds(),shifted=(sec-off*3600+86400)%86400,curDeg=(shifted/86400)*360,times=MT.map(t=>(t+off)%T),cur=0;
+  for(var i=0;i<9;i++){var sT=times[i],eT=times[(i+1)%9],sD=(sT/T)*360,eD=(eT/T)*360;if(eT>sT?curDeg>=sD&&curDeg<eD:curDeg>=sD||curDeg<eD)cur=i;}
+  var ph=PH[cur],st=ph.state,colors={cortisol:'#f0922a',temperature:'#3ec8c0',melatonin:'#8b6fe0',alertness:'#d4a84b',performance:'#5cc4a0'},labels={cortisol:'Cortisol',temperature:'Core Temp',melatonin:'Melatonin',alertness:'Alertness',performance:'Performance'};
+  var rn='<div class="rn-title">'+ph.ic+' '+ph.n+' — Your Body Right Now</div><div class="rn-meter">';
+  Object.entries(st).forEach(function(e){rn+='<div class="rn-meter-row"><div class="rn-meter-lbl">'+labels[e[0]]+'</div><div class="rn-meter-track"><div class="rn-meter-fill" style="width:'+e[1]+'%;background:'+colors[e[0]]+'"></div></div><div class="rn-meter-val">'+e[1]+'%</div></div>';});
+  rn+='</div><div class="rn-optimal"><div class="rn-opt-lbl">✓ Optimal activities</div><div class="rn-opt-items">'+ph.best.map(function(b){return '<span class="rn-opt-tag">'+b+'</span>';}).join('')+'</div><div class="rn-avoid-lbl">✗ Avoid right now</div><div class="rn-opt-items">'+ph.avoid.map(function(b){return '<span class="rn-avoid-tag">'+b+'</span>';}).join('')+'</div></div>';
+  document.getElementById('rn-now').innerHTML=rn;
+  var pmH='';for(i=0;i<9;i++){var diff=Math.abs(MA[i]-AW[i]);pmH+='<div class="pm-row"><div class="pm-num">'+(i+1)+'</div><div class="pm-swatch" style="background:'+COL[i]+'"></div><div class="pm-bar-wrap"><div class="pm-bar" style="left:'+MA[i]/360*100+'%;width:6px;background:var(--cyan);border-radius:3px;"></div><div class="pm-bar pm-bar-art" style="left:'+AW[i]/360*100+'%;width:6px;background:var(--gold);border-radius:3px;"></div></div><div class="pm-diff">'+(diff<1?'<1':diff.toFixed(0))+'°</div></div>';}
+  document.getElementById('pm-bars').innerHTML=pmH;
+  var canvas=document.getElementById('ins-chart'),dpr=window.devicePixelRatio||1,W=canvas.parentElement.offsetWidth-40;if(W<20)return;
+  canvas.style.width=W+'px';canvas.style.height='170px';canvas.width=W*dpr;canvas.height=170*dpr;
+  var ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);var H=170,pad={l:6,r:6,t:10,b:22},cW=W-12,cH=H-32,toX=function(t){return 6+(t/T)*cW;},toY=function(v){return 10+(1-(v+1)/2)*cH;};
+  ctx.clearRect(0,0,W,H);ctx.beginPath();ctx.moveTo(6,toY(0));ctx.lineTo(6+cW,toY(0));ctx.strokeStyle='rgba(212,168,75,.1)';ctx.lineWidth=1;ctx.stroke();
+  MT.forEach(function(t){var x=toX((t+off)%T);ctx.beginPath();ctx.moveTo(x,10);ctx.lineTo(x,10+cH);ctx.strokeStyle='rgba(212,168,75,.15)';ctx.lineWidth=1;ctx.setLineDash([2,3]);ctx.stroke();ctx.setLineDash([]);});
+  var nowH=now.getHours()+now.getMinutes()/60,nx=toX(nowH);ctx.beginPath();ctx.moveTo(nx,10);ctx.lineTo(nx,10+cH);ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='#fff';ctx.font="bold 8px 'JetBrains Mono'";ctx.textAlign='center';ctx.fillText('NOW',nx,8);
+  var N=500;[[cN,'#f0922a',.4,1.2],[tN,'#3ec8c0',.4,1.2],[mN,'#8b6fe0',.4,1.2],[F,'#d4a84b',1,2.5]].forEach(function(arr){var fn=arr[0],col=arr[1],a=arr[2],w=arr[3];ctx.beginPath();for(var j=0;j<=N;j++){var t=j*T/N,x=toX(t),y=toY(fn(t));j===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.strokeStyle=col;ctx.globalAlpha=a;ctx.lineWidth=w;ctx.stroke();ctx.globalAlpha=1;});
+  [0,6,12,18].forEach(function(h){ctx.fillStyle='rgba(212,168,75,.3)';ctx.font="8px 'JetBrains Mono'";ctx.textAlign='center';ctx.fillText(h+'h',toX(h),H-4);});
 }
-
-// ═══════════════════════════════════════════════════════════════
-// TIMELINE
-// ═══════════════════════════════════════════════════════════════
-function buildTimeline(){
-  const times=MODEL_TIMES.map(t=>(t+chronoOffset)%TAU);
-  const now=new Date();
-  const sec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
-  const shifted=(sec-chronoOffset*3600+86400)%86400;
-  const curDeg=(shifted/86400)*360;
-  const fmt=h=>{h=(h+24)%24;return Math.floor(h).toString().padStart(2,'0')+':'+Math.round((h%1)*60).toString().padStart(2,'0');};
-
-  let html='';
-  for(let i=0;i<9;i++){
-    const sT=times[i], eT=times[(i+1)%9];
-    const sDeg=(sT/TAU)*360, eDeg=(eT/TAU)*360;
-    const inP = eT>sT ? (curDeg>=sDeg&&curDeg<eDeg) : (curDeg>=sDeg||curDeg<eDeg);
-    const dur = eT>sT ? eT-sT : (24-sT+eT);
-    const durStr = dur>=1 ? Math.floor(dur)+'h '+Math.round((dur%1)*60)+'m' : Math.round(dur*60)+'m';
-
-    html+=`
-      <div class="tl-phase ${inP?'is-current':''}">
-        <div class="tl-time-col">
-          <div class="tl-time">${fmt(sT)}</div>
-          <div class="tl-dur">${durStr}</div>
-        </div>
-        <div class="tl-indicator" style="background:${PHASE_COLORS[i]}"></div>
-        <div class="tl-content">
-          <div class="tl-name" style="color:${inP?'var(--gold)':'var(--text)'}">
-            ${PHASES[i].icon} ${PHASES[i].name}${inP?'<span class="tl-now-badge">NOW</span>':''}
-          </div>
-          <div class="tl-bio">${getPhaseBio(i)}</div>
-        </div>
-      </div>
-    `;
-  }
-  document.getElementById('timeline-list').innerHTML=html;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// INSIGHT CHART
-// ═══════════════════════════════════════════════════════════════
-function drawInsightChart(){
-  document.getElementById('ins-mae').textContent=MAE.toFixed(1)+'°';
-  document.getElementById('ins-r2').textContent=R2.toFixed(3);
-
-  const canvas=document.getElementById('insight-chart');
-  const dpr=window.devicePixelRatio||1;
-  const W=canvas.parentElement.offsetWidth-48;
-  canvas.style.width=W+'px'; canvas.style.height='180px';
-  canvas.width=W*dpr; canvas.height=180*dpr;
-  const ctx=canvas.getContext('2d');
-  ctx.scale(dpr,dpr);
-  const H=180;
-  const pad={l:8,r:8,t:12,b:24};
-  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
-
-  ctx.clearRect(0,0,W,H);
-
-  const toX=t=>pad.l+(t/TAU)*cW;
-  const toY=v=>pad.t+(1-(v+1)/2)*cH;
-
-  // Zero line
-  ctx.beginPath(); ctx.moveTo(pad.l,toY(0)); ctx.lineTo(pad.l+cW,toY(0));
-  ctx.strokeStyle='rgba(212,168,75,0.15)'; ctx.lineWidth=1; ctx.stroke();
-
-  // Phase boundaries
-  MODEL_TIMES.forEach(t=>{
-    const x=toX((t+chronoOffset)%TAU);
-    ctx.beginPath(); ctx.moveTo(x,pad.t); ctx.lineTo(x,pad.t+cH);
-    ctx.strokeStyle='rgba(212,168,75,0.2)'; ctx.lineWidth=1; ctx.setLineDash([2,3]); ctx.stroke(); ctx.setLineDash([]);
-  });
-
-  // Curves
-  const N=400;
-  [[cN,'#f0922a',0.5,1],[tN,'#3ec8c0',0.5,1],[mN,'#8b6fe0',0.5,1],[F,'#d4a84b',1,2.5]].forEach(([fn,col,a,w])=>{
-    ctx.beginPath();
-    for(let i=0;i<=N;i++){const t=i*TAU/N;const x=toX(t),y=toY(fn(t));i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
-    ctx.strokeStyle=col; ctx.globalAlpha=a; ctx.lineWidth=w; ctx.stroke(); ctx.globalAlpha=1;
-  });
-
-  // Hour labels
-  [0,6,12,18,24].forEach(h=>{
-    ctx.fillStyle='rgba(212,168,75,0.35)'; ctx.font="9px 'JetBrains Mono'"; ctx.textAlign='center';
-    ctx.fillText(h%24+'h', toX(h%24===0&&h===24?24:h), H-4);
-  });
-}
-
-// ═══════════════════════════════════════════════════════════════
-// CHRONO SLIDER
-// ═══════════════════════════════════════════════════════════════
-document.getElementById('set-chrono').addEventListener('input',function(){
-  chronoOffset=parseInt(this.value)/10;
-  const label=chronoOffset<0.8?'Early Bird':chronoOffset<2.2?'Intermediate':'Night Owl';
-  document.getElementById('set-chrono-val').textContent=`+${chronoOffset.toFixed(1)} h · ${label}`;
-});
-
-// ═══════════════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════════════
-function tick(){
-  drawAppClock();
-  requestAnimationFrame(tick);
-}
-
-window.addEventListener('load',()=>{
-  tick();
-  buildTimeline();
-  setInterval(buildTimeline, 60000);
-});
-window.addEventListener('resize',()=>drawAppClock());
+document.getElementById('ss').addEventListener('input',function(){off=parseInt(this.value)/10;var l=off<.8?'Early Bird':off<2.2?'Intermediate':'Night Owl';document.getElementById('sv').textContent='+'+off.toFixed(1)+' h · '+l;});
+function tick(){drawC();requestAnimationFrame(tick);}
+window.addEventListener('load',function(){tick();buildS();setInterval(buildS,6e4);});
+window.addEventListener('resize',drawC);
 </script>
 </body>
 </html>
