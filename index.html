@@ -1,555 +1,742 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Resonance</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Resonance">
-<meta name="theme-color" content="#0b0b14">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0b0b14;--safe-t:env(safe-area-inset-top,20px);--safe-b:env(safe-area-inset-bottom,0px);--font:'Outfit',sans-serif;--mono:'JetBrains Mono',monospace;--gold:#d4a84b;--gold-dim:rgba(212,168,75,.12);--cyan:#3ec8c0;--rose:#e05a7a;--mint:#5cc4a0;--violet:#8b6fe0;--text:#eae6dc;--text2:#9a9488;--text3:#555048;--glass:rgba(255,255,255,.04);--glass2:rgba(255,255,255,.07);--gbdr:rgba(255,255,255,.08);--rad:22px;--radsm:14px}
-html,body{background:var(--bg);color:var(--text);font-family:var(--font);height:100%;overflow:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;user-select:none;touch-action:manipulation}
-.amb{position:fixed;inset:0;z-index:0}.aorb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.3;transition:background 3s}
-.o1{width:300px;height:300px;top:-80px;left:-60px;animation:br 8s ease-in-out infinite}
-.o2{width:250px;height:250px;bottom:-40px;right:-60px;animation:br 8s ease-in-out infinite -3s}
-.o3{width:180px;height:180px;top:40%;left:50%;transform:translateX(-50%);animation:br3 8s ease-in-out infinite -5s}
-@keyframes br{0%,100%{opacity:.25;transform:scale(1)}50%{opacity:.38;transform:scale(1.06)}}
-@keyframes br3{0%,100%{opacity:.25;transform:translateX(-50%) scale(1)}50%{opacity:.38;transform:translateX(-50%) scale(1.06)}}
-.app{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;max-width:500px;margin:0 auto}
-@media(min-width:500px){.app{border-left:1px solid var(--gbdr);border-right:1px solid var(--gbdr)}}
-.top{padding:calc(var(--safe-t)+8px) 24px 10px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.top-l{font-size:13px;font-weight:300;color:var(--text2)}.top-r{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:.08em}
-.mn{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 20px calc(90px + var(--safe-b));scroll-behavior:smooth}.mn::-webkit-scrollbar{display:none}
-.vw{display:none}.vw.on{display:block;animation:vi .35s cubic-bezier(.16,1,.3,1)}@keyframes vi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.gl{background:var(--glass);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid var(--gbdr);border-radius:var(--rad);position:relative;overflow:hidden}
-.gl::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)}
-.gs{background:var(--glass);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid var(--gbdr);border-radius:var(--radsm);overflow:hidden;position:relative}
+import { useState, useEffect, useMemo, useCallback } from “react”;
+import { AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from “recharts”;
 
-/* Clock */
-.cw{display:flex;flex-direction:column;align-items:center;padding-top:4px}#cc{display:block;width:100%;max-width:320px;aspect-ratio:1}
-.hr{padding:24px;margin-top:16px;transition:background .6s}.hr-top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.hr-badge{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.5)}
-.hr-cd{font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:auto}
-.hr-ic{font-size:32px;line-height:1;margin-bottom:6px}.hr-nm{font-size:34px;font-weight:200;letter-spacing:-.02em;line-height:1.1;margin-bottom:5px}
-.hr-win{font-family:var(--mono);font-size:12px;color:rgba(255,255,255,.4);margin-bottom:16px}
-.hr-bar{height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-bottom:18px}
-.hr-bf{height:100%;border-radius:2px;transition:width 1s linear}
-.bt{padding:16px 18px;background:rgba(255,255,255,.03);border-radius:var(--radsm);border:1px solid rgba(255,255,255,.04)}
-.bt-l{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.bt-l::before{content:'';width:14px;height:1px;background:var(--gold)}.bt-t{font-size:13.5px;font-weight:300;color:rgba(255,255,255,.72);line-height:1.7}.bt-t strong{color:var(--text);font-weight:500}
-.bs{margin-top:16px}.bsr{display:flex;align-items:center;gap:10px;margin-bottom:10px}.bsl{font-size:11px;color:var(--text2);width:70px;flex-shrink:0;text-align:right}
-.bst{flex:1;height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden}.bsf{height:100%;border-radius:3px;transition:width 1.5s cubic-bezier(.4,0,.2,1)}.bsv{font-family:var(--mono);font-size:10px;color:var(--text3);width:32px}
-.acs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.ac{padding:16px;transition:transform .12s,background .2s;cursor:pointer}.ac:active{transform:scale(.97);background:var(--glass2)}
-.ac-i{font-size:20px;margin-bottom:8px}.ac-t{font-size:13px;font-weight:500;margin-bottom:3px}.ac-w{font-size:11px;color:var(--text2);font-weight:300;line-height:1.5}
-.un{margin-top:16px;padding:16px 18px;display:flex;align-items:center;gap:14px}.unb{width:3px;height:36px;border-radius:2px;flex-shrink:0}.unc{flex:1}
-.unl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}.unn{font-size:15px}.unt{font-family:var(--mono);font-size:11px;color:var(--text3);flex-shrink:0}
-
-/* ═══ ALIGN TAB ═══ */
-.stit{font-size:28px;font-weight:200;letter-spacing:-.02em;padding:8px 0 20px}.stit em{color:var(--gold);font-style:normal}
-.al-section{margin-bottom:20px}
-.al-label{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
-.al-wake{padding:20px}
-.al-wake-row{display:flex;align-items:center;gap:12px}
-.al-wake-display{font-family:var(--mono);font-size:32px;font-weight:300;color:var(--gold);flex-shrink:0;letter-spacing:-.02em}
-.al-wake-btns{display:flex;gap:6px}
-.al-wake-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--gbdr);background:var(--glass);color:var(--text);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
-.al-wake-btn:active{transform:scale(.9);background:var(--glass2)}
-.al-wake-info{font-size:11px;color:var(--text3);margin-top:10px;line-height:1.5}
-.al-pills{display:flex;flex-wrap:wrap;gap:8px;padding:16px 20px}
-.al-pill{padding:8px 16px;border-radius:20px;border:1px solid var(--gbdr);background:var(--glass);font-size:13px;color:var(--text2);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
-.al-pill:active{transform:scale(.95)}
-.al-pill.sel{border-color:var(--gold);background:var(--gold-dim);color:var(--gold)}
-.al-pill-ic{font-size:16px}
-
-/* Alignment result */
-.al-result{padding:24px;margin-bottom:16px}
-.al-score-row{display:flex;align-items:center;gap:16px;margin-bottom:20px}
-.al-score-ring{width:80px;height:80px;flex-shrink:0}
-.al-score-info{flex:1}
-.al-score-title{font-size:18px;font-weight:500;margin-bottom:4px}
-.al-score-sub{font-size:12px;color:var(--text2);font-weight:300;line-height:1.6}
-
-.al-verdict{padding:16px;background:rgba(255,255,255,.03);border-radius:var(--radsm);border:1px solid rgba(255,255,255,.04);margin-bottom:16px}
-.al-verdict-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
-.al-verdict-txt{font-size:14px;font-weight:300;color:rgba(255,255,255,.8);line-height:1.7}.al-verdict-txt strong{color:var(--text);font-weight:500}
-
-.al-tips{margin-bottom:16px}
-.al-tip{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.03)}
-.al-tip:last-child{border:none}
-.al-tip-ic{font-size:18px;flex-shrink:0;margin-top:2px}
-.al-tip-content{flex:1}.al-tip-t{font-size:13px;font-weight:500;margin-bottom:2px}.al-tip-w{font-size:11px;color:var(--text2);font-weight:300;line-height:1.5}
-
-.al-next{padding:16px 18px;display:flex;align-items:center;gap:14px}
-.al-next-bar{width:3px;height:40px;border-radius:2px;flex-shrink:0}
-.al-next-content{flex:1}.al-next-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
-.al-next-name{font-size:14px;margin-bottom:2px}.al-next-sub{font-size:11px;color:var(--text3)}
-.al-next-time{font-family:var(--mono);font-size:13px;color:var(--gold);flex-shrink:0}
-
-/* Schedule */
-.tl{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,.03)}.tl.nw{background:var(--gold-dim);margin:0 -20px;padding:16px 20px;border-radius:var(--radsm);border:none}
-.tll{width:50px;flex-shrink:0;text-align:right}.tlt{font-family:var(--mono);font-size:13px;color:var(--text2)}.tld{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px}
-.tlb{width:3px;flex-shrink:0;border-radius:3px;align-self:stretch;min-height:48px}.tlr{flex:1;min-width:0}
-.tln{font-size:16px;font-weight:400;margin-bottom:2px;display:flex;align-items:center;gap:8px}
-.tlp{font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;background:var(--gold);color:var(--bg);border-radius:10px;font-weight:600}
-.tlbi{font-size:12px;color:var(--text2);font-weight:300;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.tlch{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.tlc{font-size:10px;padding:3px 8px;border-radius:8px;background:rgba(255,255,255,.05);color:var(--text2)}
-.tl.nw .tlt,.tl.nw .tln{color:var(--gold)}
-
-/* Insights */
-.ic{padding:20px;margin-bottom:14px}.icl{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
-#ich{display:block;width:100%}.il{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
-.ile{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text2)}.ild{width:12px;height:2px;border-radius:1px}
-.rn{padding:20px;margin-bottom:14px}.rnt{font-size:16px;font-weight:500;margin-bottom:16px}
-.rnm{margin-bottom:16px}.rnmr{display:flex;align-items:center;gap:10px;margin-bottom:12px}.rnml{font-size:12px;color:var(--text2);width:80px;flex-shrink:0}
-.rnmt{flex:1;height:8px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden}.rnmf{height:100%;border-radius:4px;transition:width 1.5s cubic-bezier(.4,0,.2,1)}
-.rnmv{font-family:var(--mono);font-size:11px;color:var(--text2);width:36px;text-align:right}
-.opt{padding:14px 16px;background:rgba(255,255,255,.03);border-radius:var(--radsm);border:1px solid rgba(255,255,255,.04)}
-.optl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}.optg{color:var(--mint)}.optr{color:var(--rose);margin-top:14px}
-.opti{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
-.optgt{font-size:11px;padding:5px 12px;border-radius:10px;background:rgba(92,196,160,.08);border:1px solid rgba(92,196,160,.15);color:var(--mint)}
-.optrt{font-size:11px;padding:5px 12px;border-radius:10px;background:rgba(224,90,122,.08);border:1px solid rgba(224,90,122,.15);color:var(--rose)}
-.sring{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:16px;padding:20px}
-.sring canvas{flex-shrink:0}.sring-info{flex:1}.sring-val{font-size:13px;font-weight:300;color:var(--text2);line-height:1.7}.sring-val strong{color:var(--text);font-weight:500}
-.pdots{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}.pdot{display:flex;align-items:center;gap:8px}
-.pdot-n{font-family:var(--mono);font-size:10px;color:var(--text3);width:14px;text-align:center}
-.pdot-sw{width:6px;height:6px;border-radius:50%;flex-shrink:0}.pdot-wrap{flex:1;height:14px;position:relative;background:rgba(255,255,255,.03);border-radius:7px;overflow:hidden}
-.pdot-m{position:absolute;top:0;height:100%;border-radius:7px;opacity:.5}
-.pdot-a{position:absolute;top:4px;width:6px;height:6px;border-radius:50%;background:var(--gold);border:1px solid rgba(0,0,0,.3)}
-.pdot-d{font-family:var(--mono);font-size:10px;width:30px;text-align:right}.pdot-ok{color:var(--mint)}.pdot-mid{color:var(--gold)}.pdot-off{color:var(--rose)}
-.expl{font-size:13px;color:var(--text2);font-weight:300;line-height:1.7}.expl strong{color:var(--text);font-weight:500}
-
-/* Settings */
-.sg{margin-bottom:28px}.sgl{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
-.sc{padding:20px}.scr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.scrl{font-size:15px}.scrr{font-family:var(--mono);font-size:13px;color:var(--gold)}
-input[type=range].sl{-webkit-appearance:none;width:100%;height:4px;background:linear-gradient(90deg,var(--cyan),var(--gold),var(--rose));outline:none;border-radius:2px}
-input[type=range].sl::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;background:var(--bg);border:3px solid var(--gold);border-radius:50%;box-shadow:0 0 16px rgba(212,168,75,.25)}
-.se{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--text3)}
-.sab p{font-size:13px;color:var(--text2);line-height:1.7;font-weight:300}.sab p+p{margin-top:10px}.sab strong{color:var(--text);font-weight:500}.sv{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:14px}
-
-/* Nav — 5 tabs */
-.nv{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;display:flex;justify-content:space-around;padding:4px 8px calc(var(--safe-b)+4px);background:linear-gradient(to top,rgba(11,11,20,.97) 60%,transparent);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:100}
-.nb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;background:none;border:none;cursor:pointer;transition:transform .1s}.nb:active{transform:scale(.9)}
-.nb svg{width:20px;height:20px;stroke:var(--text3);stroke-width:1.5;fill:none;transition:stroke .25s}
-.nb span{font-size:9px;color:var(--text3);transition:color .25s}.nb.on svg{stroke:var(--gold)}.nb.on span{color:var(--gold)}
-</style>
-</head>
-<body>
-<div class="amb"><div class="aorb o1" id="o1"></div><div class="aorb o2" id="o2"></div><div class="aorb o3" id="o3"></div></div>
-<div class="app">
-<div class="top"><div class="top-l" id="gr">Good evening</div><div class="top-r" id="tm">--:--:--</div></div>
-<div class="mn">
-
-<!-- CLOCK -->
-<div class="vw on" id="v-c">
-<div class="cw"><canvas id="cc"></canvas></div>
-<div class="gl hr" id="hero"><div class="hr-top"><div class="hr-badge" id="hb">Phase 1 of 9</div><div class="hr-cd" id="hcd"></div></div>
-<div class="hr-ic" id="hi">🌙</div><div class="hr-nm" id="hn">Rest</div><div class="hr-win" id="hw">00:00 → 06:57</div>
-<div class="hr-bar"><div class="hr-bf" id="hp"></div></div>
-<div class="bt"><div class="bt-l">Why this matters</div><div class="bt-t" id="hbt">Loading...</div></div>
-<div class="bs" id="hbs"></div></div>
-<div class="acs" id="ha"></div><div class="gs un" id="hun"></div>
-</div>
-
-<!-- ALIGN -->
-<div class="vw" id="v-a">
-<div class="stit">Optimize <em>Your Day</em></div>
-
-<div class="al-section"><div class="al-label">I woke up at</div>
-<div class="gl al-wake"><div class="al-wake-row">
-<div class="al-wake-display" id="aw-time">07:00</div>
-<div style="display:flex;flex-direction:column;gap:6px">
-<div class="al-wake-btns"><button class="al-wake-btn" onclick="adjWake(30)">+</button><button class="al-wake-btn" onclick="adjWake(-30)">−</button></div>
-</div>
-</div><div class="al-wake-info" id="aw-info">Your circadian model is shifted to match your wake time. All phase boundaries adjust dynamically.</div></div></div>
-
-<div class="al-section"><div class="al-label">What are you doing?</div>
-<div class="gl al-pills" id="act-pills"></div></div>
-
-<div class="al-section"><div class="al-label">Where are you?</div>
-<div class="gl al-pills" id="ctx-pills"></div></div>
-
-<div class="gl al-result" id="al-result"><div style="text-align:center;color:var(--text3);padding:20px 0">Select an activity above to see your alignment</div></div>
-
-<div class="gs al-next" id="al-next" style="display:none"></div>
-</div>
-
-<!-- SCHEDULE -->
-<div class="vw" id="v-s"><div class="stit">Your <em>Daily Rhythm</em></div><div id="sl"></div></div>
-
-<!-- INSIGHTS -->
-<div class="vw" id="v-i">
-<div class="stit">Body <em>Right Now</em></div>
-<div class="gl rn" id="rn"></div>
-<div class="gl ic sring" id="sring"></div>
-<div class="gl ic"><div class="icl">Phase-by-Phase Accuracy</div><div class="pdots" id="pd"></div><div class="il" style="margin-top:12px"><div class="ile"><div class="ild" style="background:var(--cyan);height:6px;width:6px;border-radius:50%"></div>Model</div><div class="ile"><div class="ild" style="background:var(--gold);height:6px;width:6px;border-radius:50%"></div>Artwork</div></div></div>
-<div class="gl ic"><div class="icl">Hormone Composite · 24 h</div><canvas id="ich" height="170"></canvas><div class="il"><div class="ile"><div class="ild" style="background:#f0922a"></div>Cortisol</div><div class="ile"><div class="ild" style="background:#3ec8c0"></div>Temp</div><div class="ile"><div class="ild" style="background:#8b6fe0"></div>Melatonin</div><div class="ile"><div class="ild" style="background:var(--gold);height:3px"></div>Composite</div></div></div>
-<div class="gl ic"><div class="icl">The Science</div><div class="expl">Phase boundaries from a multi-marker composite: <strong>cortisol</strong> (4 harmonics, peak 07:30), <strong>core temperature</strong> (3 harmonics, peak 17:00), <strong>melatonin</strong> (3 harmonics, peak 03:00). F(t) = 0.5C + 0.3T + 0.2M structural points define 9 transitions. Parameters: <strong>Brabant 1990</strong>, <strong>Van Cauter 1999</strong>, <strong>Refinetti 2010</strong>, <strong>Lewy 1999</strong>. Model derived blindly — MAE 10.1° against artwork (p < 0.001).</div></div>
-</div>
-
-<!-- SETTINGS -->
-<div class="vw" id="v-x">
-<div class="stit">Settings</div>
-<div class="sg"><div class="sgl">About</div><div class="gl sc sab">
-<p><strong>The 9-Phase Resonance Clock</strong> maps circadian biology into 9 actionable phases from published biochemical data — not arbitrary time blocks.</p>
-<p>Research by <strong>H.A. Marouf</strong>. Phase boundaries from hormonal oscillation mathematics, validated against independent artwork (R² = 0.993).</p>
-<div class="sv">Abacus Omega Inc. · v4.0</div></div></div>
-</div>
-
-</div>
-<div class="nv">
-<button class="nb on" data-v="c"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Clock</span></button>
-<button class="nb" data-v="a"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><span>Align</span></button>
-<button class="nb" data-v="s"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg><span>Schedule</span></button>
-<button class="nb" data-v="i"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Insights</span></button>
-<button class="nb" data-v="x"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></button>
-</div>
-</div>
-<script>
-var T=24,PI2=Math.PI*2;
-function arrMin(a){var m=a[0];for(var i=1;i<a.length;i++)if(a[i]<m)m=a[i];return m}
-function arrMax(a){var m=a[0];for(var i=1;i<a.length;i++)if(a[i]>m)m=a[i];return m}
-function mkO(p,a){return function(t){var v=0;for(var n=1;n<=a.length;n++)v+=a[n-1]*Math.cos(n*PI2*t/T-PI2*n*p/T);return v}}
-function nrm(fn){var v=[];for(var i=0;i<1e3;i++)v.push(fn(i*T/1e3));var mn=arrMin(v),mx=arrMax(v),r=mx-mn||1;return function(t){return(fn(t)-mn)/r*2-1}}
-var cN=nrm(mkO(7.5,[1,.38,.18,.08])),tN=nrm(mkO(17,[1,.22,.08])),mN=nrm(mkO(3,[1,.35,.12]));
-function F(t){return .5*cN(t)+.3*tN(t)+.2*mN(t)}
-var DT=1e-4;
-function d1(f,t){return(f(t+DT)-f(t-DT))/(2*DT)}
-function d2(f,t){return(f(t+DT)-2*f(t)+f(t-DT))/(DT*DT)}
-function fZ(fn){var N=5e4,dt=T/N,z=[],p=fn(0);for(var i=1;i<=N;i++){var t=i*dt,c=fn(t);if(p*c<0){var lo=(i-1)*dt,hi=t;for(var k=0;k<30;k++){var m=(lo+hi)/2;if(fn(lo)*fn(m)<=0)hi=m;else lo=m}z.push((lo+hi)/2)}p=c}return z}
-function compP(){var e=fZ(function(t){return d1(F,t)}),inf=fZ(function(t){return d2(F,t)}),all=e.concat(inf).sort(function(a,b){return a-b});var th=.5,mg;while(th>=.1){mg=[];for(var i=0;i<all.length;i++){if(!mg.length||all[i]-mg[mg.length-1]>th)mg.push(all[i])}if(mg.length>=9)break;th-=.1}var sc=mg.map(function(t){return{t:t,s:Math.abs(d1(F,t))+.5*Math.abs(F(t))}});sc.sort(function(a,b){return b.s-a.s});var t9=sc.slice(0,9).map(function(x){return x.t}).sort(function(a,b){return a-b});var v=t9.map(function(t){return F(t)});var mi=v.indexOf(Math.min.apply(null,v));var r=t9.slice(mi).concat(t9.slice(0,mi));var o=r[0];return r.map(function(t){return(t-o+T)%T})}
-var MT=compP(),MA=MT.map(function(t){return(t/T)*360});
-var AW=[0,40.1,82,128.3,171.1,196.2,237.2,270,317.6];
-var MAE_V=0;for(var _i=0;_i<9;_i++)MAE_V+=Math.abs(MA[_i]-AW[_i]);MAE_V/=9;
-var aM=0;for(_i=0;_i<9;_i++)aM+=AW[_i];aM/=9;
-var ssR=0,ssT=0;for(_i=0;_i<9;_i++){ssR+=Math.pow(AW[_i]-MA[_i],2);ssT+=Math.pow(AW[_i]-aM,2)}
-var R2_V=1-ssR/ssT;
-var mtch=0;for(_i=0;_i<9;_i++)if(Math.abs(MA[_i]-AW[_i])<=5)mtch++;
-
-var COL=['#3a5a8c','#5a8fd0','#f0922a','#d4c040','#e05a7a','#8060d0','#2ab8a8','#48b888','#9488c8'];
-var BG=[['#1a2a40','#0c1828','#101830'],['#1c2e4a','#0e1c30','#182848'],['#3a2810','#201808','#2a2018'],['#2a2808','#1a1a04','#282408'],['#381828','#200e18','#301428'],['#241838','#140c20','#201430'],['#0c2828','#081818','#102428'],['#102820','#081810','#0c2018'],['#1c1830','#100c20','#181428']];
-
-var stCols={Cortisol:'#f0922a','Core Temp':'#3ec8c0',Melatonin:'#8b6fe0',Alertness:'#d4a84b',Performance:'#5cc4a0'};
-
-var PH=[
-{n:'Rest',ic:'🌙',bite:'Your <strong>growth hormone</strong> surges during deep NREM sleep (Takahashi 1968). Melatonin at ~3 AM peak drives cellular repair. Cortisol at its 24-hour minimum — your body is rebuilding itself.',st:{Cortisol:5,'Core Temp':15,Melatonin:95,Alertness:5,Performance:10},best:['Deep sleep','Cell repair','Memory consolidation','Immune function'],avoid:['Screens','Stimulants','Bright light'],tips:[{i:'😴',t:'Protect your sleep',w:'Growth hormone pulses during NREM — waking disrupts the cycle'},{i:'🌑',t:'Keep it dark',w:'Even dim light (>5 lux) suppresses melatonin by 50%'}]},
-{n:'Preparation',ic:'🌅',bite:'The <strong>cortisol awakening response</strong> (CAR) fires 20–30 min before waking — a 50–75% surge priming your brain (Pruessner 1997). Core temperature begins lifting from 36.2°C.',st:{Cortisol:45,'Core Temp':25,Melatonin:60,Alertness:30,Performance:20},best:['Hydration','Gentle stretching','Light exposure'],avoid:['Heavy meals','Intense exercise','Complex decisions'],tips:[{i:'💧',t:'Hydrate immediately',w:'8h without water + cortisol rise = dehydration'},{i:'🧘',t:'Gentle movement',w:'Matches gradual sympathetic activation'}]},
-{n:'Energy Rise',ic:'⚡',bite:'Cortisol hits its <strong>acrophase</strong> (daily peak) ~07:30. Suppresses melatonin, accelerates metabolism, shifts brain from alpha to beta waves.',st:{Cortisol:95,'Core Temp':45,Melatonin:10,Alertness:70,Performance:55},best:['Morning sunlight','Protein breakfast','Day planning'],avoid:['Social media','Sugar-heavy meals','Skipping breakfast'],tips:[{i:'☀️',t:'Get bright light',w:'Morning light sharpens cortisol peak and sets circadian clock'},{i:'🥚',t:'Eat protein',w:'Cortisol is catabolic — protein offsets muscle breakdown'}]},
-{n:'Focus',ic:'🎯',bite:'Working memory and <strong>executive function peak</strong> now (Valdez 2005). Testosterone at morning max. Dopamine + norepinephrine create optimal neurochemistry.',st:{Cortisol:75,'Core Temp':60,Melatonin:5,Alertness:92,Performance:85},best:['Deep work','Analysis','Writing','Problem solving'],avoid:['Meetings','Multitasking','Social media'],tips:[{i:'🧠',t:'Do your hardest work',w:'Prefrontal cortex peaks with cortisol — this window closes'},{i:'🚫',t:'Block interruptions',w:'23 min to regain deep focus after interruption'}]},
-{n:'Peak',ic:'💪',bite:'<strong>Physical performance</strong> at daily max. Reaction time 10% faster, grip strength peaks, cardiovascular output highest (Atkinson & Reilly 1996).',st:{Cortisol:55,'Core Temp':75,Melatonin:3,Alertness:85,Performance:95},best:['Physical challenges','Big decisions','Presentations'],avoid:['Sedentary work','Routine admin'],tips:[{i:'🏃',t:'Physical challenges',w:'Injury risk lowest — tendon compliance peaks with temp'},{i:'📋',t:'Make big decisions',w:'Alertness + risk assessment both optimal'}]},
-{n:'Reflection',ic:'🍃',bite:'The <strong>post-prandial dip</strong> — biology, not laziness. 12h ultradian oscillators (Hughes 2009) enter trough. Brain shifts to diffuse thinking.',st:{Cortisol:40,'Core Temp':70,Melatonin:5,Alertness:50,Performance:55},best:['Walking','Creative brainstorm','Light reading'],avoid:['Complex analysis','High-stakes decisions'],tips:[{i:'🚶',t:"Walk, don't fight it",w:'15-min walk beats caffeine for alertness'},{i:'💡',t:'Creative thinking',w:'Reduced prefrontal control enhances divergent creativity'}]},
-{n:'Renewal',ic:'🔥',bite:'Core temp at <strong>daily acrophase</strong> ~17:00 (Refinetti 2010). VO₂ max, lung function, cardiovascular efficiency all at daily maximum.',st:{Cortisol:30,'Core Temp':95,Melatonin:5,Alertness:75,Performance:90},best:['Exercise','Strength training','Review & planning'],avoid:['Starting deep work','Heavy caffeine'],tips:[{i:'🏋️',t:'Train now',w:'Strength 6% higher, perceived exertion 10% lower'},{i:'📊',t:'Review and plan',w:'Second alertness wave supports pattern recognition'}]},
-{n:'Transition',ic:'🌆',bite:'<strong>Dim-light melatonin onset</strong> (DLMO) ~20:00 (Lewy 1999). Cortisol steep decline. Shifting from output to recovery mode.',st:{Cortisol:15,'Core Temp':55,Melatonin:40,Alertness:40,Performance:35},best:['Wind-down ritual','Light social time','Journaling'],avoid:['Blue light','Work emails','Heavy exercise'],tips:[{i:'📴',t:'Reduce blue light',w:'Blue wavelengths suppress melatonin onset by 90 min'},{i:'🍵',t:'Wind-down ritual',w:'Consistent routine signals SCN to accelerate melatonin'}]},
-{n:'Closure',ic:'🌌',bite:'Melatonin rising toward <strong>nocturnal plateau</strong>. Temperature dropping ~0.3°C/h. Sleep pressure at threshold.',st:{Cortisol:8,'Core Temp':30,Melatonin:80,Alertness:15,Performance:12},best:['Brief reflection','Sleep prep','Reading fiction'],avoid:['Screens','Problem-solving','News','Caffeine'],tips:[{i:'📝',t:'Brief reflection',w:'Reduces rumination and sleep-onset latency'},{i:'🛏️',t:'Honor the signal',w:'Fighting sleep pressure disrupts first NREM'}]}
+const PHASES = [
+{ id:1, name:“Rest”,        symbol:“🌙”, start:0,    end:6.95,
+fill:”#1a1650”, stroke:”#a5b4fc”, glow:”#818cf8”,
+desc:“Deep restoration & memory consolidation”,
+science:“Growth hormone secretion peaks. Neural synaptic pruning. Hippocampal consolidation via slow-wave sleep. Glymphatic system clears adenosine and metabolic waste.”,
+best:[“Sleep”,“Rest”,“Meditation”], avoid:[“Stimulants”,“Screens”,“Heavy food”] },
+{ id:2, name:“Awakening”,   symbol:“🌅”, start:6.95, end:8.5,
+fill:”#6b2d00”, stroke:”#fcd34d”, glow:”#fbbf24”,
+desc:“Cortisol Awakening Response activates the system”,
+science:“HPA axis cortisol surge (CAR) within 30–45 min of waking. Blood pressure and heart rate rise rapidly. Delay caffeine 90 min to preserve the natural CAR (Brabant 1990).”,
+best:[“Planning”,“Light exercise”,“Journaling”], avoid:[“Caffeine (delay 90 min)”,“High-stakes decisions”] },
+{ id:3, name:“Focus Rise”,  symbol:“⚡”, start:8.5,  end:10.0,
+fill:”#0d3d38”, stroke:”#5eead4”, glow:”#2dd4bf”,
+desc:“Dopamine & norepinephrine build cognitive clarity”,
+science:“Dopamine and norepinephrine rising sharply. Prefrontal cortex activation strengthens. Working memory capacity expanding. Best for structured analytical intake.”,
+best:[“Deep work”,“Writing”,“Analysis”], avoid:[“Multitasking”,“Passive meetings”] },
+{ id:4, name:“Peak Focus”,  symbol:“🎯”, start:10.0, end:12.5,
+fill:”#6b2200”, stroke:”#fb923c”, glow:”#f97316”,
+desc:“Daily apex — cortisol & alertness both maximal”,
+science:“Cortisol and alertness at daily apex (Van Cauter 1999). Reaction time, working memory, and executive function are all optimal. Reserve this window fiercely.”,
+best:[“Complex decisions”,“Learning”,“Problem solving”], avoid:[“Interruptions”,“Low-value tasks”] },
+{ id:5, name:“Integration”, symbol:“🔗”, start:12.5, end:14.5,
+fill:”#053d2f”, stroke:”#34d399”, glow:”#10b981”,
+desc:“Serotonin supports social bonding & consolidation”,
+science:“Post-peak serotonin supports empathy and social bonding. Post-lunch dip (PLD) is physiological, not a failure. Ideal for collaborative synthesis.”,
+best:[“Meetings”,“Collaboration”,“Lunch”], avoid:[“Critical solo analysis”,“Major decisions”] },
+{ id:6, name:“Creative”,    symbol:“🎨”, start:14.5, end:16.5,
+fill:”#3b1580”, stroke:”#c084fc”, glow:”#a78bfa”,
+desc:“Reduced inhibition unlocks divergent thinking”,
+science:“Slightly reduced prefrontal inhibition enables novel associative connections. Core temperature still elevated. Lateral thinking and creative synthesis naturally emerge.”,
+best:[“Brainstorming”,“Art”,“Lateral thinking”], avoid:[“Rigid analysis”,“Detailed editing”] },
+{ id:7, name:“Vitality”,    symbol:“🔥”, start:16.5, end:18.5,
+fill:”#6b1010”, stroke:”#f87171”, glow:”#ef4444”,
+desc:“Core temperature peaks → physical performance apex”,
+science:“Body temperature peaks at ~17:00 (Refinetti 2010). Muscle strength, VO2 max, cardiovascular efficiency, and neuromuscular coordination are all maximal.”,
+best:[“Exercise”,“Sport”,“Physical work”], avoid:[“Demanding mental tasks”] },
+{ id:8, name:“Wind Down”,   symbol:“🌆”, start:18.5, end:21.0,
+fill:”#6b0f3a”, stroke:”#f9a8d4”, glow:”#ec4899”,
+desc:“Parasympathetic shift — serotonin→melatonin conversion”,
+science:“Temperature falling. Serotonin→melatonin conversion begins in pineal gland. Digestive systems optimize. Blue light at 480nm suppresses melatonin onset by up to 50%.”,
+best:[“Light social”,“Cooking”,“Reflection”], avoid:[“Intense exercise”,“Blue light”,“News”] },
+{ id:9, name:“Preparation”, symbol:“🌌”, start:21.0, end:24.0,
+fill:”#091235”, stroke:”#93c5fd”, glow:”#60a5fa”,
+desc:“Melatonin rises — sleep architecture initiating”,
+science:“Pineal gland melatonin secretion rises sharply (Lewy 1999). Core temperature continues dropping. Protect this window: light, alcohol, and stimulants all delay sleep onset.”,
+best:[“Reading”,“Meditation”,“Journaling”], avoid:[“Screens”,“Caffeine”,“Alcohol”] },
 ];
 
-// ═══════════════════════════════════════════════════════
-// ACTIVITIES & CONTEXTS — rich alignment database
-// ═══════════════════════════════════════════════════════
-var ACTS=[
-  {id:'deep_work',ic:'🧠',label:'Deep work',
-   align:[0,0,15,95,70,25,45,10,0],
-   science:{
-     best:'Focus phase — prefrontal cortex at peak capacity, dopamine/norepinephrine optimal for sustained attention (Valdez 2005)',
-     worst:'Rest/Closure — melatonin suppresses executive function, working memory capacity drops 40% (Wright 2006)'},
-   adapt:{
-     perfect:'You\'re perfectly aligned. Block all notifications. Use 90-min Ultradian cycles — your biology supports exactly this right now.',
-     good:'Solid window for deep work. Cortisol still supports focus. Front-load the hardest problems — this window narrows.',
-     misaligned:'Your prefrontal cortex is underpowered right now. If you must do deep work: bright light exposure, cold water on face, and limit to 25-min Pomodoro sprints with breaks.',
-     bad:'Your brain is in diffuse mode — fighting this wastes energy. Switch to creative/associative tasks or defer to tomorrow\'s Focus phase.'}},
-  {id:'exercise',ic:'🏋️',label:'Exercise',
-   align:[0,5,20,30,80,35,95,20,0],
-   science:{
-     best:'Renewal phase — core temperature peaks at 37.2°C, muscle strength +6%, perceived exertion −10%, injury risk lowest (Chtourou 2012)',
-     worst:'Rest — core temp at nadir (36.2°C), joints stiff, cardiovascular output minimal, injury risk highest'},
-   adapt:{
-     perfect:'This is your biological peak for training. Go heavy — your muscles, tendons, and cardiovascular system are all optimized. Reaction time is 10% faster than morning.',
-     good:'Good training window. Core temp is elevated. You\'ll get ~80% of peak performance. HIIT and strength both work here.',
-     misaligned:'Not ideal, but movement is still beneficial. Lower the intensity — walk, yoga, mobility work. Your injury risk is higher when core temp is low.',
-     bad:'Your body is in recovery mode. Light stretching or gentle walking only. Heavy exercise now disrupts melatonin onset and delays sleep.'}},
-  {id:'creative',ic:'🎨',label:'Creative work',
-   align:[0,10,20,40,50,85,60,45,15],
-   science:{
-     best:'Reflection phase — reduced prefrontal inhibition allows divergent thinking, default mode network more active (Wieth & Zacks 2011)',
-     worst:'Focus phase — high prefrontal control favors convergent over divergent thinking'},
-   adapt:{
-     perfect:'Your inner critic is quiet and your associative networks are wide open. This is when the best ideas arrive. Sketch, brainstorm, freewrite — don\'t edit.',
-     good:'Creativity flows here. The mix of moderate alertness and relaxed executive control is ideal for novel connections.',
-     misaligned:'Your brain is in analytical mode — great for editing creative work, not for generating it. Try: listen to music, change environment, take a shower.',
-     bad:'Not a creative window. Your brain is either too sharp (will over-edit) or too foggy (can\'t form connections). Capture loose thoughts and return in Reflection.'}},
-  {id:'meeting',ic:'👥',label:'Meetings',
-   align:[0,10,40,20,75,60,65,30,0],
-   science:{
-     best:'Peak/Renewal — social cognition, verbal fluency, and emotional regulation all track with core temperature curve (Krueger 2007)',
-     worst:'Focus — meetings fragment deep attention, costing 23 min recovery per interruption (Mark 2008)'},
-   adapt:{
-     perfect:'Social cognition is sharp — you\'re reading people well, speaking fluently, and emotionally regulated. Schedule important negotiations here.',
-     good:'You\'re engaged and articulate. Good for collaborative sessions. Your emotional bandwidth supports difficult conversations.',
-     misaligned:'You can take the meeting, but you\'re burning premium focus time. If it\'s routine, try to reschedule to afternoon. If it\'s critical, take it but protect the hour after.',
-     bad:'Low social energy. If avoidable, move it. If not, prepare your key points in advance and keep it short — your verbal processing is sluggish.'}},
-  {id:'eating',ic:'🍽️',label:'Eating',
-   align:[5,20,80,50,55,70,60,30,5],
-   science:{
-     best:'Energy Rise — insulin sensitivity peaks in morning, glucose tolerance ~50% better than evening (Van Cauter 1997). Matches cortisol-driven metabolic activation.',
-     worst:'Closure/Rest — melatonin impairs insulin signaling, late eating raises blood glucose 30% more than identical daytime meals (Garaulet 2013)'},
-   adapt:{
-     perfect:'Your metabolism is firing on all cylinders. Eat your largest meal now — insulin sensitivity is at its daily peak. Protein synthesis is maximized.',
-     good:'Solid eating window. Your digestive system is active. Balanced meal with protein and complex carbs works well here.',
-     misaligned:'Your metabolism is slowing. Eat lighter — smaller portion, more protein, fewer carbs. Your insulin response is weaker in the evening.',
-     bad:'Eating now disrupts your circadian clock via peripheral oscillators (liver, gut). If you must eat, keep it very light — your body treats this food differently at night.'}},
-  {id:'learning',ic:'📚',label:'Learning',
-   align:[0,10,35,80,65,45,55,25,5],
-   science:{
-     best:'Focus — hippocampal long-term potentiation peaks with cortisol plateau, encoding efficiency highest (Lupien 2002)',
-     worst:'Rest — though sleep consolidates learning (Walker 2017), encoding during sleep is impossible'},
-   adapt:{
-     perfect:'Your hippocampus is primed for encoding. Tackle the hardest material. Use active recall — your brain is building the strongest memory traces right now.',
-     good:'Effective learning window. Mix reading with practice problems. Your working memory buffer is large enough for complex material.',
-     misaligned:'Encoding is less efficient. Switch to review and spaced repetition instead of new material. Your brain consolidates better than it acquires right now.',
-     bad:'Don\'t fight your biology. Read something light or listen to a podcast. Save the textbook for Focus phase when your encoding machinery is optimized.'}},
-  {id:'social',ic:'🎉',label:'Socializing',
-   align:[5,10,30,15,60,55,75,60,15],
-   science:{
-     best:'Renewal/Transition — oxytocin and social bonding peak in late afternoon/evening, emotional warmth highest (Carter 2014)',
-     worst:'Focus — social interaction uses the same prefrontal resources needed for deep work'},
-   adapt:{
-     perfect:'Your emotional warmth and social cognition are at their peak. Connection feels natural. This is when relationships deepen.',
-     good:'Good social energy. You\'re present and engaged. Enjoy the company.',
-     misaligned:'You can socialize, but you may feel slightly withdrawn or analytical. That\'s your cortisol talking — it prioritizes task over connection.',
-     bad:'Social battery is low. If you need to be social, set a time limit and give yourself permission to leave. Brief, meaningful interactions over long gatherings.'}},
-  {id:'planning',ic:'📋',label:'Planning',
-   align:[0,15,60,50,65,30,70,25,10],
-   science:{
-     best:'Energy Rise / Renewal — strategic thinking requires both working memory (cortisol) and pattern recognition (temperature). Two daily windows.',
-     worst:'Reflection — executive function in trough, risk assessment impaired'},
-   adapt:{
-     perfect:'Executive function and strategic thinking aligned. Map your week, set priorities, make resource decisions. Your risk assessment is calibrated.',
-     good:'Planning works here. You have enough prefrontal capacity for organization. Focus on the next 24–48 hours.',
-     misaligned:'Big-picture planning is harder. Stick to tactical to-do lists and simple prioritization. Defer strategic decisions.',
-     bad:'Your brain can\'t hold the full picture right now. Jot quick notes for tomorrow. Don\'t make commitments you haven\'t slept on.'}},
-  {id:'meditation',ic:'🧘',label:'Meditating',
-   align:[30,50,40,20,30,60,45,80,70],
-   science:{
-     best:'Transition/Closure — parasympathetic nervous system ascending, GABA increasing, natural shift toward interoception (Benson 2000)',
-     worst:'Energy Rise — cortisol surge creates sympathetic dominance, making stillness feel like fighting the tide'},
-   adapt:{
-     perfect:'Your nervous system is already shifting parasympathetic. Meditation amplifies what your body is naturally doing. Deep practice is effortless here.',
-     good:'Good window for meditation. Your mind may wander more, but body-scan and breath focus work well when the nervous system is receptive.',
-     misaligned:'Meditation is possible but harder. Your sympathetic system is active. Try walking meditation or active breathwork instead of stillness.',
-     bad:'Sitting still will feel like torture — your body wants to move. Switch to active meditation: walking, tai chi, or focused breathing during movement.'}},
-  {id:'sleep_prep',ic:'🛏️',label:'Winding down',
-   align:[60,0,0,0,0,5,15,70,95],
-   science:{
-     best:'Closure — melatonin rising, core temp falling 0.3°C/hr, adenosine (sleep pressure) at threshold per Borbély two-process model',
-     worst:'Energy Rise/Focus — cortisol at peak, melatonin suppressed, body in catabolic activation'},
-   adapt:{
-     perfect:'Your body is already preparing for sleep. Dim the lights, stop screens, and let the melatonin wave carry you. This is the biological green light.',
-     good:'Good time to start transitioning. Lower stimulation gradually. Your body is partway there — help it along.',
-     misaligned:'It\'s not your biological wind-down yet, but if you need sleep early, dim lights aggressively — melatonin responds to darkness within 30 min.',
-     bad:'Your body is wired for action right now. Trying to wind down will cause frustration. Channel the energy productively and revisit this in Transition phase.'}}
+const ACTIVITIES = [
+{ name:“Deep Work”,  icon:“💡”, optimalPhases:[3,4] },
+{ name:“Exercise”,   icon:“🏋️”, optimalPhases:[7,2] },
+{ name:“Creative”,   icon:“🎨”, optimalPhases:[6,3] },
+{ name:“Meetings”,   icon:“👥”, optimalPhases:[5,4] },
+{ name:“Learning”,   icon:“📚”, optimalPhases:[4,3] },
+{ name:“Rest/Nap”,   icon:“😴”, optimalPhases:[1,9] },
+{ name:“Social”,     icon:“🤝”, optimalPhases:[5,8] },
+{ name:“Planning”,   icon:“📋”, optimalPhases:[2,4] },
+{ name:“Meditation”, icon:“🧘”, optimalPhases:[1,9] },
+{ name:“Sport”,      icon:“⚽”, optimalPhases:[7,6] },
 ];
 
-var CTXS=[
-  {id:'home',ic:'🏠',label:'At home'},
-  {id:'office',ic:'🏢',label:'At office'},
-  {id:'gym',ic:'💪',label:'At gym'},
-  {id:'commute',ic:'🚗',label:'Commuting'},
-  {id:'outdoors',ic:'🌳',label:'Outdoors'},
-  {id:'cafe',ic:'☕',label:'Café/public'}
-];
+// Hormone math — Fourier, from published parameters
+function clamp(v){ return Math.max(0.02, Math.min(0.98, v)); }
+function cosH(n,t,p){ return Math.cos(2*Math.PI*n*(t-p)/24); }
+function cortisol(t) { return clamp(0.5+0.32*cosH(1,t,7.5)+0.10*cosH(2,t,7.5)+0.04*cosH(3,t,7.5)+0.02*cosH(4,t,7.5)); }
+function bodyTemp(t) { return clamp(0.5+0.28*cosH(1,t,17.0)+0.07*cosH(2,t,17.0)+0.02*cosH(3,t,17.0)); }
+function melatonin(t){ return clamp(0.5+0.38*cosH(1,t,3.0)+0.08*cosH(2,t,3.0)+0.02*cosH(3,t,3.0)); }
+function composite(t){ return 0.5*cortisol(t)+0.3*bodyTemp(t)+0.2*melatonin(t); }
 
-var CTX_MODS={
-  home:{boost:['meditation','sleep_prep','creative'],hinder:[],tips:['Control your light environment — this is your biggest circadian lever at home','Set a \"screens off\" alarm 60 min before target bedtime']},
-  office:{boost:['deep_work','meeting','planning'],hinder:['sleep_prep','meditation'],tips:['If in Focus phase, put on headphones — even without music, it signals \"do not disturb\"','Request walking meetings during Reflection phase — it\'s biology, not laziness']},
-  gym:{boost:['exercise'],hinder:['deep_work','meeting'],tips:['Train compound movements first while neural drive is highest','If in Renewal phase, push hard — you\'re in your biological performance peak']},
-  commute:{boost:['learning','planning','meditation'],hinder:['deep_work','exercise','creative'],tips:['Use commute for podcast/audiobook learning — hippocampal encoding still works through audio','Practice box breathing (4-4-4-4) to shift from sympathetic to parasympathetic before arriving']},
-  outdoors:{boost:['exercise','social','creative'],hinder:['deep_work'],tips:['Morning outdoor light (>10,000 lux) is the single most powerful circadian signal — 10 min resets your clock','If it\'s evening, the sunset spectrum helps trigger melatonin onset naturally']},
-  cafe:{boost:['creative','learning','planning'],hinder:['deep_work','meditation'],tips:['Moderate ambient noise (~70 dB) actually enhances creative cognition (Mehta 2012)','If in Focus phase, use noise-canceling — café noise helps creativity but hurts analysis']}
-};
-
-var off=0, wakeH=7, selAct=null, selCtx=null;
-
-// Build activity & context pills
-function buildPills(){
-  var ap=document.getElementById('act-pills'),cp=document.getElementById('ctx-pills');
-  ap.innerHTML=ACTS.map(function(a){return '<div class="al-pill" data-act="'+a.id+'"><span class="al-pill-ic">'+a.ic+'</span>'+a.label+'</div>'}).join('');
-  cp.innerHTML=CTXS.map(function(c){return '<div class="al-pill" data-ctx="'+c.id+'"><span class="al-pill-ic">'+c.ic+'</span>'+c.label+'</div>'}).join('');
-  ap.querySelectorAll('.al-pill').forEach(function(p){p.addEventListener('click',function(){
-    ap.querySelectorAll('.al-pill').forEach(function(x){x.classList.remove('sel')});p.classList.add('sel');selAct=p.dataset.act;renderAlign();})});
-  cp.querySelectorAll('.al-pill').forEach(function(p){p.addEventListener('click',function(){
-    cp.querySelectorAll('.al-pill').forEach(function(x){x.classList.remove('sel')});p.classList.add('sel');selCtx=p.dataset.ctx;renderAlign();})});
+// Geometry helpers
+function hDeg(h){ return (h/24)*360; }
+function toXY(cx,cy,r,deg){ const rad=(deg-90)*Math.PI/180; return [cx+r*Math.cos(rad), cy+r*Math.sin(rad)]; }
+function arcD(cx,cy,r1,r2,h1,h2){
+const a1=hDeg(h1), a2=hDeg(Math.min(h2,23.9999));
+const [x1,y1]=toXY(cx,cy,r2,a1),[x2,y2]=toXY(cx,cy,r2,a2);
+const [ix1,iy1]=toXY(cx,cy,r1,a2),[ix2,iy2]=toXY(cx,cy,r1,a1);
+const lg=(a2-a1)>180?1:0;
+return `M${x1},${y1} A${r2},${r2} 0 ${lg},1 ${x2},${y2} L${ix1},${iy1} A${r1},${r1} 0 ${lg},0 ${ix2},${iy2}Z`;
 }
-
-function adjWake(min){wakeH=Math.max(4,Math.min(12,wakeH+min/60));
-  var hh=Math.floor(wakeH),mm=Math.round((wakeH-hh)*60);
-  document.getElementById('aw-time').textContent=hh.toString().padStart(2,'0')+':'+mm.toString().padStart(2,'0');
-  // Compute offset: model default wake ~07:00 (start of phase 3 energy rise)
-  off=wakeH-7;
-  document.getElementById('aw-info').textContent='Clock shifted '+(off>=0?'+':'')+off.toFixed(1)+'h from default. All 9 phase boundaries adjusted to your wake time.';
-  renderAlign();
+function wavePath(cx,cy,rMin,rMax,fn,n=300){
+return Array.from({length:n+1},(_,i)=>{
+const t=(i/n)*24, r=rMin+(rMax-rMin)*fn(t);
+const [x,y]=toXY(cx,cy,r,(i/n)*360);
+return(i===0?“M”:“L”)+x.toFixed(2)+”,”+y.toFixed(2);
+}).join(” “)+“Z”;
 }
-
-function getCur(){
-  var now=new Date(),sec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
-  var shifted=(sec-off*3600+86400)%86400,curDeg=(shifted/86400)*360;
-  var times=MT.map(function(t){return(t+off)%T}),cur=0;
-  for(var i=0;i<9;i++){var sT=times[i],eT=times[(i+1)%9],sD=(sT/T)*360,eD=(eT/T)*360;if(eT>sT?curDeg>=sD&&curDeg<eD:curDeg>=sD||curDeg<eD)cur=i}
-  return cur;
+function fmtShifted(modelHour, offset){
+const s=((modelHour+offset)%24+24)%24;
+return `${Math.floor(s)}:${String(Math.round((s%1)*60)).padStart(2,"0")}`;
 }
+function phaseAt(sh){ return PHASES.find(p=>sh>=p.start&&sh<p.end)||PHASES[0]; }
 
-function renderAlign(){
-  if(!selAct){document.getElementById('al-result').innerHTML='<div style="text-align:center;color:var(--text3);padding:20px 0">Select an activity to see your alignment</div>';document.getElementById('al-next').style.display='none';return;}
-  var cur=getCur(),ph=PH[cur],act=ACTS.find(function(a){return a.id===selAct});
-  var score=act.align[cur];
-  var grade=score>=80?'perfect':score>=50?'good':score>=25?'misaligned':'bad';
-  var gradeLabel=score>=80?'In the zone':score>=50?'Good window':score>=25?'Suboptimal':'Against the grain';
-  var gradeCol=score>=80?'var(--mint)':score>=50?'var(--gold)':score>=25?'var(--rose)':'#ff5555';
+export default function ResonanceClock(){
+const [now,setNow]           = useState(new Date());
+const [wakeHour,setWakeHour] = useState(7.0);
+const [tab,setTab]           = useState(“clock”);
+const [selAct,setSelAct]     = useState(null);
+const [trackLog,setTrackLog] = useState([]);
+const [modal,setModal]       = useState(false);
+const [entry,setEntry]       = useState({energy:3,focus:3,mood:3,note:””});
 
-  // Build score ring
-  var rc=document.createElement('canvas');rc.width=160;rc.height=160;rc.style.width='80px';rc.style.height='80px';rc.className='al-score-ring';
-  var rx=rc.getContext('2d');rx.scale(2,2);
-  rx.beginPath();rx.arc(40,40,32,0,PI2);rx.strokeStyle='rgba(255,255,255,.06)';rx.lineWidth=6;rx.stroke();
-  rx.beginPath();rx.arc(40,40,32,-Math.PI/2,-Math.PI/2+PI2*(score/100));
-  rx.strokeStyle=score>=80?'#5cc4a0':score>=50?'#d4a84b':score>=25?'#e05a7a':'#ff5555';
-  rx.lineWidth=6;rx.lineCap='round';rx.stroke();
-  rx.fillStyle='#eae6dc';rx.font="600 20px 'Outfit'";rx.textAlign='center';rx.textBaseline='middle';rx.fillText(score+'%',40,36);
-  rx.fillStyle='#9a9488';rx.font="300 8px 'Outfit'";rx.fillText('aligned',40,50);
+useEffect(()=>{ const t=setInterval(()=>setNow(new Date()),1000); return()=>clearInterval(t); },[]);
+useEffect(()=>{(async()=>{ try{ const r=await window.storage.get(“rc-log”); if(r?.value)setTrackLog(JSON.parse(r.value)); }catch(*){} })();},[]);
+const saveLog=useCallback(async l=>{ try{ await window.storage.set(“rc-log”,JSON.stringify(l)); }catch(*){} },[]);
+const addEntry=useCallback(()=>{
+const e={…entry,time:now.toISOString(),hour:+curHour.toFixed(2),phase:curPhase.name,phaseId:curPhase.id};
+const nl=[e,…trackLog].slice(0,100);
+setTrackLog(nl); saveLog(nl); setModal(false); setEntry({energy:3,focus:3,mood:3,note:””});
+},[entry,now,trackLog,saveLog]);
 
-  var h='<div class="al-score-row"><div id="al-ring"></div><div class="al-score-info"><div class="al-score-title" style="color:'+gradeCol+'">'+act.ic+' '+act.label+' — '+gradeLabel+'</div><div class="al-score-sub">'+ph.ic+' <strong>'+ph.n+'</strong> phase · '+act.science[score>=50?'best':'worst']+'</div></div></div>';
+const wo        = wakeHour-7.0;   // wakeOffset
+const curHour   = now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
+const shiftedH  = ((curHour-wo)%24+24)%24;
+const curPhase  = useMemo(()=>phaseAt(shiftedH),[shiftedH]);
+const phaseProg = useMemo(()=>(shiftedH-curPhase.start)/(curPhase.end-curPhase.start),[shiftedH,curPhase]);
+const alignScore= useCallback(act=>{
+const r=act.optimalPhases.indexOf(curPhase.id);
+if(r===0)return 95; if(r===1)return 78;
+const d=Math.min(…act.optimalPhases.map(id=>Math.abs(id-curPhase.id)));
+return d===1?60:d===2?42:20;
+},[curPhase]);
+const hormoneData=useMemo(()=>Array.from({length:49},(_,i)=>({hour:i/2,cortisol:+cortisol(i/2).toFixed(3),temp:+bodyTemp(i/2).toFixed(3),melatonin:+melatonin(i/2).toFixed(3),composite:+composite(i/2).toFixed(3)})),[]);
 
-  h+='<div class="al-verdict"><div class="al-verdict-lbl" style="color:'+gradeCol+'">'+gradeLabel+'</div><div class="al-verdict-txt">'+act.adapt[grade]+'</div></div>';
+// SVG layout
+const CX=220, CY=220, SZ=440;
+const R_TICK_IN=198, R_TICK_OUT=210, R_HLABEL=224;
+const R_ARC_OUT=194, R_ARC_IN=150;   // 44px band
+const R_ARC_MID=(R_ARC_IN+R_ARC_OUT)/2;   // 172
+const R_PROG=148;
+const R_WAVE_OUT=142, R_WAVE_IN=106;
+const R_PETAL=88, R_CENTER=70;
 
-  // Context tips
-  if(selCtx){
-    var ctx=CTX_MODS[selCtx];
-    var boosted=ctx.boost.indexOf(selAct)>=0;
-    var hindered=ctx.hinder.indexOf(selAct)>=0;
-    h+='<div class="al-verdict"><div class="al-verdict-lbl" style="color:'+(boosted?'var(--mint)':hindered?'var(--rose)':'var(--gold)')+'">'+CTXS.find(function(c){return c.id===selCtx}).ic+' '+(boosted?'Environment supports this':hindered?'Environment works against this':'Neutral environment')+'</div>';
-    h+='<div class="al-tips">';
-    ctx.tips.forEach(function(tip){h+='<div class="al-tip"><div class="al-tip-ic">💡</div><div class="al-tip-content"><div class="al-tip-w">'+tip+'</div></div></div>'});
-    h+='</div></div>';
-  }
+const needleDeg=hDeg(shiftedH);
+const [nTX,nTY]=toXY(CX,CY,R_ARC_OUT+9,needleDeg);
+const [nBX,nBY]=toXY(CX,CY,18,(needleDeg+180)%360);
 
-  // What to do right now — always show top 3 aligned activities for this phase
-  h+='<div class="al-verdict"><div class="al-verdict-lbl" style="color:var(--mint)">Best activities for '+ph.n+' phase</div><div class="al-tips">';
-  var ranked=ACTS.slice().sort(function(a,b){return b.align[cur]-a.align[cur]}).slice(0,3);
-  ranked.forEach(function(a){h+='<div class="al-tip"><div class="al-tip-ic">'+a.ic+'</div><div class="al-tip-content"><div class="al-tip-t">'+a.label+' — '+a.align[cur]+'% aligned</div><div class="al-tip-w">'+a.adapt[a.align[cur]>=80?'perfect':a.align[cur]>=50?'good':'misaligned']+'</div></div></div>'});
-  h+='</div></div>';
+const progEndH=curPhase.start+(curPhase.end-curPhase.start)*phaseProg;
+const [pAX,pAY]=toXY(CX,CY,R_PROG,hDeg(curPhase.start));
+const [pBX,pBY]=toXY(CX,CY,R_PROG,hDeg(Math.min(progEndH,23.9999)));
+const progLA=(hDeg(progEndH)-hDeg(curPhase.start))>180?1:0;
+const timeStr=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+const secStr=String(now.getSeconds()).padStart(2,“0”);
 
-  document.getElementById('al-result').innerHTML=h;
-  document.getElementById('al-result').querySelector('#al-ring')||0;
-  // Insert canvas
-  var ringSlot=document.querySelector('.al-score-row');
-  if(ringSlot){ringSlot.insertBefore(rc,ringSlot.firstChild)}
+return (
+<div style={{minHeight:“100vh”,fontFamily:”‘DM Sans’,sans-serif”,background:”#040810”,maxWidth:480,margin:“0 auto”,color:“white”,display:“flex”,flexDirection:“column”}}>
+<style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&family=Cinzel:wght@500;700&display=swap'); *{box-sizing:border-box;-webkit-font-smoothing:antialiased;} ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px;} .su{animation:su .22s ease-out;}@keyframes su{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} .fi{animation:fi .2s;}@keyframes fi{from{opacity:0}to{opacity:1}} button{cursor:pointer;} textarea{font-family:'DM Sans',sans-serif;color:white;}`}</style>
 
-  // Up next card
-  var ni=(cur+1)%9,times=MT.map(function(t){return(t+off)%T});
-  var nextBest=ACTS.slice().sort(function(a,b){return b.align[ni]-a.align[ni]})[0];
-  document.getElementById('al-next').style.display='flex';
-  document.getElementById('al-next').innerHTML='<div class="al-next-bar" style="background:'+COL[ni]+'"></div><div class="al-next-content"><div class="al-next-lbl">Coming up · '+PH[ni].n+'</div><div class="al-next-name">Best activity: '+nextBest.ic+' '+nextBest.label+' ('+nextBest.align[ni]+'%)</div><div class="al-next-sub">Switch at '+fm(times[ni])+'</div></div><div class="al-next-time">'+fm(times[ni])+'</div>';
+```
+  {/* HEADER */}
+  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
+    <div>
+      <div style={{fontFamily:"Cinzel,serif",fontSize:14,fontWeight:700,letterSpacing:"0.22em",color:curPhase.glow}}>RESONANCE</div>
+      <div style={{fontSize:10,color:"rgba(255,255,255,0.3)",letterSpacing:"0.04em"}}>9-Phase Circadian Clock · H.A. Marouf</div>
+    </div>
+    <div style={{display:"flex",alignItems:"center",gap:8}}>
+      <div style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>{now.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</div>
+      <button onClick={()=>setModal(true)} style={{fontSize:11,padding:"5px 12px",borderRadius:20,border:`1px solid ${curPhase.glow}50`,color:curPhase.glow,background:curPhase.glow+"14"}}>+ Track</button>
+    </div>
+  </div>
+
+  {/* TABS */}
+  <div style={{display:"flex",background:"rgba(0,0,0,0.5)",borderBottom:"1px solid rgba(255,255,255,0.06)"}}>
+    {[["clock","🕐","Clock"],["align","🎯","Align"],["insights","📊","Insights"],["science","🔬","Science"]].map(([id,ic,lb])=>(
+      <button key={id} onClick={()=>setTab(id)} style={{flex:1,padding:"7px 0",fontSize:11,fontWeight:500,background:"transparent",border:"none",borderBottom:`2px solid ${tab===id?curPhase.glow:"transparent"}`,color:tab===id?curPhase.glow:"rgba(255,255,255,0.35)",transition:"color .2s,border-color .2s"}}>
+        <div style={{fontSize:13}}>{ic}</div><div>{lb}</div>
+      </button>
+    ))}
+  </div>
+
+  <div style={{flex:1,overflowY:"auto",paddingBottom:28}}>
+
+    {/* ══════════════════ CLOCK TAB ══════════════════ */}
+    {tab==="clock" && <div className="su">
+      <div style={{padding:"6px 2px 0"}}>
+      <svg viewBox={`0 0 ${SZ} ${SZ}`} width="100%" style={{display:"block"}}>
+        <defs>
+          <filter id="gw4"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="gw7"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="gw2"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          {PHASES.map(p=>(
+            <radialGradient key={`rg${p.id}`} id={`rg${p.id}`} cx="50%" cy="50%" r="50%">
+              <stop offset="0%"  stopColor={p.stroke} stopOpacity="1"/>
+              <stop offset="55%" stopColor={p.fill}   stopOpacity="1"/>
+              <stop offset="100%" stopColor={p.fill}  stopOpacity="0.75"/>
+            </radialGradient>
+          ))}
+          <radialGradient id="centGr" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stopColor={curPhase.fill} stopOpacity="0.65"/>
+            <stop offset="100%" stopColor="#030608"       stopOpacity="1"/>
+          </radialGradient>
+        </defs>
+
+        {/* Outer ambient glow */}
+        <circle cx={CX} cy={CY} r={R_ARC_OUT+24} fill="none" stroke={curPhase.glow} strokeWidth="48" strokeOpacity="0.032"/>
+
+        {/* Hour ticks */}
+        {Array.from({length:24},(_,i)=>{
+          const a=hDeg(i),maj=i%6===0,min3=i%3===0;
+          const [x1,y1]=toXY(CX,CY,R_TICK_IN,a);
+          const [x2,y2]=toXY(CX,CY,R_TICK_OUT+(maj?9:min3?5:2),a);
+          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
+            stroke={maj?"rgba(255,255,255,0.8)":min3?"rgba(255,255,255,0.38)":"rgba(255,255,255,0.13)"}
+            strokeWidth={maj?1.8:min3?1:0.7}/>;
+        })}
+
+        {/* Hour labels every 3h */}
+        {[0,3,6,9,12,15,18,21].map(h=>{
+          const [lx,ly]=toXY(CX,CY,R_HLABEL,hDeg(h));
+          return <text key={h} x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
+            fontSize="8.5" fill="rgba(255,255,255,0.6)" fontFamily="DM Mono,monospace" fontWeight="500">
+            {h===0?"12a":h===12?"12p":h>12?`${h}p`:`${h}a`}
+          </text>;
+        })}
+
+        {/* ── PHASE ARCS ── */}
+        {PHASES.map(p=>{
+          const active=p.id===curPhase.id;
+          return (
+            <g key={`pa${p.id}`}>
+              <path d={arcD(CX,CY,R_ARC_IN,R_ARC_OUT,p.start,p.end)}
+                fill={active?`url(#rg${p.id})`:p.fill}
+                stroke={p.stroke} strokeWidth={active?2:0.6}
+                opacity={active?1:0.72}
+                filter={active?"url(#gw4)":"none"}/>
+              {active && <>
+                <path d={arcD(CX,CY,R_ARC_OUT,R_ARC_OUT+6,p.start,p.end)} fill={p.stroke} fillOpacity="0.45" filter="url(#gw4)"/>
+                <path d={arcD(CX,CY,R_ARC_IN,R_ARC_IN+5,p.start,p.end)} fill={p.stroke} fillOpacity="0.22" filter="url(#gw2)"/>
+              </>}
+            </g>
+          );
+        })}
+
+        {/* Phase boundary divider lines */}
+        {PHASES.map(p=>{
+          const [x1,y1]=toXY(CX,CY,R_ARC_IN-3,hDeg(p.start));
+          const [x2,y2]=toXY(CX,CY,R_ARC_OUT+5,hDeg(p.start));
+          return <line key={`dv${p.id}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#040810" strokeWidth="2.2"/>;
+        })}
+
+        {/* ── PHASE LABELS: emoji (centered, no rotation — always readable) ── */}
+        {PHASES.map(p=>{
+          const mid=(p.start+p.end)/2;
+          const [tx,ty]=toXY(CX,CY,R_ARC_MID,hDeg(mid));
+          const active=p.id===curPhase.id;
+          return (
+            <g key={`lbl${p.id}`}>
+              {/* Subtle bg pill for active */}
+              {active && <ellipse cx={tx} cy={ty} rx="13" ry="16" fill={p.stroke} fillOpacity="0.18"/>}
+              {/* Emoji — always horizontal, always readable */}
+              <text x={tx} y={ty-4} textAnchor="middle" dominantBaseline="middle"
+                fontSize={active?"15":"12"} opacity={active?1:0.82}>{p.symbol}</text>
+              {/* Phase number — tiny, below emoji */}
+              <text x={tx} y={ty+10} textAnchor="middle" dominantBaseline="middle"
+                fontFamily="DM Mono,monospace" fontWeight="600"
+                fontSize={active?"9":"8"} fill={active?"white":p.stroke} fillOpacity={active?1:0.7}>{p.id}</text>
+            </g>
+          );
+        })}
+
+        {/* ── PROGRESS TRACK ── */}
+        <path d={arcD(CX,CY,R_PROG-2,R_PROG+2,curPhase.start,curPhase.end)} fill="rgba(255,255,255,0.05)"/>
+        {phaseProg>0.015 && <path d={`M${pAX},${pAY} A${R_PROG},${R_PROG} 0 ${progLA},1 ${pBX},${pBY}`}
+          fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeOpacity="0.88"
+          filter="url(#gw2)"/>}
+
+        {/* Ring separators */}
+        <circle cx={CX} cy={CY} r={R_ARC_IN}    fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.2"/>
+        <circle cx={CX} cy={CY} r={R_WAVE_OUT+3} fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth="0.8"/>
+        <circle cx={CX} cy={CY} r={R_WAVE_IN-3}  fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth="0.8"/>
+
+        {/* ── HORMONE WAVE RING ── */}
+        {/* Dark background for the ring */}
+        <path d={arcD(CX,CY,R_WAVE_IN,R_WAVE_OUT,0,24)} fill="#030609" fillOpacity="0.97"/>
+
+        {/* Three individual hormone curves — each distinct color, no fill */}
+        <path d={wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,cortisol)}
+          fill="none" stroke="#fbbf24" strokeWidth="1.4" strokeOpacity="0.7"/>
+        <path d={wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,bodyTemp)}
+          fill="none" stroke="#f97316" strokeWidth="1.4" strokeOpacity="0.7"/>
+        <path d={wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,melatonin)}
+          fill="none" stroke="#818cf8" strokeWidth="1.4" strokeOpacity="0.7"/>
+
+        {/* Composite F(t) — prominent, phase-colored, no fill, dashed */}
+        <path d={wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,composite)}
+          fill="none" stroke={curPhase.glow} strokeWidth="2.2" strokeOpacity="0.92"/>
+
+        {/* Midpoint baseline dashed ring */}
+        <circle cx={CX} cy={CY} r={(R_WAVE_IN+R_WAVE_OUT)/2}
+          fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="0.6" strokeDasharray="3,4"/>
+
+        {/* Hormone legend dots — inside wave ring, at inner edge */}
+        {[{l:"C",c:"#fbbf24",a:5},{l:"T",c:"#f97316",a:40},{l:"M",c:"#818cf8",a:75},{l:"F",c:curPhase.glow,a:110}].map(({l,c,a})=>{
+          const [lx,ly]=toXY(CX,CY,R_WAVE_IN-8,a);
+          return <g key={l}>
+            <circle cx={lx} cy={ly} r="5.5" fill={c} fillOpacity="0.92"/>
+            <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
+              fontSize="5" fontWeight="700" fill="#020507" fontFamily="DM Mono,monospace">{l}</text>
+          </g>;
+        })}
+
+        {/* ── 9-PETAL MANDALA ── */}
+        <circle cx={CX} cy={CY} r={R_WAVE_IN-4} fill="#040810"/>
+        {Array.from({length:9},(_,i)=>{
+          const angle=(i/9)*360, ph=PHASES[i], active=ph.id===curPhase.id;
+          const [px,py]=toXY(CX,CY,R_PETAL,angle);
+          return <ellipse key={`pt${i}`} cx={px} cy={py} rx="9" ry="17"
+            transform={`rotate(${angle},${px},${py})`}
+            fill={ph.glow} fillOpacity={active?0.42:0.09}
+            stroke={ph.glow} strokeWidth="0.7" strokeOpacity={active?0.88:0.28}
+            filter={active?"url(#gw2)":"none"}/>;
+        })}
+
+        {/* ── CENTER ── */}
+        <circle cx={CX} cy={CY} r={R_CENTER+9} fill="#040810"/>
+        <circle cx={CX} cy={CY} r={R_CENTER}   fill="url(#centGr)"/>
+        <circle cx={CX} cy={CY} r={R_CENTER}   fill="none" stroke={curPhase.stroke} strokeWidth="1.8" strokeOpacity="0.72"/>
+        <circle cx={CX} cy={CY} r={R_CENTER+6} fill="none" stroke={curPhase.glow}   strokeWidth="0.6" strokeOpacity="0.2"/>
+
+        <text x={CX} y={CY-26} textAnchor="middle" fontSize="19">{curPhase.symbol}</text>
+        <text x={CX} y={CY-10} textAnchor="middle" fontSize="7.5"
+          fontFamily="Cinzel,serif" fontWeight="600" fill={curPhase.stroke} letterSpacing="2.5">
+          {curPhase.name.toUpperCase()}</text>
+        <text x={CX} y={CY+8} textAnchor="middle" fontSize="21"
+          fontFamily="DM Mono,monospace" fontWeight="600" fill="white">
+          {timeStr}<tspan fontSize="10" fill="rgba(255,255,255,0.36)">.{secStr}</tspan></text>
+        <text x={CX} y={CY+24} textAnchor="middle" fontSize="7.5"
+          fontFamily="DM Sans,sans-serif" fill="rgba(255,255,255,0.3)">Phase {curPhase.id} of 9</text>
+        <rect x={CX-26} y={CY+30} width="52" height="2.5" rx="1.5" fill="rgba(255,255,255,0.07)"/>
+        <rect x={CX-26} y={CY+30} width={52*Math.min(phaseProg,1)} height="2.5" rx="1.5" fill={curPhase.stroke} opacity="0.85"/>
+
+        {/* ── NEEDLE ── */}
+        <line x1={nBX} y1={nBY} x2={nTX} y2={nTY}
+          stroke="white" strokeWidth="2" strokeLinecap="round"
+          style={{filter:"drop-shadow(0 0 6px rgba(255,255,255,0.85))"}}/>
+        <circle cx={nTX} cy={nTY} r="3.5" fill="white" style={{filter:"drop-shadow(0 0 5px white)"}}/>
+        <circle cx={CX} cy={CY} r="7.5" fill={curPhase.stroke} filter="url(#gw2)"/>
+        <circle cx={CX} cy={CY} r="4"   fill="white"/>
+      </svg>
+      </div>
+
+      {/* CLOCK ANATOMY LEGEND */}
+      <div style={{margin:"4px 12px 10px",padding:"11px 13px",borderRadius:12,background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)"}}>
+        <p style={{fontSize:9,color:"rgba(255,255,255,0.3)",letterSpacing:"0.12em",marginBottom:9,fontFamily:"DM Mono,monospace"}}>CLOCK ANATOMY</p>
+        <div style={{display:"flex",flexDirection:"column",gap:7}}>
+          {[
+            [{sw:curPhase.stroke,lb:"OUTER RING",ds:"9 colored circadian phase arcs"},{sw:"white",lb:"PROGRESS ARC",ds:"How far through current phase"}],
+            [{sw:curPhase.glow,  lb:"F(t) WAVE", ds:"Composite hormone curve (inner ring)"},{sw:"#fbbf24",lb:"C · Cortisol",ds:"Peaks ~07:30 — Brabant 1990"}],
+            [{sw:"#f97316",lb:"T · Body Temp",ds:"Peaks ~17:00 — Refinetti 2010"},{sw:"#818cf8",lb:"M · Melatonin",ds:"Peaks ~03:00 — Lewy 1999"}],
+          ].map((row,i)=>(
+            <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"6px 14px"}}>
+              {row.map(({sw,lb,ds})=>(
+                <div key={lb} style={{display:"flex",alignItems:"flex-start",gap:7}}>
+                  <div style={{width:9,height:9,borderRadius:2,background:sw,flexShrink:0,marginTop:1,border:"1px solid rgba(255,255,255,0.12)"}}/>
+                  <div>
+                    <div style={{fontSize:9,fontFamily:"DM Mono,monospace",color:"rgba(255,255,255,0.75)",lineHeight:1.2}}>{lb}</div>
+                    <div style={{fontSize:9,color:"rgba(255,255,255,0.3)",lineHeight:1.3}}>{ds}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* PHASE COLOR MAP */}
+      <div style={{margin:"0 12px 10px"}}>
+        <p style={{fontSize:9,color:"rgba(255,255,255,0.3)",letterSpacing:"0.12em",marginBottom:7,fontFamily:"DM Mono,monospace"}}>PHASE REFERENCE MAP</p>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
+          {PHASES.map(p=>{
+            const active=p.id===curPhase.id;
+            return (
+              <div key={p.id} style={{padding:"7px 8px",borderRadius:9,
+                background:active?p.fill+"b0":"rgba(255,255,255,0.04)",
+                border:`1px solid ${active?p.stroke+"75":"rgba(255,255,255,0.08)"}`,
+                display:"flex",alignItems:"center",gap:6}}>
+                <div style={{width:8,height:8,borderRadius:2,background:p.stroke,flexShrink:0}}/>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:9.5,fontFamily:"DM Mono,monospace",fontWeight:500,
+                    color:active?p.stroke:"rgba(255,255,255,0.65)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+                    {p.name}</div>
+                  <div style={{fontSize:8,color:"rgba(255,255,255,0.28)",marginTop:1}}>{fmtShifted(p.start,wo)}</div>
+                </div>
+                <div style={{fontSize:12}}>{p.symbol}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* PHASE INFO CARD */}
+      <div style={{margin:"0 12px 10px",borderRadius:14,overflow:"hidden",border:`1px solid ${curPhase.stroke}32`,background:`linear-gradient(135deg,${curPhase.fill}75,#040810 65%)`}}>
+        <div style={{padding:14}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <span style={{fontSize:28}}>{curPhase.symbol}</span>
+              <div>
+                <h2 style={{fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,color:curPhase.stroke,margin:0}}>{curPhase.name}</h2>
+                <p style={{fontSize:11,color:"rgba(255,255,255,0.5)",margin:"2px 0 0"}}>{curPhase.desc}</p>
+              </div>
+            </div>
+            <div style={{textAlign:"right",fontFamily:"DM Mono,monospace",fontSize:11,color:"rgba(255,255,255,0.35)",flexShrink:0,marginLeft:8}}>
+              <div>{fmtShifted(curPhase.start,wo)}</div>
+              <div>→ {fmtShifted(curPhase.end>=24?0:curPhase.end,wo)}</div>
+            </div>
+          </div>
+          <div style={{height:4,borderRadius:2,background:"rgba(255,255,255,0.08)",overflow:"hidden",marginBottom:4}}>
+            <div style={{height:"100%",borderRadius:2,width:`${phaseProg*100}%`,background:`linear-gradient(90deg,${curPhase.fill},${curPhase.stroke})`,transition:"width 1s"}}/>
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:"rgba(255,255,255,0.28)",marginBottom:10}}>
+            <span>{(phaseProg*100).toFixed(0)}% complete</span>
+            <span>{((1-phaseProg)*(curPhase.end-curPhase.start)*60).toFixed(0)} min remaining</span>
+          </div>
+          <p style={{fontSize:11,lineHeight:1.6,color:"rgba(255,255,255,0.6)",marginBottom:10}}>{curPhase.science}</p>
+          <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+            {curPhase.best.map(a=><span key={a} style={{fontSize:10,padding:"3px 9px",borderRadius:20,background:curPhase.stroke+"22",color:curPhase.stroke,border:`1px solid ${curPhase.stroke}35`}}>✓ {a}</span>)}
+            {curPhase.avoid.map(a=><span key={a} style={{fontSize:10,padding:"3px 9px",borderRadius:20,background:"rgba(239,68,68,0.1)",color:"#f87171",border:"1px solid rgba(239,68,68,0.18)"}}>✗ {a}</span>)}
+          </div>
+        </div>
+      </div>
+
+      {/* WAKE TIME */}
+      <div style={{margin:"0 12px 10px",padding:"11px 14px",borderRadius:12,background:"rgba(0,0,0,0.45)",border:"1px solid rgba(255,255,255,0.08)"}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div>
+            <div style={{fontSize:12,fontWeight:600,color:"white"}}>Wake time</div>
+            <div style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>Shifts all 9 phase boundaries</div>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <button onClick={()=>setWakeHour(h=>Math.max(4,+(h-.5).toFixed(1)))} style={{width:30,height:30,borderRadius:15,border:"1px solid rgba(255,255,255,0.15)",background:"rgba(255,255,255,0.06)",color:"white",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
+            <span style={{fontSize:15,fontWeight:700,fontFamily:"DM Mono,monospace",color:"white",width:44,textAlign:"center"}}>
+              {Math.floor(wakeHour)}:{(wakeHour%1*60).toFixed(0).padStart(2,"0")}
+            </span>
+            <button onClick={()=>setWakeHour(h=>Math.min(11,+(h+.5).toFixed(1)))} style={{width:30,height:30,borderRadius:15,border:"1px solid rgba(255,255,255,0.15)",background:"rgba(255,255,255,0.06)",color:"white",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
+          </div>
+        </div>
+      </div>
+
+      {/* UPCOMING */}
+      <div style={{margin:"0 12px"}}>
+        <p style={{fontSize:9,color:"rgba(255,255,255,0.3)",letterSpacing:"0.12em",marginBottom:7,fontFamily:"DM Mono,monospace"}}>UPCOMING PHASES</p>
+        <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4}}>
+          {PHASES.map(p=>{
+            const past=p.id<curPhase.id,cur=p.id===curPhase.id;
+            return <div key={p.id} style={{flexShrink:0,padding:"7px 9px",borderRadius:10,textAlign:"center",minWidth:56,
+              background:cur?p.fill+"65":"rgba(255,255,255,0.04)",
+              border:`1px solid ${cur?p.stroke+"65":"rgba(255,255,255,0.07)"}`,opacity:past?0.35:1}}>
+              <div style={{fontSize:15}}>{p.symbol}</div>
+              <div style={{fontSize:8.5,fontFamily:"DM Mono,monospace",color:cur?p.stroke:"rgba(255,255,255,0.45)",marginTop:3}}>{fmtShifted(p.start,wo)}</div>
+              <div style={{fontSize:7.5,color:cur?p.stroke:"rgba(255,255,255,0.28)",marginTop:1}}>{p.id}</div>
+            </div>;
+          })}
+        </div>
+      </div>
+    </div>}
+
+    {/* ══════════════════ ALIGN TAB ══════════════════ */}
+    {tab==="align" && <div className="su" style={{padding:12,display:"flex",flexDirection:"column",gap:12}}>
+      <div style={{borderRadius:12,padding:12,display:"flex",alignItems:"center",gap:12,border:`1px solid ${curPhase.stroke}35`,background:`linear-gradient(135deg,${curPhase.fill}55,rgba(0,0,0,0.5))`}}>
+        <span style={{fontSize:32}}>{curPhase.symbol}</span>
+        <div>
+          <p style={{fontFamily:"Cinzel,serif",fontSize:13,fontWeight:700,color:curPhase.stroke,margin:0}}>{curPhase.name}</p>
+          <p style={{fontSize:11,color:"rgba(255,255,255,0.5)",margin:"2px 0 0"}}>{curPhase.desc}</p>
+        </div>
+      </div>
+      <p style={{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",margin:0,fontFamily:"DM Mono,monospace"}}>SELECT ACTIVITY — SEE BIOLOGICAL ALIGNMENT</p>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+        {ACTIVITIES.map(act=>{
+          const score=alignScore(act),sel=selAct?.name===act.name,col=score>=80?"#10b981":score>=60?"#f59e0b":"#ef4444";
+          return <button key={act.name} onClick={()=>setSelAct(act)} style={{padding:12,borderRadius:12,textAlign:"left",border:`1px solid ${sel?curPhase.stroke+"60":"rgba(255,255,255,0.08)"}`,background:sel?curPhase.glow+"18":"rgba(0,0,0,0.4)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+              <span style={{fontSize:22}}>{act.icon}</span>
+              <span style={{fontSize:12,fontWeight:700,fontFamily:"DM Mono,monospace",color:col}}>{score}%</span>
+            </div>
+            <p style={{fontSize:12,fontWeight:600,color:"white",margin:"6px 0 5px"}}>{act.name}</p>
+            <div style={{height:2.5,borderRadius:1.5,background:"rgba(255,255,255,0.07)"}}>
+              <div style={{width:`${score}%`,height:"100%",borderRadius:1.5,background:col}}/>
+            </div>
+          </button>;
+        })}
+      </div>
+      {selAct&&(()=>{
+        const score=alignScore(selAct),col=score>=80?"#10b981":score>=60?"#f59e0b":"#ef4444";
+        const best=PHASES.find(p=>p.id===selAct.optimalPhases[0]);
+        const label=score>=80?"Excellent — peak biological window":score>=60?"Good — workable alignment":"Low — suboptimal timing";
+        const advice=score>=80
+          ?`${curPhase.name} is the biological sweet spot for ${selAct.name}. Take full advantage.`
+          :score>=60
+          ?`Moderate alignment. ${selAct.name} works now, but ${best?.name} (${fmtShifted(best?.start??0,wo)}) is meaningfully better.`
+          :`${selAct.name} performs best during ${best?.name} at ${fmtShifted(best?.start??0,wo)}. Consider waiting or adjusting approach.`;
+        return <div style={{borderRadius:12,padding:14,border:`1px solid ${col}28`,background:col+"10"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <span style={{fontSize:22}}>{selAct.icon}</span>
+              <span style={{fontSize:14,fontWeight:600,color:"white"}}>{selAct.name}</span>
+            </div>
+            <div style={{position:"relative",width:52,height:52}}>
+              <svg viewBox="0 0 44 44" width="52" height="52">
+                <circle cx="22" cy="22" r="17" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="4.5"/>
+                <circle cx="22" cy="22" r="17" fill="none" stroke={col} strokeWidth="4.5"
+                  strokeDasharray={`${score*1.069} 106.9`} strokeLinecap="round" transform="rotate(-90 22 22)"/>
+              </svg>
+              <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:col,fontFamily:"DM Mono,monospace"}}>{score}%</div>
+            </div>
+          </div>
+          <p style={{fontSize:11,fontWeight:600,color:col,margin:"0 0 5px"}}>{label}</p>
+          <p style={{fontSize:11,lineHeight:1.55,color:"rgba(255,255,255,0.55)",margin:"0 0 10px"}}>{advice}</p>
+          {score<80&&best&&<div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",borderRadius:8,background:best.glow+"16",border:`1px solid ${best.glow}28`}}>
+            <span style={{fontSize:18}}>{best.symbol}</span>
+            <div>
+              <p style={{fontSize:11,fontWeight:600,color:best.stroke,margin:0}}>Optimal: {best.name}</p>
+              <p style={{fontSize:10,color:"rgba(255,255,255,0.38)",margin:"1px 0 0",fontFamily:"DM Mono,monospace"}}>{fmtShifted(best.start,wo)} – {fmtShifted(best.end>=24?0:best.end,wo)}</p>
+            </div>
+          </div>}
+        </div>;
+      })()}
+    </div>}
+
+    {/* ══════════════════ INSIGHTS TAB ══════════════════ */}
+    {tab==="insights" && <div className="su" style={{padding:12,display:"flex",flexDirection:"column",gap:14}}>
+      <div>
+        <p style={{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",marginBottom:7,fontFamily:"DM Mono,monospace"}}>LIVE HORMONE LEVELS · BIOLOGICAL MODEL</p>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+          {[{name:"Cortisol",val:cortisol(curHour),color:"#fbbf24",peak:"07:30",icon:"⚡",ref:"Brabant 1990"},
+            {name:"Core Temp",val:bodyTemp(curHour),color:"#f97316",peak:"17:00",icon:"🌡",ref:"Refinetti 2010"},
+            {name:"Melatonin",val:melatonin(curHour),color:"#818cf8",peak:"03:00",icon:"🌙",ref:"Lewy 1999"}].map(h=>(
+            <div key={h.name} style={{borderRadius:12,padding:"11px 8px",textAlign:"center",border:"1px solid rgba(255,255,255,0.07)",background:"rgba(0,0,0,0.45)"}}>
+              <div style={{fontSize:18}}>{h.icon}</div>
+              <p style={{fontSize:9,color:"rgba(255,255,255,0.4)",margin:"5px 0 2px",fontFamily:"DM Mono,monospace"}}>{h.name}</p>
+              <p style={{fontSize:22,fontWeight:700,color:h.color,fontFamily:"DM Mono,monospace",margin:0}}>{(h.val*100).toFixed(0)}<span style={{fontSize:10,fontWeight:400}}>%</span></p>
+              <div style={{height:3,borderRadius:2,background:"rgba(255,255,255,0.07)",overflow:"hidden",margin:"7px 0 5px"}}>
+                <div style={{width:`${h.val*100}%`,height:"100%",background:h.color,borderRadius:2}}/>
+              </div>
+              <div style={{fontSize:8,color:"rgba(255,255,255,0.22)",fontFamily:"DM Mono,monospace"}}>
+                <div>Peak {h.peak}</div><div>{h.ref}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div>
+        <p style={{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",marginBottom:7,fontFamily:"DM Mono,monospace"}}>24H HORMONE MODEL · F(t)=0.5C+0.3T+0.2M</p>
+        <div style={{borderRadius:12,padding:12,border:"1px solid rgba(255,255,255,0.07)",background:"rgba(0,0,0,0.45)"}}>
+          <ResponsiveContainer width="100%" height={155}>
+            <AreaChart data={hormoneData} margin={{top:5,right:8,bottom:5,left:-28}}>
+              <defs>
+                {[["cg","#fbbf24"],["tg","#f97316"],["mg","#818cf8"],["fg",curPhase.glow]].map(([id,c])=>(
+                  <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={c} stopOpacity="0.25"/>
+                    <stop offset="95%" stopColor={c} stopOpacity="0"/>
+                  </linearGradient>
+                ))}
+              </defs>
+              <XAxis dataKey="hour" tick={{fill:"#374151",fontSize:8}} axisLine={false} tickLine={false}
+                tickFormatter={h=>h%6===0?(h===0?"12a":h===12?"12p":h<12?`${h}a`:`${h}p`):""}/>
+              <YAxis domain={[0,1]} tick={false} axisLine={false}/>
+              <Tooltip contentStyle={{background:"#07101f",border:"1px solid #1e293b",borderRadius:8,fontSize:11}}
+                formatter={(v,n)=>[`${(v*100).toFixed(0)}%`,n]}
+                labelFormatter={h=>`${Math.floor(h)}:${h%1===.5?"30":"00"}`}/>
+              <ReferenceLine x={curHour} stroke="rgba(255,255,255,0.4)" strokeDasharray="3 2" strokeWidth={1.2}/>
+              <Area type="monotone" dataKey="cortisol"  name="Cortisol"  stroke="#fbbf24" fill="url(#cg)" strokeWidth={1.5} dot={false}/>
+              <Area type="monotone" dataKey="temp"      name="Body Temp" stroke="#f97316" fill="url(#tg)" strokeWidth={1.5} dot={false}/>
+              <Area type="monotone" dataKey="melatonin" name="Melatonin" stroke="#818cf8" fill="url(#mg)" strokeWidth={1.5} dot={false}/>
+              <Area type="monotone" dataKey="composite" name="F(t)"      stroke={curPhase.glow} fill="none" strokeWidth={2.2} dot={false} strokeDasharray="5 2"/>
+            </AreaChart>
+          </ResponsiveContainer>
+          <div style={{display:"flex",flexWrap:"wrap",gap:"5px 12px",justifyContent:"center",marginTop:4}}>
+            {[["Cortisol","#fbbf24"],["Body Temp","#f97316"],["Melatonin","#818cf8"],["F(t) Composite",curPhase.glow]].map(([n,c])=>(
+              <div key={n} style={{display:"flex",alignItems:"center",gap:5}}>
+                <div style={{width:8,height:8,borderRadius:2,background:c}}/><span style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>{n}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:7}}>
+          <p style={{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",margin:0,fontFamily:"DM Mono,monospace"}}>YOUR ENERGY LOG</p>
+          <button onClick={()=>setModal(true)} style={{fontSize:10,padding:"4px 12px",borderRadius:20,border:`1px solid ${curPhase.stroke}45`,color:curPhase.stroke,background:"transparent"}}>+ Entry</button>
+        </div>
+        {trackLog.length===0?(
+          <div style={{borderRadius:12,padding:22,textAlign:"center",border:"1px solid rgba(255,255,255,0.07)",background:"rgba(0,0,0,0.3)"}}>
+            <div style={{fontSize:32,marginBottom:8}}>📊</div>
+            <p style={{fontSize:13,color:"white",margin:"0 0 5px"}}>No entries yet</p>
+            <p style={{fontSize:11,color:"rgba(255,255,255,0.35)",margin:"0 0 12px",lineHeight:1.5}}>Log energy, focus & mood to compare your experience against the biological model.</p>
+            <button onClick={()=>setModal(true)} style={{fontSize:11,padding:"7px 18px",borderRadius:20,fontWeight:600,background:curPhase.glow+"28",color:curPhase.glow,border:`1px solid ${curPhase.glow}45`}}>Start Tracking</button>
+          </div>
+        ):(
+          <>
+            {trackLog.length>=3&&<div style={{borderRadius:12,padding:12,marginBottom:10,border:"1px solid rgba(255,255,255,0.07)",background:"rgba(0,0,0,0.45)"}}>
+              <ResponsiveContainer width="100%" height={90}>
+                <LineChart data={[...trackLog].reverse().slice(-20)} margin={{top:5,right:5,bottom:5,left:-32}}>
+                  <XAxis dataKey="phase" tick={{fill:"#374151",fontSize:7}} tickFormatter={(v,i)=>i%3===0?v.substring(0,4):""} axisLine={false} tickLine={false}/>
+                  <YAxis domain={[1,5]} ticks={[1,3,5]} tick={{fill:"#374151",fontSize:7}} axisLine={false} tickLine={false}/>
+                  <Tooltip contentStyle={{background:"#07101f",border:"1px solid #1e293b",borderRadius:8,fontSize:10}}/>
+                  <Line type="monotone" dataKey="energy" name="Energy" stroke="#f59e0b" strokeWidth={2} dot={false}/>
+                  <Line type="monotone" dataKey="focus"  name="Focus"  stroke="#2dd4bf" strokeWidth={2} dot={false}/>
+                  <Line type="monotone" dataKey="mood"   name="Mood"   stroke="#a78bfa" strokeWidth={2} dot={false}/>
+                </LineChart>
+              </ResponsiveContainer>
+            </div>}
+            <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:260,overflowY:"auto"}}>
+              {trackLog.map((e,i)=>{
+                const ep=PHASES.find(p=>p.name===e.phase)||PHASES[0];
+                return <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",borderRadius:10,border:"1px solid rgba(255,255,255,0.06)",background:"rgba(0,0,0,0.3)"}}>
+                  <span style={{fontSize:18}}>{ep.symbol}</span>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:"flex",justifyContent:"space-between"}}>
+                      <span style={{fontSize:11,fontWeight:600,color:"white"}}>{e.phase}</span>
+                      <span style={{fontSize:10,color:"rgba(255,255,255,0.3)",fontFamily:"DM Mono,monospace"}}>{new Date(e.time).toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"})}</span>
+                    </div>
+                    <div style={{display:"flex",gap:10,marginTop:3}}>
+                      {[["⚡",e.energy,"#f59e0b"],["🎯",e.focus,"#2dd4bf"],["😊",e.mood,"#a78bfa"]].map(([ic,v,c])=>(
+                        <span key={ic} style={{fontSize:10,color:c}}>{ic} {"●".repeat(v)}{"○".repeat(5-v)}</span>
+                      ))}
+                    </div>
+                    {e.note&&<p style={{fontSize:10,margin:"2px 0 0",color:"rgba(255,255,255,0.28)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.note}</p>}
+                  </div>
+                </div>;
+              })}
+            </div>
+          </>
+        )}
+      </div>
+    </div>}
+
+    {/* ══════════════════ SCIENCE TAB ══════════════════ */}
+    {tab==="science" && <div className="su" style={{padding:12,display:"flex",flexDirection:"column",gap:12}}>
+      <div style={{borderRadius:14,padding:14,border:"1px solid rgba(129,140,248,0.28)",background:"rgba(26,22,80,0.5)"}}>
+        <p style={{fontSize:9,fontWeight:600,letterSpacing:"0.15em",color:"#818cf8",marginBottom:8,fontFamily:"DM Mono,monospace"}}>THE DISCOVERY</p>
+        <h2 style={{fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,color:"white",marginBottom:10}}>Artwork Validates Biology</h2>
+        <p style={{fontSize:12,lineHeight:1.65,color:"rgba(255,255,255,0.65)",marginBottom:8}}>H.A. Marouf derived this 9-phase model <em>entirely from hormonal mathematics</em>, blind to any artwork. The composite F(t) was computed solely from published biochemical parameters.</p>
+        <p style={{fontSize:12,lineHeight:1.65,color:"rgba(255,255,255,0.65)",marginBottom:14}}>When phase boundaries were later overlaid on independent automatic mandala drawings — created through meditative practice as a wholly separate process — the alignment was statistically extraordinary.</p>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+          {[{stat:"R²=0.993",label:"Model fit",color:"#10b981"},{stat:"10.1°",label:"Mean Ang. Error",color:"#60a5fa"},{stat:"p<0.001",label:"Significance",color:"#a78bfa"}].map(s=>(
+            <div key={s.label} style={{textAlign:"center",padding:"10px 6px",borderRadius:10,background:"rgba(0,0,0,0.45)",border:`1px solid ${s.color}25`}}>
+              <p style={{fontSize:13,fontWeight:700,color:s.color,fontFamily:"DM Mono,monospace",margin:"0 0 3px"}}>{s.stat}</p>
+              <p style={{fontSize:9,color:"rgba(255,255,255,0.3)",margin:0}}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{borderRadius:14,padding:14,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.5)"}}>
+        <p style={{fontSize:9,letterSpacing:"0.15em",color:"rgba(255,255,255,0.35)",marginBottom:10,fontFamily:"DM Mono,monospace"}}>HORMONE OSCILLATIONS · 24H WITH PHASE BANDS</p>
+        <svg viewBox="0 0 420 185" width="100%" style={{display:"block"}}>
+          {PHASES.map(p=><rect key={p.id} x={(p.start/24)*420} y="0" width={((p.end-p.start)/24)*420} height="162" fill={p.fill} fillOpacity="0.3"/>)}
+          {PHASES.map(p=><g key={`sl${p.id}`}>
+            <line x1={(p.start/24)*420} y1="0" x2={(p.start/24)*420} y2="162" stroke="rgba(255,255,255,0.07)" strokeWidth="0.8"/>
+            <text x={((p.start+p.end)/2/24)*420} y="12" textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.55)">{p.symbol}</text>
+          </g>)}
+          {[0.25,0.5,0.75].map(v=><line key={v} x1="0" y1={162-v*148} x2="420" y2={162-v*148} stroke="rgba(255,255,255,0.05)" strokeWidth="0.7" strokeDasharray="4,3"/>)}
+          {[0,6,12,18,24].map(h=><g key={h}>
+            <line x1={(h/24)*420} y1="0" x2={(h/24)*420} y2="162" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5"/>
+            <text x={(h/24)*420+2} y="178" fontSize="8" fill="rgba(255,255,255,0.35)" fontFamily="DM Mono,monospace">{h===0?"12a":h===12?"12p":h<12?`${h}a`:`${h}p`}</text>
+          </g>)}
+          {[{fn:cortisol,c:"#fbbf24"},{fn:bodyTemp,c:"#f97316"},{fn:melatonin,c:"#818cf8"}].map(({fn,c})=>{
+            const d=Array.from({length:200},(_,i)=>{const t=i/199*24;return`${i===0?"M":"L"}${(t/24*420).toFixed(1)},${(162-fn(t)*148).toFixed(1)}`;}).join(" ");
+            return <path key={c} d={d} fill="none" stroke={c} strokeWidth="1.5" strokeOpacity="0.85"/>;
+          })}
+          {(()=>{const d=Array.from({length:200},(_,i)=>{const t=i/199*24;return`${i===0?"M":"L"}${(t/24*420).toFixed(1)},${(162-composite(t)*148).toFixed(1)}`;}).join(" ");return <path d={d} fill="none" stroke={curPhase.glow} strokeWidth="2.5" strokeDasharray="7,3" strokeOpacity="0.95"/>;})()}
+          <line x1={(curHour/24)*420} y1="0" x2={(curHour/24)*420} y2="162" stroke="white" strokeWidth="1.2" strokeDasharray="3,2" strokeOpacity="0.5"/>
+          <text x={Math.min(curHour/24*420+4,400)} y="14" fontSize="7" fill="white" fillOpacity="0.45" fontFamily="DM Mono,monospace">NOW</text>
+        </svg>
+        <div style={{display:"flex",flexWrap:"wrap",gap:"5px 14px",justifyContent:"center",marginTop:8}}>
+          {[["Cortisol","#fbbf24"],["Body Temp","#f97316"],["Melatonin","#818cf8"],["F(t) Composite",curPhase.glow]].map(([n,c])=>(
+            <div key={n} style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:8,height:8,borderRadius:2,background:c}}/><span style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>{n}</span></div>
+          ))}
+        </div>
+      </div>
+      <div style={{borderRadius:14,padding:14,border:"1px solid rgba(45,212,191,0.18)",background:"rgba(0,0,0,0.6)"}}>
+        <p style={{fontSize:9,letterSpacing:"0.15em",color:"#2dd4bf",marginBottom:10,fontFamily:"DM Mono,monospace"}}>THE MATHEMATICS</p>
+        <div style={{borderRadius:10,padding:12,background:"rgba(0,0,0,0.75)",fontFamily:"DM Mono,monospace",fontSize:11,lineHeight:1.9}}>
+          <div style={{color:"#2dd4bf",marginBottom:4}}>F(t) = 0.5·C(t)  +  0.3·T(t)  +  0.2·M(t)</div>
+          <div style={{color:"rgba(255,255,255,0.2)",fontSize:9,marginBottom:10}}>// Composite circadian function (weighted sum)</div>
+          <div><span style={{color:"#fbbf24"}}>C(t)</span><span style={{color:"rgba(255,255,255,0.5)"}}> = Σ aₙ·cos(2πn(t−7.5)/24)</span><span style={{color:"rgba(255,255,255,0.2)",fontSize:9}}>  n=1..4</span></div>
+          <div><span style={{color:"#f97316"}}>T(t)</span><span style={{color:"rgba(255,255,255,0.5)"}}> = Σ bₙ·cos(2πn(t−17.0)/24)</span><span style={{color:"rgba(255,255,255,0.2)",fontSize:9}}>  n=1..3</span></div>
+          <div><span style={{color:"#818cf8"}}>M(t)</span><span style={{color:"rgba(255,255,255,0.5)"}}> = Σ cₙ·cos(2πn(t−3.0)/24)</span><span style={{color:"rgba(255,255,255,0.2)",fontSize:9}}>  n=1..3</span></div>
+          <div style={{marginTop:10,paddingTop:8,borderTop:"1px solid rgba(255,255,255,0.07)",color:"rgba(255,255,255,0.3)",fontSize:9}}>
+            9 inflection points of F(t) → 9 phase boundaries → 9-fold mandala symmetry (p &lt; 0.001)
+          </div>
+        </div>
+      </div>
+      <div style={{borderRadius:14,padding:14,border:"1px solid rgba(251,191,36,0.15)",background:"rgba(107,45,0,0.2)"}}>
+        <p style={{fontSize:9,letterSpacing:"0.15em",color:"#fbbf24",marginBottom:8,fontFamily:"DM Mono,monospace"}}>WHY EXACTLY 9 PHASES?</p>
+        <p style={{fontSize:12,lineHeight:1.65,color:"rgba(255,255,255,0.65)",margin:"0 0 8px"}}>The composite F(t) naturally produces exactly <strong style={{color:"white"}}>9 critical inflection points</strong> — as an emergent consequence of superimposing 10 Fourier harmonics across three biological systems. This was not chosen; it emerged from the mathematics.</p>
+        <p style={{fontSize:12,lineHeight:1.65,color:"rgba(255,255,255,0.65)",margin:0}}>These transitions map to biologically significant events: cortisol peak, temperature inflections, melatonin onset, and composite turning points. The emergent 9-fold structure independently matched the 9-fold rotational symmetry in H.A. Marouf's artwork (p&nbsp;&lt;&nbsp;0.001).</p>
+      </div>
+      <div style={{borderRadius:14,padding:14,border:"1px solid rgba(16,185,129,0.18)",background:"rgba(5,60,40,0.25)"}}>
+        <p style={{fontSize:9,letterSpacing:"0.15em",color:"#10b981",marginBottom:12,fontFamily:"DM Mono,monospace"}}>BLIND VALIDATION PROTOCOL</p>
+        {[{n:"1",title:"Blind derivation",desc:"Phase boundaries computed solely from F(t) inflection points — zero reference to artwork.",c:"#10b981"},
+          {n:"2",title:"Independent artwork",desc:"Automatic mandala drawings created through meditative practice as a wholly separate process.",c:"#60a5fa"},
+          {n:"3",title:"Angular comparison",desc:"Artwork sector boundaries vs. model transitions. MAE = 10.1°, R² = 0.993, p < 0.001.",c:"#a78bfa"}].map(({n,title,desc,c})=>(
+          <div key={n} style={{display:"flex",gap:12,marginBottom:12}}>
+            <div style={{width:24,height:24,borderRadius:12,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,background:c+"1f",color:c,border:`1px solid ${c}40`}}>{n}</div>
+            <div><p style={{fontSize:12,fontWeight:600,color:"white",margin:"0 0 2px"}}>{title}</p><p style={{fontSize:11,color:"rgba(255,255,255,0.5)",margin:0,lineHeight:1.5}}>{desc}</p></div>
+          </div>
+        ))}
+        <p style={{fontSize:9,color:"rgba(255,255,255,0.22)",borderTop:"1px solid rgba(255,255,255,0.06)",paddingTop:10,margin:0,fontFamily:"DM Mono,monospace"}}>
+          Brabant (1990) · Van Cauter (1999) · Refinetti (2010) · Lewy (1999)
+        </p>
+      </div>
+    </div>}
+  </div>
+
+  {/* MODAL */}
+  {modal&&<div className="fi" onClick={e=>{if(e.target===e.currentTarget)setModal(false);}} style={{position:"fixed",inset:0,zIndex:50,display:"flex",alignItems:"flex-end",justifyContent:"center",background:"rgba(0,0,0,0.82)",backdropFilter:"blur(12px)"}}>
+    <div className="su" style={{width:"100%",maxWidth:480,borderRadius:"20px 20px 0 0",padding:20,background:"linear-gradient(180deg,#0c1828,#050a12)",border:"1px solid rgba(255,255,255,0.1)",borderBottom:"none"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+        <div>
+          <h3 style={{fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,color:"white",margin:0}}>Track Your State</h3>
+          <p style={{fontSize:11,color:"rgba(255,255,255,0.4)",margin:"3px 0 0"}}>{curPhase.symbol} {curPhase.name} · {timeStr}</p>
+        </div>
+        <button onClick={()=>setModal(false)} style={{width:30,height:30,borderRadius:15,border:"1px solid rgba(255,255,255,0.15)",background:"rgba(255,255,255,0.07)",color:"rgba(255,255,255,0.6)",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+      </div>
+      {[{k:"energy",l:"Energy Level",i:"⚡",c:"#f59e0b"},{k:"focus",l:"Mental Focus",i:"🎯",c:"#2dd4bf"},{k:"mood",l:"Mood / Wellbeing",i:"😊",c:"#a78bfa"}].map(({k,l,i,c})=>(
+        <div key={k} style={{marginBottom:14}}>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:7}}>
+            <span style={{fontSize:12,color:"rgba(255,255,255,0.7)"}}>{i} {l}</span>
+            <span style={{fontSize:12,fontWeight:700,color:c,fontFamily:"DM Mono,monospace"}}>{entry[k]}/5</span>
+          </div>
+          <div style={{display:"flex",gap:6}}>
+            {[1,2,3,4,5].map(v=>(
+              <button key={v} onClick={()=>setEntry(e=>({...e,[k]:v}))} style={{flex:1,padding:"9px 0",borderRadius:8,fontSize:13,fontWeight:700,
+                background:entry[k]>=v?c+"28":"rgba(255,255,255,0.05)",color:entry[k]>=v?c:"rgba(255,255,255,0.2)",
+                border:entry[k]===v?`1.5px solid ${c}`:"1.5px solid transparent"}}>{v}</button>
+            ))}
+          </div>
+        </div>
+      ))}
+      <textarea placeholder="Optional note…" value={entry.note}
+        onChange={e=>setEntry(l=>({...l,note:e.target.value}))}
+        rows={2} style={{width:"100%",borderRadius:10,padding:"10px 12px",fontSize:12,background:"rgba(0,0,0,0.55)",border:"1px solid rgba(255,255,255,0.1)",resize:"none",outline:"none",display:"block"}}/>
+      <button onClick={addEntry} style={{width:"100%",marginTop:12,padding:"13px 0",borderRadius:12,fontSize:13,fontWeight:700,background:curPhase.stroke,color:"#020507",border:"none",letterSpacing:"0.06em"}}>SAVE ENTRY</button>
+    </div>
+  </div>}
+</div>
+```
+
+);
 }
-
-// ═══════════════════════════════════════════════════════
-// NAV
-// ═══════════════════════════════════════════════════════
-document.querySelectorAll('.nb').forEach(function(b){b.addEventListener('click',function(){
-  var v=b.dataset.v;
-  document.querySelectorAll('.vw').forEach(function(el){el.classList.remove('on')});
-  document.querySelectorAll('.nb').forEach(function(x){x.classList.remove('on')});
-  document.getElementById('v-'+v).classList.add('on');b.classList.add('on');
-  if(v==='s')buildS();if(v==='i')drawI();if(v==='a')renderAlign();
-})});
-
-function setA(i){document.getElementById('o1').style.background=BG[i][0];document.getElementById('o2').style.background=BG[i][1];document.getElementById('o3').style.background=BG[i][2]}
-
-var cEl=document.getElementById('cc'),cCtx=cEl.getContext('2d');
-function drawC(){
-  var dpr=window.devicePixelRatio||1,pw=cEl.parentElement?cEl.parentElement.offsetWidth:300,sz=Math.min(pw||300,320);
-  if(sz<20)return;cEl.style.width=sz+'px';cEl.style.height=sz+'px';cEl.width=sz*dpr;cEl.height=sz*dpr;
-  var ctx=cCtx;ctx.scale(dpr,dpr);var W=sz,cx=W/2,cy=W/2,R=Math.max(W/2-26,30);
-  ctx.clearRect(0,0,W,W);var now=new Date(),sec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
-  var shifted=(sec-off*3600+86400)%86400,curDeg=(shifted/86400)*360,curRad=(curDeg-90)*Math.PI/180;
-  var times=MT.map(function(t){return(t+off)%T}),tR=function(h){return(h/T)*PI2-Math.PI/2};var cur=0;
-  for(var i=0;i<9;i++){var sT=times[i],eT=times[(i+1)%9],sR=tR(sT),eR=tR(eT);if(eR<=sR)eR+=PI2;
-  var sD=(sT/T)*360,eD=(eT/T)*360;var inP=eT>sT?(curDeg>=sD&&curDeg<eD):(curDeg>=sD||curDeg<eD);if(inP)cur=i;
-  ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,sR,eR);ctx.closePath();ctx.fillStyle=COL[i]+(inP?'47':'14');ctx.fill();
-  ctx.beginPath();ctx.arc(cx,cy,R,sR,eR);ctx.strokeStyle=COL[i]+(inP?'bb':'33');ctx.lineWidth=inP?3.5:1.2;ctx.stroke();
-  var mid=(sR+eR)/2,ir=R-16;ctx.font=(inP?'13px':'10px')+' sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.globalAlpha=inP?1:.6;
-  ctx.fillText(PH[i].ic,cx+ir*Math.cos(mid),cy+ir*Math.sin(mid));ctx.globalAlpha=1;
-  ctx.beginPath();ctx.moveTo(cx+(R-5)*Math.cos(sR),cy+(R-5)*Math.sin(sR));ctx.lineTo(cx+(R+3)*Math.cos(sR),cy+(R+3)*Math.sin(sR));ctx.strokeStyle='rgba(212,168,75,.25)';ctx.lineWidth=1;ctx.stroke();}
-  for(var h=0;h<24;h++){var r=(h/24*360-90)*Math.PI/180,r1=R+7,r2=R+(h%6===0?16:h%3===0?12:9);ctx.beginPath();ctx.moveTo(cx+r1*Math.cos(r),cy+r1*Math.sin(r));ctx.lineTo(cx+r2*Math.cos(r),cy+r2*Math.sin(r));ctx.strokeStyle=h%6===0?'rgba(212,168,75,.5)':'rgba(212,168,75,.12)';ctx.lineWidth=h%6===0?1.5:.7;ctx.stroke();
-  if(h%6===0){ctx.fillStyle='rgba(212,168,75,.45)';ctx.font="500 8px 'JetBrains Mono'";ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(h.toString().padStart(2,'0'),cx+(R+22)*Math.cos(r),cy+(R+22)*Math.sin(r))}}
-  var hx=cx+(R-6)*Math.cos(curRad),hy=cy+(R-6)*Math.sin(curRad);ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(hx,hy);ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=1.5;ctx.stroke();
-  ctx.beginPath();ctx.arc(hx,hy,4,0,PI2);ctx.fillStyle='rgba(255,255,255,.6)';ctx.fill();ctx.beginPath();ctx.arc(cx,cy,4,0,PI2);ctx.fillStyle=COL[cur];ctx.fill();
-  var ts=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');ctx.fillStyle='rgba(255,255,255,.8)';ctx.font="500 15px 'JetBrains Mono'";ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(ts,cx,cy+28);
-  updH(cur,times,curDeg,now);setA(cur);
-}
-
-function fm(h){h=(h+24)%24;return Math.floor(h).toString().padStart(2,'0')+':'+Math.round((h%1)*60).toString().padStart(2,'0')}
-
-function updH(idx,times,curDeg,now){
-  var ph=PH[idx],col=COL[idx],sT=times[idx],eT=times[(idx+1)%9];
-  var sD=(sT/T)*360,eD=(eT/T)*360;if(eD<=sD)eD+=360;var cd=curDeg;if(cd<sD)cd+=360;
-  var pct=Math.min(100,Math.max(0,(cd-sD)/(eD-sD)*100)),totalDur=eT>sT?eT-sT:24-sT+eT,remMin=Math.max(0,Math.round(totalDur*(1-pct/100)*60));
-  var remStr=remMin>=60?Math.floor(remMin/60)+'h '+remMin%60+'m left':remMin+'m left';
-  document.getElementById('hb').textContent='Phase '+(idx+1)+' of 9';document.getElementById('hcd').textContent=remStr;document.getElementById('hi').textContent=ph.ic;
-  document.getElementById('hn').textContent=ph.n;document.getElementById('hn').style.color=col;document.getElementById('hw').textContent=fm(sT)+' → '+fm(eT);
-  document.getElementById('hp').style.width=pct+'%';document.getElementById('hp').style.background=col;document.getElementById('hbt').innerHTML=ph.bite;
-  document.getElementById('hero').style.background='linear-gradient(135deg,'+col+'12,'+col+'06)';
-  var bsH='',keys=Object.keys(ph.st);for(var i=0;i<keys.length;i++){var k=keys[i],v=ph.st[k];bsH+='<div class="bsr"><div class="bsl">'+k+'</div><div class="bst"><div class="bsf" style="width:'+v+'%;background:'+stCols[k]+'"></div></div><div class="bsv">'+v+'%</div></div>'}
-  document.getElementById('hbs').innerHTML=bsH;
-  document.getElementById('ha').innerHTML=ph.tips.map(function(t){return'<div class="gs ac"><div class="ac-i">'+t.i+'</div><div class="ac-t">'+t.t+'</div><div class="ac-w">'+t.w+'</div></div>'}).join('');
-  var ni=(idx+1)%9;document.getElementById('hun').innerHTML='<div class="unb" style="background:'+COL[ni]+'"></div><div class="unc"><div class="unl">Up next</div><div class="unn">'+PH[ni].ic+' '+PH[ni].n+'</div></div><div class="unt">'+fm(times[ni])+'</div>';
-  document.getElementById('tm').textContent=now.toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  var h=now.getHours();document.getElementById('gr').textContent=h<5?'Good night':h<12?'Good morning':h<17?'Good afternoon':'Good evening';
-}
-
-function buildS(){
-  var times=MT.map(function(t){return(t+off)%T}),now=new Date();var sec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds(),shifted=(sec-off*3600+86400)%86400,curDeg=(shifted/86400)*360;
-  var h='';for(var i=0;i<9;i++){var sT=times[i],eT=times[(i+1)%9],sD=(sT/T)*360,eD=(eT/T)*360;var inP=eT>sT?(curDeg>=sD&&curDeg<eD):(curDeg>=sD||curDeg<eD);
-  var dur=eT>sT?eT-sT:24-sT+eT,ds=dur>=1?Math.floor(dur)+'h '+Math.round((dur%1)*60)+'m':Math.round(dur*60)+'m';var ph=PH[i];
-  h+='<div class="tl '+(inP?'nw':'')+'"><div class="tll"><div class="tlt">'+fm(sT)+'</div><div class="tld">'+ds+'</div></div><div class="tlb" style="background:'+COL[i]+'"></div><div class="tlr"><div class="tln" style="'+(inP?'color:var(--gold)':'')+'">'+ph.ic+' '+ph.n+(inP?'<span class="tlp">NOW</span>':'')+'</div><div class="tlbi">'+ph.bite.replace(/<\/?strong>/g,'')+'</div><div class="tlch">'+ph.tips.map(function(t){return'<span class="tlc">'+t.i+' '+t.t+'</span>'}).join('')+'</div></div></div>';}
-  document.getElementById('sl').innerHTML=h;
-}
-
-function drawI(){
-  var cur=getCur(),ph=PH[cur],now=new Date();
-  var rn='<div class="rnt">'+ph.ic+' '+ph.n+' — Your Body Right Now</div><div class="rnm">';
-  var keys=Object.keys(ph.st);for(var i=0;i<keys.length;i++){var k=keys[i],v=ph.st[k];rn+='<div class="rnmr"><div class="rnml">'+k+'</div><div class="rnmt"><div class="rnmf" style="width:'+v+'%;background:'+stCols[k]+'"></div></div><div class="rnmv">'+v+'%</div></div>'}
-  rn+='</div><div class="opt"><div class="optl optg">✓ Optimal right now</div><div class="opti">'+ph.best.map(function(b){return'<span class="optgt">'+b+'</span>'}).join('')+'</div><div class="optl optr">✗ Avoid right now</div><div class="opti">'+ph.avoid.map(function(b){return'<span class="optrt">'+b+'</span>'}).join('')+'</div></div>';
-  document.getElementById('rn').innerHTML=rn;
-
-  var rc=document.createElement('canvas');rc.width=200;rc.height=200;rc.style.width='100px';rc.style.height='100px';
-  var rx=rc.getContext('2d');rx.scale(2,2);rx.beginPath();rx.arc(50,50,38,0,PI2);rx.strokeStyle='rgba(255,255,255,.06)';rx.lineWidth=8;rx.stroke();
-  var score=Math.round(R2_V*100);rx.beginPath();rx.arc(50,50,38,-Math.PI/2,-Math.PI/2+PI2*(score/100));rx.strokeStyle='#5cc4a0';rx.lineWidth=8;rx.lineCap='round';rx.stroke();
-  rx.fillStyle='#eae6dc';rx.font="600 22px 'Outfit'";rx.textAlign='center';rx.textBaseline='middle';rx.fillText(score+'%',50,46);rx.fillStyle='#9a9488';rx.font="300 9px 'Outfit'";rx.fillText('match',50,62);
-  document.getElementById('sring').innerHTML='';document.getElementById('sring').appendChild(rc);
-  document.getElementById('sring').insertAdjacentHTML('beforeend','<div class="sring-info"><div class="sring-val">Model predicts with <strong>'+MAE_V.toFixed(1)+'° mean error</strong> — less than 2% of full circle. <strong>'+mtch+'/9</strong> phases within 5°.</div></div>');
-
-  var pdH='';for(i=0;i<9;i++){var diff=Math.abs(MA[i]-AW[i]),cls=diff<=5?'pdot-ok':diff<=15?'pdot-mid':'pdot-off';
-  pdH+='<div class="pdot"><div class="pdot-n">'+(i+1)+'</div><div class="pdot-sw" style="background:'+COL[i]+'"></div><div class="pdot-wrap"><div class="pdot-m" style="left:0;width:'+MA[i]/360*100+'%;background:'+COL[i]+'"></div><div class="pdot-a" style="left:calc('+AW[i]/360*100+'% - 3px)"></div></div><div class="pdot-d '+cls+'">'+diff.toFixed(1)+'°</div></div>'}
-  document.getElementById('pd').innerHTML=pdH;
-
-  var canvas=document.getElementById('ich'),dpr=window.devicePixelRatio||1,W=canvas.parentElement.offsetWidth-40;if(W<20)return;
-  canvas.style.width=W+'px';canvas.style.height='170px';canvas.width=W*dpr;canvas.height=170*dpr;
-  var ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);var H=170,cW=W-12,cH=H-32;
-  function toX(t){return 6+(t/T)*cW}function toY(v){return 10+(1-(v+1)/2)*cH}
-  ctx.clearRect(0,0,W,H);ctx.beginPath();ctx.moveTo(6,toY(0));ctx.lineTo(6+cW,toY(0));ctx.strokeStyle='rgba(212,168,75,.1)';ctx.lineWidth=1;ctx.stroke();
-  MT.forEach(function(t){var x=toX((t+off)%T);ctx.beginPath();ctx.moveTo(x,10);ctx.lineTo(x,10+cH);ctx.strokeStyle='rgba(212,168,75,.15)';ctx.lineWidth=1;ctx.setLineDash([2,3]);ctx.stroke();ctx.setLineDash([])});
-  var nowH=now.getHours()+now.getMinutes()/60,nx=toX(nowH);ctx.beginPath();ctx.moveTo(nx,10);ctx.lineTo(nx,10+cH);ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='#fff';ctx.font="bold 8px 'JetBrains Mono'";ctx.textAlign='center';ctx.fillText('NOW',nx,8);
-  var N=500;[[cN,'#f0922a',.4,1.2],[tN,'#3ec8c0',.4,1.2],[mN,'#8b6fe0',.4,1.2],[F,'#d4a84b',1,2.5]].forEach(function(arr){ctx.beginPath();for(var j=0;j<=N;j++){var t=j*T/N,x=toX(t),y=toY(arr[0](t));j===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.strokeStyle=arr[1];ctx.globalAlpha=arr[2];ctx.lineWidth=arr[3];ctx.stroke();ctx.globalAlpha=1});
-  ctx.beginPath();for(var j=0;j<=N;j++){var t=j*T/N,x=toX(t),y=toY(F(t));j===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}
-  ctx.lineTo(toX(T),10+cH);ctx.lineTo(6,10+cH);ctx.closePath();var gf=ctx.createLinearGradient(0,10,0,10+cH);gf.addColorStop(0,'rgba(212,168,75,.06)');gf.addColorStop(1,'transparent');ctx.fillStyle=gf;ctx.fill();
-  [0,6,12,18].forEach(function(h){ctx.fillStyle='rgba(212,168,75,.3)';ctx.font="8px 'JetBrains Mono'";ctx.textAlign='center';ctx.fillText(h+'h',toX(h),H-4)});
-}
-
-function tick(){drawC();requestAnimationFrame(tick)}
-window.addEventListener('load',function(){buildPills();tick();buildS();setInterval(buildS,6e4);setInterval(renderAlign,6e4)});
-window.addEventListener('resize',drawC);
-</script>
-</body>
-</html>
