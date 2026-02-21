@@ -1,968 +1,405 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Resonance Clock</title>
-    <meta name="description" content="9-Phase circadian clock visualization" />
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&family=Cinzel:wght@500;700&display=swap"
-      rel="stylesheet"
-    />
-
-    <style>
-      html, body { height: 100%; margin: 0; background: #040810; }
-      * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-      #root { min-height: 100vh; }
-
-      ::-webkit-scrollbar { width: 3px; }
-      ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 2px; }
-
-      .su { animation: su .22s ease-out; }
-      @keyframes su { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-      .fi { animation: fi .2s; }
-      @keyframes fi { from { opacity: 0; } to { opacity: 1; } }
-
-      button { cursor: pointer; }
-      textarea { font-family: "DM Sans", sans-serif; color: white; }
-    </style>
-  </head>
-
-  <body>
-    <noscript>This app requires JavaScript.</noscript>
-    <div id="root"></div>
-
-    <!-- React (UMD) -->
-    <!-- React docs show this pattern for adding React via CDN script tags. -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-
-    <!-- Recharts dependencies -->
-    <script crossorigin src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
-
-    <!-- Recharts (UMD). Using 2.10.3 because it has an explicit /umd build. -->
-    <script crossorigin src="https://unpkg.com/recharts@2.10.3/umd/Recharts.js"></script>
-
-    <!-- Babel Standalone (compile JSX in-browser) -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <script type="text/babel" data-presets="env,react">
-      const { useState, useEffect, useMemo, useCallback } = React;
-
-      // Recharts globals from the UMD build
-      const {
-        AreaChart, Area,
-        LineChart, Line,
-        XAxis, YAxis,
-        Tooltip, ResponsiveContainer,
-        ReferenceLine
-      } = Recharts;
-
-      const PHASES = [
-        {
-          id: 1, name: "Rest", symbol: "🌙", start: 0, end: 6.95,
-          fill: "#1a1650", stroke: "#a5b4fc", glow: "#818cf8",
-          desc: "Deep restoration & memory consolidation",
-          science: "Educational model. Sleep architecture, slow-wave sleep, and glymphatic activity vary across individuals and environments.",
-          best: ["Sleep", "Rest", "Meditation"], avoid: ["Stimulants", "Screens", "Heavy food"]
-        },
-        {
-          id: 2, name: "Awakening", symbol: "🌅", start: 6.95, end: 8.5,
-          fill: "#6b2d00", stroke: "#fcd34d", glow: "#fbbf24",
-          desc: "Cortisol Awakening Response activates the system",
-          science: "Cortisol awakening response (CAR) occurs after waking; magnitude and timing differ by person. This is a visualization, not a diagnostic tool.",
-          best: ["Planning", "Light exercise", "Journaling"], avoid: ["Caffeine (delay if desired)", "High-stakes decisions"]
-        },
-        {
-          id: 3, name: "Focus Rise", symbol: "⚡", start: 8.5, end: 10.0,
-          fill: "#0d3d38", stroke: "#5eead4", glow: "#2dd4bf",
-          desc: "Cognitive clarity builds",
-          science: "Alertness and executive performance often improve after wake; variability is large (sleep debt, chronotype, light exposure).",
-          best: ["Deep work", "Writing", "Analysis"], avoid: ["Multitasking", "Passive meetings"]
-        },
-        {
-          id: 4, name: "Peak Focus", symbol: "🎯", start: 10.0, end: 12.5,
-          fill: "#6b2200", stroke: "#fb923c", glow: "#f97316",
-          desc: "Daily apex window",
-          science: "Many people experience strong late-morning performance; others peak earlier/later depending on chronotype.",
-          best: ["Complex decisions", "Learning", "Problem solving"], avoid: ["Interruptions", "Low-value tasks"]
-        },
-        {
-          id: 5, name: "Integration", symbol: "🔗", start: 12.5, end: 14.5,
-          fill: "#053d2f", stroke: "#34d399", glow: "#10b981",
-          desc: "Consolidation & collaboration",
-          science: "Post-lunch dip exists for many, but not all; it’s influenced by sleep, meal composition, and circadian phase.",
-          best: ["Meetings", "Collaboration", "Lunch"], avoid: ["Critical solo analysis", "Major decisions"]
-        },
-        {
-          id: 6, name: "Creative", symbol: "🎨", start: 14.5, end: 16.5,
-          fill: "#3b1580", stroke: "#c084fc", glow: "#a78bfa",
-          desc: "Divergent thinking window",
-          science: "Some evidence suggests creative tasks may benefit from different arousal states; not universal.",
-          best: ["Brainstorming", "Art", "Lateral thinking"], avoid: ["Rigid analysis", "Detailed editing"]
-        },
-        {
-          id: 7, name: "Vitality", symbol: "🔥", start: 16.5, end: 18.5,
-          fill: "#6b1010", stroke: "#f87171", glow: "#ef4444",
-          desc: "Physical performance window",
-          science: "Core body temperature and some performance metrics often peak late afternoon; individual timing varies.",
-          best: ["Exercise", "Sport", "Physical work"], avoid: ["Demanding mental tasks"]
-        },
-        {
-          id: 8, name: "Wind Down", symbol: "🌆", start: 18.5, end: 21.0,
-          fill: "#6b0f3a", stroke: "#f9a8d4", glow: "#ec4899",
-          desc: "Parasympathetic shift",
-          science: "Evening light exposure can shift circadian timing. This is informational, not medical advice.",
-          best: ["Light social", "Cooking", "Reflection"], avoid: ["Intense exercise", "Bright light", "Doomscrolling"]
-        },
-        {
-          id: 9, name: "Preparation", symbol: "🌌", start: 21.0, end: 24.0,
-          fill: "#091235", stroke: "#93c5fd", glow: "#60a5fa",
-          desc: "Sleep initiation window",
-          science: "Melatonin onset varies widely; light, schedule, and genetics affect timing.",
-          best: ["Reading", "Meditation", "Journaling"], avoid: ["Screens", "Caffeine", "Alcohol"]
-        },
-      ];
-
-      const ACTIVITIES = [
-        { name: "Deep Work",  icon: "💡", optimalPhases: [3,4] },
-        { name: "Exercise",   icon: "🏋️", optimalPhases: [7,2] },
-        { name: "Creative",   icon: "🎨", optimalPhases: [6,3] },
-        { name: "Meetings",   icon: "👥", optimalPhases: [5,4] },
-        { name: "Learning",   icon: "📚", optimalPhases: [4,3] },
-        { name: "Rest/Nap",   icon: "😴", optimalPhases: [1,9] },
-        { name: "Social",     icon: "🤝", optimalPhases: [5,8] },
-        { name: "Planning",   icon: "📋", optimalPhases: [2,4] },
-        { name: "Meditation", icon: "🧘", optimalPhases: [1,9] },
-        { name: "Sport",      icon: "⚽", optimalPhases: [7,6] },
-      ];
-
-      // --- Hormone math (stylized cosine harmonics) ---
-      function clamp(v) { return Math.max(0.02, Math.min(0.98, v)); }
-      function cosH(n, t, p) { return Math.cos(2 * Math.PI * n * (t - p) / 24); }
-
-      function cortisol(t) {
-        return clamp(0.5 + 0.32*cosH(1,t,7.5) + 0.10*cosH(2,t,7.5) + 0.04*cosH(3,t,7.5) + 0.02*cosH(4,t,7.5));
-      }
-      function bodyTemp(t) {
-        return clamp(0.5 + 0.28*cosH(1,t,17.0) + 0.07*cosH(2,t,17.0) + 0.02*cosH(3,t,17.0));
-      }
-      function melatonin(t) {
-        return clamp(0.5 + 0.38*cosH(1,t,3.0) + 0.08*cosH(2,t,3.0) + 0.02*cosH(3,t,3.0));
-      }
-      function composite(t) {
-        return 0.5*cortisol(t) + 0.3*bodyTemp(t) + 0.2*melatonin(t);
-      }
-
-      // --- Geometry helpers ---
-      function hDeg(h) { return (h / 24) * 360; }
-      function toXY(cx, cy, r, deg) {
-        const rad = (deg - 90) * Math.PI / 180;
-        return [cx + r*Math.cos(rad), cy + r*Math.sin(rad)];
-      }
-      function arcD(cx, cy, r1, r2, h1, h2) {
-        const a1 = hDeg(h1);
-        const a2 = hDeg(Math.min(h2, 23.9999));
-        const [x1,y1] = toXY(cx, cy, r2, a1);
-        const [x2,y2] = toXY(cx, cy, r2, a2);
-        const [ix1,iy1] = toXY(cx, cy, r1, a2);
-        const [ix2,iy2] = toXY(cx, cy, r1, a1);
-        const lg = (a2 - a1) > 180 ? 1 : 0;
-        return `M${x1},${y1} A${r2},${r2} 0 ${lg},1 ${x2},${y2} L${ix1},${iy1} A${r1},${r1} 0 ${lg},0 ${ix2},${iy2}Z`;
-      }
-      function wavePath(cx, cy, rMin, rMax, fn, n = 300) {
-        let d = "";
-        for (let i = 0; i <= n; i++) {
-          const t = (i / n) * 24;
-          const r = rMin + (rMax - rMin) * fn(t);
-          const [x,y] = toXY(cx, cy, r, (i / n) * 360);
-          d += (i === 0 ? "M" : "L") + x.toFixed(2) + "," + y.toFixed(2) + " ";
-        }
-        return d.trim() + " Z";
-      }
-
-      // Model-hour + wake-offset -> displayed clock time
-      function fmtShifted(modelHour, offset) {
-        const s = ((modelHour + offset) % 24 + 24) % 24;
-        let hh = Math.floor(s);
-        let mm = Math.round((s - hh) * 60);
-        if (mm === 60) { mm = 0; hh = (hh + 1) % 24; }
-        return `${hh}:${String(mm).padStart(2, "0")}`;
-      }
-
-      function phaseAt(sh) {
-        for (const p of PHASES) {
-          if (sh >= p.start && sh < p.end) return p;
-        }
-        return PHASES[0];
-      }
-
-      function ResonanceClock() {
-        const [now, setNow] = useState(new Date());
-        const [wakeHour, setWakeHour] = useState(7.0);
-        const [tab, setTab] = useState("clock");
-        const [selAct, setSelAct] = useState(null);
-        const [trackLog, setTrackLog] = useState([]);
-        const [modal, setModal] = useState(false);
-        const [entry, setEntry] = useState({ energy: 3, focus: 3, mood: 3, note: "" });
-
-        // Derived time
-        const wo = wakeHour - 7.0; // wakeOffset relative to model wake=7.0
-        const curHour = now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600;
-        const shiftedH = ((curHour - wo) % 24 + 24) % 24;
-
-        const curPhase = useMemo(() => phaseAt(shiftedH), [shiftedH]);
-
-        const phaseProg = useMemo(() => {
-          const denom = (curPhase.end - curPhase.start) || 1;
-          return (shiftedH - curPhase.start) / denom;
-        }, [shiftedH, curPhase]);
-
-        useEffect(() => {
-          const t = setInterval(() => setNow(new Date()), 1000);
-          return () => clearInterval(t);
-        }, []);
-
-        // Load log (localStorage)
-        useEffect(() => {
-          try {
-            const raw = localStorage.getItem("rc-log");
-            if (!raw) return;
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) setTrackLog(parsed);
-          } catch (e) {}
-        }, []);
-
-        const saveLog = useCallback((l) => {
-          try { localStorage.setItem("rc-log", JSON.stringify(l)); } catch (e) {}
-        }, []);
-
-        const addEntry = useCallback(() => {
-          const e = {
-            ...entry,
-            time: now.toISOString(),
-            hour: +curHour.toFixed(2),
-            phase: curPhase.name,
-            phaseId: curPhase.id
-          };
-
-          setTrackLog((prev) => {
-            const nl = [e, ...prev].slice(0, 100);
-            saveLog(nl);
-            return nl;
-          });
-
-          setModal(false);
-          setEntry({ energy: 3, focus: 3, mood: 3, note: "" });
-        }, [entry, now, curHour, curPhase, saveLog]);
-
-        // Alignment score (wrap 9↔1)
-        const alignScore = useCallback((act) => {
-          const idx = act.optimalPhases.indexOf(curPhase.id);
-          if (idx === 0) return 95;
-          if (idx === 1) return 78;
-
-          const N = 9;
-          const d = Math.min(
-            ...act.optimalPhases.map((id) => {
-              const diff = Math.abs(id - curPhase.id);
-              return Math.min(diff, N - diff);
-            })
-          );
-
-          if (d === 1) return 60;
-          if (d === 2) return 42;
-          return 20;
-        }, [curPhase]);
-
-        const hormoneData = useMemo(() => {
-          return Array.from({ length: 49 }, (_, i) => {
-            const h = i / 2;
-            return {
-              hour: h,
-              cortisol: +cortisol(h).toFixed(3),
-              temp: +bodyTemp(h).toFixed(3),
-              melatonin: +melatonin(h).toFixed(3),
-              composite: +composite(h).toFixed(3),
-            };
-          });
-        }, []);
-
-        // SVG layout constants
-        const CX = 220, CY = 220, SZ = 440;
-        const R_TICK_IN = 198, R_TICK_OUT = 210, R_HLABEL = 224;
-        const R_ARC_OUT = 194, R_ARC_IN = 150;
-        const R_ARC_MID = (R_ARC_IN + R_ARC_OUT) / 2;
-        const R_PROG = 148;
-        const R_WAVE_OUT = 142, R_WAVE_IN = 106;
-        const R_PETAL = 88, R_CENTER = 70;
-
-        const needleDeg = hDeg(shiftedH);
-        const [nTX, nTY] = toXY(CX, CY, R_ARC_OUT + 9, needleDeg);
-        const [nBX, nBY] = toXY(CX, CY, 18, (needleDeg + 180) % 360);
-
-        const progEndH = curPhase.start + (curPhase.end - curPhase.start) * phaseProg;
-        const [pAX, pAY] = toXY(CX, CY, R_PROG, hDeg(curPhase.start));
-        const [pBX, pBY] = toXY(CX, CY, R_PROG, hDeg(Math.min(progEndH, 23.9999)));
-        const progLA = (hDeg(progEndH) - hDeg(curPhase.start)) > 180 ? 1 : 0;
-
-        const timeStr = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
-        const secStr = String(now.getSeconds()).padStart(2,"0");
-
-        return (
-          <div style={{
-            minHeight: "100vh",
-            fontFamily: "'DM Sans', sans-serif",
-            background: "#040810",
-            maxWidth: 480,
-            margin: "0 auto",
-            color: "white",
-            display: "flex",
-            flexDirection: "column"
-          }}>
-            {/* HEADER */}
-            <div style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "10px 14px",
-              borderBottom: "1px solid rgba(255,255,255,0.07)"
-            }}>
-              <div>
-                <div style={{
-                  fontFamily: "Cinzel,serif",
-                  fontSize: 14,
-                  fontWeight: 700,
-                  letterSpacing: "0.22em",
-                  color: curPhase.glow
-                }}>RESONANCE</div>
-                <div style={{
-                  fontSize: 10,
-                  color: "rgba(255,255,255,0.3)",
-                  letterSpacing: "0.04em"
-                }}>9-Phase Circadian Clock · H.A. Marouf</div>
-              </div>
-
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>
-                  {now.toLocaleDateString("en-US",{ weekday:"short", month:"short", day:"numeric" })}
-                </div>
-                <button
-                  onClick={() => setModal(true)}
-                  style={{
-                    fontSize: 11,
-                    padding: "5px 12px",
-                    borderRadius: 20,
-                    border: `1px solid ${curPhase.glow}50`,
-                    color: curPhase.glow,
-                    background: curPhase.glow + "14"
-                  }}
-                >+ Track</button>
-              </div>
-            </div>
-
-            {/* TABS */}
-            <div style={{ display: "flex", background: "rgba(0,0,0,0.5)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-              {[
-                ["clock","Clock"],
-                ["align","Align"],
-                ["insights","Insights"],
-                ["science","Science"]
-              ].map(([id, lb]) => (
-                <button
-                  key={id}
-                  onClick={() => setTab(id)}
-                  style={{
-                    flex: 1,
-                    padding: "10px 0",
-                    fontSize: 11,
-                    fontWeight: 500,
-                    background: "transparent",
-                    border: "none",
-                    borderBottom: `2px solid ${tab===id ? curPhase.glow : "transparent"}`,
-                    color: tab===id ? curPhase.glow : "rgba(255,255,255,0.35)",
-                    transition: "color .2s,border-color .2s"
-                  }}
-                >
-                  {lb}
-                </button>
-              ))}
-            </div>
-
-            <div style={{ flex: 1, overflowY: "auto", paddingBottom: 28 }}>
-
-              {/* CLOCK TAB */}
-              {tab === "clock" && (
-                <div className="su">
-                  <div style={{ padding: "6px 2px 0" }}>
-                    <svg viewBox={`0 0 ${SZ} ${SZ}`} width="100%" style={{ display: "block" }}>
-                      <defs>
-                        <filter id="gw4"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-                        <filter id="gw7"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-                        <filter id="gw2"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-
-                        {PHASES.map(p => (
-                          <radialGradient key={`rg${p.id}`} id={`rg${p.id}`} cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stopColor={p.stroke} stopOpacity="1"/>
-                            <stop offset="55%" stopColor={p.fill} stopOpacity="1"/>
-                            <stop offset="100%" stopColor={p.fill} stopOpacity="0.75"/>
-                          </radialGradient>
-                        ))}
-
-                        <radialGradient id="centGr" cx="50%" cy="50%" r="50%">
-                          <stop offset="0%" stopColor={curPhase.fill} stopOpacity="0.65"/>
-                          <stop offset="100%" stopColor="#030608" stopOpacity="1"/>
-                        </radialGradient>
-                      </defs>
-
-                      {/* Ambient glow */}
-                      <circle cx={CX} cy={CY} r={R_ARC_OUT+24} fill="none" stroke={curPhase.glow} strokeWidth="48" strokeOpacity="0.032"/>
-
-                      {/* Hour ticks */}
-                      {Array.from({ length: 24 }, (_, i) => {
-                        const a = hDeg(i), maj = i % 6 === 0, min3 = i % 3 === 0;
-                        const [x1,y1] = toXY(CX,CY,R_TICK_IN,a);
-                        const [x2,y2] = toXY(CX,CY,R_TICK_OUT + (maj ? 9 : min3 ? 5 : 2), a);
-                        return (
-                          <line
-                            key={i}
-                            x1={x1} y1={y1} x2={x2} y2={y2}
-                            stroke={maj ? "rgba(255,255,255,0.8)" : min3 ? "rgba(255,255,255,0.38)" : "rgba(255,255,255,0.13)"}
-                            strokeWidth={maj ? 1.8 : min3 ? 1 : 0.7}
-                          />
-                        );
-                      })}
-
-                      {/* Hour labels every 3h */}
-                      {[0,3,6,9,12,15,18,21].map(h => {
-                        const [lx,ly] = toXY(CX,CY,R_HLABEL,hDeg(h));
-                        const label = (h===0) ? "12a" : (h===12) ? "12p" : (h>12) ? `${h}p` : `${h}a`;
-                        return (
-                          <text
-                            key={h}
-                            x={lx} y={ly}
-                            textAnchor="middle"
-                            dominantBaseline="middle"
-                            fontSize="8.5"
-                            fill="rgba(255,255,255,0.6)"
-                            fontFamily="DM Mono,monospace"
-                            fontWeight="500"
-                          >{label}</text>
-                        );
-                      })}
-
-                      {/* Phase arcs */}
-                      {PHASES.map(p => {
-                        const active = p.id === curPhase.id;
-                        return (
-                          <g key={`pa${p.id}`}>
-                            <path
-                              d={arcD(CX,CY,R_ARC_IN,R_ARC_OUT,p.start,p.end)}
-                              fill={active ? `url(#rg${p.id})` : p.fill}
-                              stroke={p.stroke}
-                              strokeWidth={active ? 2 : 0.6}
-                              opacity={active ? 1 : 0.72}
-                              filter={active ? "url(#gw4)" : "none"}
-                            />
-                            {active && (
-                              <>
-                                <path d={arcD(CX,CY,R_ARC_OUT,R_ARC_OUT+6,p.start,p.end)} fill={p.stroke} fillOpacity="0.45" filter="url(#gw4)"/>
-                                <path d={arcD(CX,CY,R_ARC_IN,R_ARC_IN+5,p.start,p.end)} fill={p.stroke} fillOpacity="0.22" filter="url(#gw2)"/>
-                              </>
-                            )}
-                          </g>
-                        );
-                      })}
-
-                      {/* Divider lines */}
-                      {PHASES.map(p => {
-                        const [x1,y1] = toXY(CX,CY,R_ARC_IN-3,hDeg(p.start));
-                        const [x2,y2] = toXY(CX,CY,R_ARC_OUT+5,hDeg(p.start));
-                        return <line key={`dv${p.id}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#040810" strokeWidth="2.2"/>;
-                      })}
-
-                      {/* Phase labels */}
-                      {PHASES.map(p => {
-                        const mid = (p.start + p.end) / 2;
-                        const [tx,ty] = toXY(CX,CY,R_ARC_MID,hDeg(mid));
-                        const active = p.id === curPhase.id;
-                        return (
-                          <g key={`lbl${p.id}`}>
-                            {active && <ellipse cx={tx} cy={ty} rx="13" ry="16" fill={p.stroke} fillOpacity="0.18"/>}
-                            <text x={tx} y={ty-4} textAnchor="middle" dominantBaseline="middle" fontSize={active ? "15" : "12"} opacity={active ? 1 : 0.82}>
-                              {p.symbol}
-                            </text>
-                            <text
-                              x={tx} y={ty+10}
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                              fontFamily="DM Mono,monospace"
-                              fontWeight="600"
-                              fontSize={active ? "9" : "8"}
-                              fill={active ? "white" : p.stroke}
-                              fillOpacity={active ? 1 : 0.7}
-                            >{p.id}</text>
-                          </g>
-                        );
-                      })}
-
-                      {/* Progress track */}
-                      <path d={arcD(CX,CY,R_PROG-2,R_PROG+2,curPhase.start,curPhase.end)} fill="rgba(255,255,255,0.05)"/>
-                      {phaseProg > 0.015 && (
-                        <path
-                          d={`M${pAX},${pAY} A${R_PROG},${R_PROG} 0 ${progLA},1 ${pBX},${pBY}`}
-                          fill="none"
-                          stroke="white"
-                          strokeWidth="3.5"
-                          strokeLinecap="round"
-                          strokeOpacity="0.88"
-                          filter="url(#gw2)"
-                        />
-                      )}
-
-                      {/* Ring separators */}
-                      <circle cx={CX} cy={CY} r={R_ARC_IN} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.2"/>
-                      <circle cx={CX} cy={CY} r={R_WAVE_OUT+3} fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth="0.8"/>
-                      <circle cx={CX} cy={CY} r={R_WAVE_IN-3} fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth="0.8"/>
-
-                      {/* Hormone wave ring background */}
-                      <path d={arcD(CX,CY,R_WAVE_IN,R_WAVE_OUT,0,24)} fill="#030609" fillOpacity="0.97"/>
-
-                      {/* Hormone curves */}
-                      <path d={wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,cortisol)} fill="none" stroke="#fbbf24" strokeWidth="1.4" strokeOpacity="0.7"/>
-                      <path d={wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,bodyTemp)} fill="none" stroke="#f97316" strokeWidth="1.4" strokeOpacity="0.7"/>
-                      <path d={wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,melatonin)} fill="none" stroke="#818cf8" strokeWidth="1.4" strokeOpacity="0.7"/>
-                      <path d={wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,composite)} fill="none" stroke={curPhase.glow} strokeWidth="2.2" strokeOpacity="0.92"/>
-
-                      {/* Mid baseline ring */}
-                      <circle cx={CX} cy={CY} r={(R_WAVE_IN+R_WAVE_OUT)/2} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="0.6" strokeDasharray="3,4"/>
-
-                      {/* Legend dots */}
-                      {[{l:"C",c:"#fbbf24",a:5},{l:"T",c:"#f97316",a:40},{l:"M",c:"#818cf8",a:75},{l:"F",c:curPhase.glow,a:110}].map(({l,c,a}) => {
-                        const [lx,ly] = toXY(CX,CY,R_WAVE_IN-8,a);
-                        return (
-                          <g key={l}>
-                            <circle cx={lx} cy={ly} r="5.5" fill={c} fillOpacity="0.92"/>
-                            <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" fontSize="5" fontWeight="700" fill="#020507" fontFamily="DM Mono,monospace">{l}</text>
-                          </g>
-                        );
-                      })}
-
-                      {/* 9-petal mandala */}
-                      <circle cx={CX} cy={CY} r={R_WAVE_IN-4} fill="#040810"/>
-                      {Array.from({length:9}, (_,i) => {
-                        const angle = (i/9) * 360;
-                        const ph = PHASES[i];
-                        const active = ph.id === curPhase.id;
-                        const [px,py] = toXY(CX,CY,R_PETAL,angle);
-                        return (
-                          <ellipse
-                            key={`pt${i}`}
-                            cx={px} cy={py}
-                            rx="9" ry="17"
-                            transform={`rotate(${angle},${px},${py})`}
-                            fill={ph.glow}
-                            fillOpacity={active ? 0.42 : 0.09}
-                            stroke={ph.glow}
-                            strokeWidth="0.7"
-                            strokeOpacity={active ? 0.88 : 0.28}
-                            filter={active ? "url(#gw2)" : "none"}
-                          />
-                        );
-                      })}
-
-                      {/* Center */}
-                      <circle cx={CX} cy={CY} r={R_CENTER+9} fill="#040810"/>
-                      <circle cx={CX} cy={CY} r={R_CENTER} fill="url(#centGr)"/>
-                      <circle cx={CX} cy={CY} r={R_CENTER} fill="none" stroke={curPhase.stroke} strokeWidth="1.8" strokeOpacity="0.72"/>
-                      <circle cx={CX} cy={CY} r={R_CENTER+6} fill="none" stroke={curPhase.glow} strokeWidth="0.6" strokeOpacity="0.2"/>
-
-                      <text x={CX} y={CY-26} textAnchor="middle" fontSize="19">{curPhase.symbol}</text>
-                      <text x={CX} y={CY-10} textAnchor="middle" fontSize="7.5" fontFamily="Cinzel,serif" fontWeight="600" fill={curPhase.stroke} letterSpacing="2.5">
-                        {curPhase.name.toUpperCase()}
-                      </text>
-                      <text x={CX} y={CY+8} textAnchor="middle" fontSize="21" fontFamily="DM Mono,monospace" fontWeight="600" fill="white">
-                        {timeStr}<tspan fontSize="10" fill="rgba(255,255,255,0.36)">.{secStr}</tspan>
-                      </text>
-                      <text x={CX} y={CY+24} textAnchor="middle" fontSize="7.5" fontFamily="DM Sans,sans-serif" fill="rgba(255,255,255,0.3)">
-                        Phase {curPhase.id} of 9
-                      </text>
-
-                      <rect x={CX-26} y={CY+30} width="52" height="2.5" rx="1.5" fill="rgba(255,255,255,0.07)"/>
-                      <rect x={CX-26} y={CY+30} width={52*Math.min(phaseProg,1)} height="2.5" rx="1.5" fill={curPhase.stroke} opacity="0.85"/>
-
-                      {/* Needle */}
-                      <line x1={nBX} y1={nBY} x2={nTX} y2={nTY} stroke="white" strokeWidth="2" strokeLinecap="round"
-                        style={{ filter: "drop-shadow(0 0 6px rgba(255,255,255,0.85))" }} />
-                      <circle cx={nTX} cy={nTY} r="3.5" fill="white" style={{ filter: "drop-shadow(0 0 5px white)" }}/>
-                      <circle cx={CX} cy={CY} r="7.5" fill={curPhase.stroke} filter="url(#gw2)"/>
-                      <circle cx={CX} cy={CY} r="4" fill="white"/>
-                    </svg>
-                  </div>
-
-                  {/* Wake time */}
-                  <div style={{ margin:"0 12px 10px", padding:"11px 14px", borderRadius:12, background:"rgba(0,0,0,0.45)", border:"1px solid rgba(255,255,255,0.08)" }}>
-                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                      <div>
-                        <div style={{ fontSize:12, fontWeight:600, color:"white" }}>Wake time</div>
-                        <div style={{ fontSize:10, color:"rgba(255,255,255,0.3)" }}>Shifts all 9 phase boundaries</div>
-                      </div>
-
-                      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                        <button
-                          onClick={() => setWakeHour(h => Math.max(4, +(h - 0.5).toFixed(1)))}
-                          style={{ width:30, height:30, borderRadius:15, border:"1px solid rgba(255,255,255,0.15)", background:"rgba(255,255,255,0.06)", color:"white", fontSize:18 }}
-                        >−</button>
-
-                        <span style={{ fontSize:15, fontWeight:700, fontFamily:"DM Mono,monospace", width:54, textAlign:"center" }}>
-                          {Math.floor(wakeHour)}:{String(Math.round((wakeHour % 1) * 60)).padStart(2,"0")}
-                        </span>
-
-                        <button
-                          onClick={() => setWakeHour(h => Math.min(11, +(h + 0.5).toFixed(1)))}
-                          style={{ width:30, height:30, borderRadius:15, border:"1px solid rgba(255,255,255,0.15)", background:"rgba(255,255,255,0.06)", color:"white", fontSize:18 }}
-                        >+</button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Phase map */}
-                  <div style={{ margin:"0 12px 10px" }}>
-                    <p style={{ fontSize:9, color:"rgba(255,255,255,0.3)", letterSpacing:"0.12em", marginBottom:7, fontFamily:"DM Mono,monospace" }}>
-                      PHASE REFERENCE MAP
-                    </p>
-                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:6 }}>
-                      {PHASES.map(p => {
-                        const active = p.id === curPhase.id;
-                        return (
-                          <div
-                            key={p.id}
-                            style={{
-                              padding:"7px 8px",
-                              borderRadius:9,
-                              background: active ? (p.fill + "b0") : "rgba(255,255,255,0.04)",
-                              border: `1px solid ${active ? (p.stroke + "75") : "rgba(255,255,255,0.08)"}`,
-                              display:"flex",
-                              alignItems:"center",
-                              gap:6
-                            }}
-                          >
-                            <div style={{ width:8, height:8, borderRadius:2, background:p.stroke, flexShrink:0 }}/>
-                            <div style={{ flex:1, minWidth:0 }}>
-                              <div style={{
-                                fontSize:9.5,
-                                fontFamily:"DM Mono,monospace",
-                                fontWeight:500,
-                                color: active ? p.stroke : "rgba(255,255,255,0.65)",
-                                whiteSpace:"nowrap",
-                                overflow:"hidden",
-                                textOverflow:"ellipsis"
-                              }}>{p.name}</div>
-                              <div style={{ fontSize:8, color:"rgba(255,255,255,0.28)", marginTop:1 }}>
-                                {fmtShifted(p.start, wo)}
-                              </div>
-                            </div>
-                            <div style={{ fontSize:12 }}>{p.symbol}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Disclaimer */}
-                  <div style={{ margin:"0 12px 14px", padding:"10px 12px", borderRadius:12, border:"1px solid rgba(255,255,255,0.08)", background:"rgba(0,0,0,0.35)" }}>
-                    <div style={{ fontSize:11, color:"rgba(255,255,255,0.55)", lineHeight:1.5 }}>
-                      This is an educational visualization and journaling aid. It is not a medical device and does not provide medical advice.
-                    </div>
-                  </div>
-
-                </div>
-              )}
-
-              {/* ALIGN TAB */}
-              {tab === "align" && (
-                <div className="su" style={{ padding:12, display:"flex", flexDirection:"column", gap:12 }}>
-                  <div style={{
-                    borderRadius:12, padding:12, display:"flex", alignItems:"center", gap:12,
-                    border:`1px solid ${curPhase.stroke}35`,
-                    background:`linear-gradient(135deg,${curPhase.fill}55,rgba(0,0,0,0.5))`
-                  }}>
-                    <span style={{ fontSize:32 }}>{curPhase.symbol}</span>
-                    <div>
-                      <p style={{ fontFamily:"Cinzel,serif", fontSize:13, fontWeight:700, color:curPhase.stroke, margin:0 }}>{curPhase.name}</p>
-                      <p style={{ fontSize:11, color:"rgba(255,255,255,0.5)", margin:"2px 0 0" }}>{curPhase.desc}</p>
-                    </div>
-                  </div>
-
-                  <p style={{ fontSize:9, color:"rgba(255,255,255,0.35)", letterSpacing:"0.12em", margin:0, fontFamily:"DM Mono,monospace" }}>
-                    SELECT ACTIVITY — SEE BIOLOGICAL ALIGNMENT
-                  </p>
-
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-                    {ACTIVITIES.map(act => {
-                      const score = alignScore(act);
-                      const sel = selAct && selAct.name === act.name;
-                      const col = score >= 80 ? "#10b981" : score >= 60 ? "#f59e0b" : "#ef4444";
-
-                      return (
-                        <button
-                          key={act.name}
-                          onClick={() => setSelAct(act)}
-                          style={{
-                            padding:12,
-                            borderRadius:12,
-                            textAlign:"left",
-                            border:`1px solid ${sel ? (curPhase.stroke + "60") : "rgba(255,255,255,0.08)"}`,
-                            background: sel ? (curPhase.glow + "18") : "rgba(0,0,0,0.4)"
-                          }}
-                        >
-                          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
-                            <span style={{ fontSize:22 }}>{act.icon}</span>
-                            <span style={{ fontSize:12, fontWeight:700, fontFamily:"DM Mono,monospace", color:col }}>{score}%</span>
-                          </div>
-
-                          <p style={{ fontSize:12, fontWeight:600, color:"white", margin:"6px 0 5px" }}>{act.name}</p>
-
-                          <div style={{ height:2.5, borderRadius:1.5, background:"rgba(255,255,255,0.07)" }}>
-                            <div style={{ width:`${score}%`, height:"100%", borderRadius:1.5, background:col }} />
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* INSIGHTS TAB */}
-              {tab === "insights" && (
-                <div className="su" style={{ padding:12, display:"flex", flexDirection:"column", gap:14 }}>
-                  <div>
-                    <p style={{ fontSize:9, color:"rgba(255,255,255,0.35)", letterSpacing:"0.12em", marginBottom:7, fontFamily:"DM Mono,monospace" }}>
-                      24H HORMONE MODEL (STYLIZED)
-                    </p>
-
-                    <div style={{ borderRadius:12, padding:12, border:"1px solid rgba(255,255,255,0.07)", background:"rgba(0,0,0,0.45)" }}>
-                      <ResponsiveContainer width="100%" height={170}>
-                        <AreaChart data={hormoneData} margin={{ top:5, right:8, bottom:5, left:-28 }}>
-                          <defs>
-                            {[
-                              ["cg", "#fbbf24"],
-                              ["tg", "#f97316"],
-                              ["mg", "#818cf8"],
-                              ["fg", curPhase.glow]
-                            ].map(([id,c]) => (
-                              <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor={c} stopOpacity="0.25" />
-                                <stop offset="95%" stopColor={c} stopOpacity="0" />
-                              </linearGradient>
-                            ))}
-                          </defs>
-
-                          <XAxis
-                            dataKey="hour"
-                            tick={{ fill:"#374151", fontSize:8 }}
-                            axisLine={false}
-                            tickLine={false}
-                            tickFormatter={(h) => (h % 6 === 0 ? (h===0 ? "12a" : h===12 ? "12p" : h<12 ? `${h}a` : `${h}p`) : "")}
-                          />
-                          <YAxis domain={[0,1]} tick={false} axisLine={false} />
-
-                          <Tooltip
-                            contentStyle={{ background:"#07101f", border:"1px solid #1e293b", borderRadius:8, fontSize:11 }}
-                            formatter={(v,n) => [`${(v*100).toFixed(0)}%`, n]}
-                            labelFormatter={(h) => `${Math.floor(h)}:${(h%1===0.5) ? "30" : "00"}`}
-                          />
-
-                          <ReferenceLine x={curHour} stroke="rgba(255,255,255,0.4)" strokeDasharray="3 2" strokeWidth={1.2} />
-
-                          <Area type="monotone" dataKey="cortisol" name="Cortisol" stroke="#fbbf24" fill="url(#cg)" strokeWidth={1.5} dot={false}/>
-                          <Area type="monotone" dataKey="temp" name="Body Temp" stroke="#f97316" fill="url(#tg)" strokeWidth={1.5} dot={false}/>
-                          <Area type="monotone" dataKey="melatonin" name="Melatonin" stroke="#818cf8" fill="url(#mg)" strokeWidth={1.5} dot={false}/>
-                          <Area type="monotone" dataKey="composite" name="F(t)" stroke={curPhase.glow} fill="none" strokeWidth={2.2} dot={false} strokeDasharray="5 2"/>
-                        </AreaChart>
-                      </ResponsiveContainer>
-
-                      <div style={{ marginTop:8, display:"flex", justifyContent:"space-between", gap:8 }}>
-                        <button onClick={() => setModal(true)} style={{ fontSize:11, padding:"8px 12px", borderRadius:10, border:`1px solid ${curPhase.stroke}45`, background:"transparent", color:curPhase.stroke }}>
-                          Add log entry
-                        </button>
-                        <button onClick={() => { try { localStorage.removeItem("rc-log"); } catch(e) {} setTrackLog([]); }} style={{ fontSize:11, padding:"8px 12px", borderRadius:10, border:"1px solid rgba(255,255,255,0.15)", background:"transparent", color:"rgba(255,255,255,0.6)" }}>
-                          Clear log
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Log list */}
-                  <div style={{ borderRadius:12, padding:12, border:"1px solid rgba(255,255,255,0.07)", background:"rgba(0,0,0,0.35)" }}>
-                    <p style={{ fontSize:9, color:"rgba(255,255,255,0.35)", letterSpacing:"0.12em", margin:"0 0 10px", fontFamily:"DM Mono,monospace" }}>
-                      YOUR LOG (LOCAL)
-                    </p>
-
-                    {trackLog.length === 0 ? (
-                      <div style={{ fontSize:12, color:"rgba(255,255,255,0.55)", lineHeight:1.6 }}>
-                        No entries yet.
-                      </div>
-                    ) : (
-                      <div style={{ display:"flex", flexDirection:"column", gap:6, maxHeight:280, overflowY:"auto" }}>
-                        {trackLog.map((e,i) => {
-                          const ep = PHASES.find(p => p.name === e.phase) || PHASES[0];
-                          return (
-                            <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:10, border:"1px solid rgba(255,255,255,0.06)", background:"rgba(0,0,0,0.3)" }}>
-                              <span style={{ fontSize:18 }}>{ep.symbol}</span>
-                              <div style={{ flex:1, minWidth:0 }}>
-                                <div style={{ display:"flex", justifyContent:"space-between" }}>
-                                  <span style={{ fontSize:11, fontWeight:600 }}>{e.phase}</span>
-                                  <span style={{ fontSize:10, color:"rgba(255,255,255,0.3)", fontFamily:"DM Mono,monospace" }}>
-                                    {new Date(e.time).toLocaleTimeString("en-US",{ hour:"2-digit", minute:"2-digit" })}
-                                  </span>
-                                </div>
-                                {e.note && (
-                                  <div style={{ fontSize:10, marginTop:3, color:"rgba(255,255,255,0.35)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
-                                    {e.note}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* SCIENCE TAB */}
-              {tab === "science" && (
-                <div className="su" style={{ padding:12, display:"flex", flexDirection:"column", gap:12 }}>
-                  <div style={{ borderRadius:14, padding:14, border:"1px solid rgba(255,255,255,0.08)", background:"rgba(0,0,0,0.45)" }}>
-                    <p style={{ fontSize:12, color:"rgba(255,255,255,0.65)", lineHeight:1.65, margin:0 }}>
-                      This project is a visualization of a simplified circadian-style model. If you want it to be scientifically stronger:
-                      (1) cite the parameter sources precisely, (2) expose calibration controls, and (3) validate against your own longitudinal measurements.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-            </div>
-
-            {/* MODAL */}
-            {modal && (
-              <div
-                className="fi"
-                onClick={(e) => { if (e.target === e.currentTarget) setModal(false); }}
-                style={{
-                  position:"fixed", inset:0, zIndex:50,
-                  display:"flex", alignItems:"flex-end", justifyContent:"center",
-                  background:"rgba(0,0,0,0.82)", backdropFilter:"blur(12px)"
-                }}
-              >
-                <div
-                  className="su"
-                  style={{
-                    width:"100%", maxWidth:480,
-                    borderRadius:"20px 20px 0 0",
-                    padding:20,
-                    background:"linear-gradient(180deg,#0c1828,#050a12)",
-                    border:"1px solid rgba(255,255,255,0.1)",
-                    borderBottom:"none"
-                  }}
-                >
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
-                    <div>
-                      <h3 style={{ fontFamily:"Cinzel,serif", fontSize:15, fontWeight:700, margin:0 }}>Track Your State</h3>
-                      <p style={{ fontSize:11, color:"rgba(255,255,255,0.4)", margin:"3px 0 0" }}>
-                        {curPhase.symbol} {curPhase.name} · {timeStr}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setModal(false)}
-                      style={{ width:30, height:30, borderRadius:15, border:"1px solid rgba(255,255,255,0.15)", background:"rgba(255,255,255,0.07)", color:"rgba(255,255,255,0.6)", fontSize:14 }}
-                    >✕</button>
-                  </div>
-
-                  {[
-                    { k:"energy", l:"Energy Level", c:"#f59e0b" },
-                    { k:"focus",  l:"Mental Focus", c:"#2dd4bf" },
-                    { k:"mood",   l:"Mood / Wellbeing", c:"#a78bfa" },
-                  ].map(({k,l,c}) => (
-                    <div key={k} style={{ marginBottom:14 }}>
-                      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
-                        <span style={{ fontSize:12, color:"rgba(255,255,255,0.7)" }}>{l}</span>
-                        <span style={{ fontSize:12, fontWeight:700, color:c, fontFamily:"DM Mono,monospace" }}>{entry[k]}/5</span>
-                      </div>
-                      <div style={{ display:"flex", gap:6 }}>
-                        {[1,2,3,4,5].map(v => (
-                          <button
-                            key={v}
-                            onClick={() => setEntry(e => ({ ...e, [k]: v }))}
-                            style={{
-                              flex:1,
-                              padding:"9px 0",
-                              borderRadius:8,
-                              fontSize:13,
-                              fontWeight:700,
-                              background: entry[k] >= v ? (c + "28") : "rgba(255,255,255,0.05)",
-                              color: entry[k] >= v ? c : "rgba(255,255,255,0.2)",
-                              border: entry[k] === v ? `1.5px solid ${c}` : "1.5px solid transparent"
-                            }}
-                          >{v}</button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-
-                  <textarea
-                    placeholder="Optional note…"
-                    value={entry.note}
-                    onChange={(e) => setEntry(s => ({ ...s, note: e.target.value }))}
-                    rows={2}
-                    style={{
-                      width:"100%",
-                      borderRadius:10,
-                      padding:"10px 12px",
-                      fontSize:12,
-                      background:"rgba(0,0,0,0.55)",
-                      border:"1px solid rgba(255,255,255,0.1)",
-                      resize:"none",
-                      outline:"none",
-                      display:"block"
-                    }}
-                  />
-
-                  <button
-                    onClick={addEntry}
-                    style={{
-                      width:"100%",
-                      marginTop:12,
-                      padding:"13px 0",
-                      borderRadius:12,
-                      fontSize:13,
-                      fontWeight:700,
-                      background: curPhase.stroke,
-                      color:"#020507",
-                      border:"none",
-                      letterSpacing:"0.06em"
-                    }}
-                  >SAVE ENTRY</button>
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      }
-
-      // Mount app
-      const rootEl = document.getElementById("root");
-      if (ReactDOM.createRoot) {
-        ReactDOM.createRoot(rootEl).render(<ResonanceClock />);
-      } else {
-        ReactDOM.render(<ResonanceClock />, rootEl);
-      }
-    </script>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Resonance &middot; 9-Phase Circadian Clock</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Resonance">
+<meta name="theme-color" content="#040810">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.10.4/Recharts.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+html,body,#root{margin:0;padding:0;height:100%;background:#040810;overflow:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
+.su{animation:su .22s ease-out}@keyframes su{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fi{animation:fi .2s}@keyframes fi{from{opacity:0}to{opacity:1}}
+button{cursor:pointer;font-family:'DM Sans',sans-serif}textarea{font-family:'DM Sans',sans-serif;color:white}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect,useMemo,useCallback}=React;
+const{AreaChart,Area,LineChart,Line,XAxis,YAxis,Tooltip,ResponsiveContainer,ReferenceLine}=Recharts;
+
+const PHASES=[
+{id:1,name:"Rest",symbol:"\u{1F319}",start:0,end:6.95,fill:"#1a1650",stroke:"#a5b4fc",glow:"#818cf8",
+desc:"Deep restoration & memory consolidation",
+science:"Growth hormone secretion peaks. Neural synaptic pruning. Hippocampal consolidation via slow-wave sleep. Glymphatic system clears adenosine and metabolic waste.",
+best:["Sleep","Rest","Meditation"],avoid:["Stimulants","Screens","Heavy food"]},
+{id:2,name:"Awakening",symbol:"\u{1F305}",start:6.95,end:8.5,fill:"#6b2d00",stroke:"#fcd34d",glow:"#fbbf24",
+desc:"Cortisol Awakening Response activates the system",
+science:"HPA axis cortisol surge (CAR) within 30\u201345 min of waking. Blood pressure and heart rate rise rapidly. Delay caffeine 90 min to preserve the natural CAR (Brabant 1990).",
+best:["Planning","Light exercise","Journaling"],avoid:["Caffeine (delay 90 min)","High-stakes decisions"]},
+{id:3,name:"Focus Rise",symbol:"\u26A1",start:8.5,end:10.0,fill:"#0d3d38",stroke:"#5eead4",glow:"#2dd4bf",
+desc:"Dopamine & norepinephrine build cognitive clarity",
+science:"Dopamine and norepinephrine rising sharply. Prefrontal cortex activation strengthens. Working memory capacity expanding. Best for structured analytical intake.",
+best:["Deep work","Writing","Analysis"],avoid:["Multitasking","Passive meetings"]},
+{id:4,name:"Peak Focus",symbol:"\u{1F3AF}",start:10.0,end:12.5,fill:"#6b2200",stroke:"#fb923c",glow:"#f97316",
+desc:"Daily apex \u2014 cortisol & alertness both maximal",
+science:"Cortisol and alertness at daily apex (Van Cauter 1999). Reaction time, working memory, and executive function are all optimal. Reserve this window fiercely.",
+best:["Complex decisions","Learning","Problem solving"],avoid:["Interruptions","Low-value tasks"]},
+{id:5,name:"Integration",symbol:"\u{1F517}",start:12.5,end:14.5,fill:"#053d2f",stroke:"#34d399",glow:"#10b981",
+desc:"Serotonin supports social bonding & consolidation",
+science:"Post-peak serotonin supports empathy and social bonding. Post-lunch dip (PLD) is physiological, not a failure. Ideal for collaborative synthesis.",
+best:["Meetings","Collaboration","Lunch"],avoid:["Critical solo analysis","Major decisions"]},
+{id:6,name:"Creative",symbol:"\u{1F3A8}",start:14.5,end:16.5,fill:"#3b1580",stroke:"#c084fc",glow:"#a78bfa",
+desc:"Reduced inhibition unlocks divergent thinking",
+science:"Slightly reduced prefrontal inhibition enables novel associative connections. Core temperature still elevated. Lateral thinking and creative synthesis naturally emerge.",
+best:["Brainstorming","Art","Lateral thinking"],avoid:["Rigid analysis","Detailed editing"]},
+{id:7,name:"Vitality",symbol:"\u{1F525}",start:16.5,end:18.5,fill:"#6b1010",stroke:"#f87171",glow:"#ef4444",
+desc:"Core temperature peaks \u2192 physical performance apex",
+science:"Body temperature peaks at ~17:00 (Refinetti 2010). Muscle strength, VO2 max, cardiovascular efficiency, and neuromuscular coordination are all maximal.",
+best:["Exercise","Sport","Physical work"],avoid:["Demanding mental tasks"]},
+{id:8,name:"Wind Down",symbol:"\u{1F306}",start:18.5,end:21.0,fill:"#6b0f3a",stroke:"#f9a8d4",glow:"#ec4899",
+desc:"Parasympathetic shift \u2014 serotonin\u2192melatonin conversion",
+science:"Temperature falling. Serotonin\u2192melatonin conversion begins in pineal gland. Digestive systems optimize. Blue light at 480nm suppresses melatonin onset by up to 50%.",
+best:["Light social","Cooking","Reflection"],avoid:["Intense exercise","Blue light","News"]},
+{id:9,name:"Preparation",symbol:"\u{1F30C}",start:21.0,end:24.0,fill:"#091235",stroke:"#93c5fd",glow:"#60a5fa",
+desc:"Melatonin rises \u2014 sleep architecture initiating",
+science:"Pineal gland melatonin secretion rises sharply (Lewy 1999). Core temperature continues dropping. Protect this window: light, alcohol, and stimulants all delay sleep onset.",
+best:["Reading","Meditation","Journaling"],avoid:["Screens","Caffeine","Alcohol"]}
+];
+
+const ACTIVITIES=[
+{name:"Deep Work",icon:"\u{1F4A1}",optimalPhases:[3,4],align:[0,15,85,95,30,25,20,10,0],
+adapt:{high:"Prefrontal cortex at peak capacity. Block all notifications. Use 90-min ultradian cycles.",
+mid:"Cortisol still supports focus. Front-load the hardest sub-tasks now.",
+low:"Your brain is in diffuse mode. Switch to creative/associative tasks or defer to Focus Rise."}},
+{name:"Exercise",icon:"\u{1F3CB}\uFE0F",optimalPhases:[7,2],align:[0,45,30,25,35,40,95,25,0],
+adapt:{high:"Core temp peaks, strength +6%, perceived exertion \u221210%. Train compound lifts. Injury risk lowest.",
+mid:"Good training window. Core temp elevated. HIIT and moderate strength both work.",
+low:"Body in recovery mode. Light stretching or gentle walking only. Heavy exercise disrupts melatonin."}},
+{name:"Creative",icon:"\u{1F3A8}",optimalPhases:[6,3],align:[10,15,55,40,45,90,55,40,15],
+adapt:{high:"Inner critic quiet, associative networks wide open. Sketch, brainstorm, freewrite \u2014 don\u2019t edit.",
+mid:"Moderate alertness + relaxed executive control. Good for novel connections.",
+low:"Brain too sharp (will over-edit) or too foggy. Capture loose thoughts, return during Creative phase."}},
+{name:"Meetings",icon:"\u{1F465}",optimalPhases:[5,4],align:[0,20,25,55,85,60,50,35,0],
+adapt:{high:"Social cognition sharp. Reading people well, speaking fluently. Schedule negotiations here.",
+mid:"Engaged and articulate. Good for collaborative sessions. Emotional bandwidth available.",
+low:"Low social energy. Prepare key points in advance, keep it short."}},
+{name:"Learning",icon:"\u{1F4DA}",optimalPhases:[4,3],align:[5,20,75,90,50,40,35,20,5],
+adapt:{high:"Hippocampus primed for encoding. Tackle hardest material. Active recall builds strongest traces.",
+mid:"Mix reading with practice problems. Working memory buffer adequate for moderate complexity.",
+low:"Switch to review and spaced repetition instead of new material."}},
+{name:"Rest/Nap",icon:"\u{1F634}",optimalPhases:[1,9],align:[95,30,5,0,10,15,5,55,85],
+adapt:{high:"Biology supports deep restoration. Protect this window for sleep or 20-min power nap.",
+mid:"A short rest can help. Keep naps under 20 min to avoid sleep inertia.",
+low:"Your body is optimized for activity now. Resting wastes peak neurochemistry."}},
+{name:"Social",icon:"\u{1F91D}",optimalPhases:[5,8],align:[5,15,20,15,75,55,60,80,20],
+adapt:{high:"Oxytocin and emotional warmth peak. Connection feels natural. Relationships deepen here.",
+mid:"Good social energy. Present and engaged.",
+low:"Social battery low. Brief, meaningful interactions over long gatherings."}},
+{name:"Planning",icon:"\u{1F4CB}",optimalPhases:[2,4],align:[5,80,55,65,40,30,50,25,10],
+adapt:{high:"Executive function and strategic thinking aligned. Map your week, set priorities.",
+mid:"Enough prefrontal capacity for organization. Focus on next 24\u201348 hours.",
+low:"Stick to tactical to-do lists. Defer strategic decisions until Awakening or Peak Focus."}},
+{name:"Meditation",icon:"\u{1F9D8}",optimalPhases:[1,9],align:[70,45,20,10,30,55,35,75,85],
+adapt:{high:"Parasympathetic system ascending. Meditation amplifies natural shift. Deep practice effortless.",
+mid:"Mind may wander more. Body-scan and breath focus work well.",
+low:"Sympathetic system active. Try walking meditation or active breathwork."}},
+{name:"Sport",icon:"\u26BD",optimalPhases:[7,6],align:[0,20,25,30,40,65,95,30,0],
+adapt:{high:"Neuromuscular coordination, reaction time, VO2 max all peak. Compete now.",
+mid:"Decent physical window. Warm up thoroughly \u2014 injury risk slightly elevated.",
+low:"Physical performance suboptimal. Stick to light movement or skill practice."}}
+];
+
+const CONTEXTS=[
+{id:"home",icon:"\u{1F3E0}",label:"At Home",boost:["Meditation","Rest/Nap","Creative"],
+tips:["Control your light environment \u2014 biggest circadian lever at home","Set a screens-off alarm 60 min before target bedtime"]},
+{id:"office",icon:"\u{1F3E2}",label:"At Office",boost:["Deep Work","Meetings","Planning"],
+tips:["In Focus phase, headphones signal do-not-disturb","Request walking meetings during Integration"]},
+{id:"gym",icon:"\u{1F4AA}",label:"At Gym",boost:["Exercise","Sport"],
+tips:["Train compound movements first while neural drive highest","In Vitality phase push hard \u2014 your biological peak"]},
+{id:"commute",icon:"\u{1F697}",label:"Commuting",boost:["Learning","Planning","Meditation"],
+tips:["Podcast/audiobook learning \u2014 hippocampal encoding works via audio","Box breathing (4-4-4-4) to shift nervous system before arriving"]},
+{id:"outdoors",icon:"\u{1F333}",label:"Outdoors",boost:["Exercise","Social","Creative"],
+tips:["Morning outdoor light (>10,000 lux) resets circadian clock in 10 min","Evening sunset spectrum triggers melatonin onset naturally"]},
+{id:"cafe",icon:"\u2615",label:"Caf\u00E9",boost:["Creative","Learning","Planning"],
+tips:["Moderate ambient noise ~70 dB enhances creative cognition (Mehta 2012)","In Focus phase, use noise-canceling \u2014 caf\u00E9 noise helps creativity but hurts analysis"]}
+];
+
+function clamp(v){return Math.max(0.02,Math.min(0.98,v))}
+function cosH(n,t,p){return Math.cos(2*Math.PI*n*(t-p)/24)}
+function cortisol(t){return clamp(0.5+0.32*cosH(1,t,7.5)+0.10*cosH(2,t,7.5)+0.04*cosH(3,t,7.5)+0.02*cosH(4,t,7.5))}
+function bodyTemp(t){return clamp(0.5+0.28*cosH(1,t,17.0)+0.07*cosH(2,t,17.0)+0.02*cosH(3,t,17.0))}
+function melatonin(t){return clamp(0.5+0.38*cosH(1,t,3.0)+0.08*cosH(2,t,3.0)+0.02*cosH(3,t,3.0))}
+function composite(t){return 0.5*cortisol(t)+0.3*bodyTemp(t)+0.2*melatonin(t)}
+
+function hDeg(h){return(h/24)*360}
+function toXY(cx,cy,r,deg){var rad=(deg-90)*Math.PI/180;return[cx+r*Math.cos(rad),cy+r*Math.sin(rad)]}
+function arcD(cx,cy,r1,r2,h1,h2){
+var a1=hDeg(h1),a2=hDeg(Math.min(h2,23.9999));
+var p1=toXY(cx,cy,r2,a1),p2=toXY(cx,cy,r2,a2),p3=toXY(cx,cy,r1,a2),p4=toXY(cx,cy,r1,a1);
+var lg=(a2-a1)>180?1:0;
+return"M"+p1[0]+","+p1[1]+" A"+r2+","+r2+" 0 "+lg+",1 "+p2[0]+","+p2[1]+" L"+p3[0]+","+p3[1]+" A"+r1+","+r1+" 0 "+lg+",0 "+p4[0]+","+p4[1]+"Z"}
+function wavePath(cx,cy,rMin,rMax,fn){
+var n=300;return Array.from({length:n+1},function(_,i){var t=(i/n)*24,r=rMin+(rMax-rMin)*fn(t),xy=toXY(cx,cy,r,(i/n)*360);return(i===0?"M":"L")+xy[0].toFixed(2)+","+xy[1].toFixed(2)}).join(" ")+"Z"}
+function fmtS(mh,off){var s=((mh+off)%24+24)%24;return Math.floor(s)+":"+String(Math.round((s%1)*60)).padStart(2,"0")}
+function phaseAt(sh){for(var i=0;i<PHASES.length;i++){if(sh>=PHASES[i].start&&sh<PHASES[i].end)return PHASES[i]}return PHASES[0]}
+
+function ResonanceClock(){
+var _n=useState(new Date()),now=_n[0],setNow=_n[1];
+var _w=useState(7.0),wakeHour=_w[0],setWakeHour=_w[1];
+var _t=useState("clock"),tab=_t[0],setTab=_t[1];
+var _a=useState(null),selAct=_a[0],setSelAct=_a[1];
+var _c=useState(null),selCtx=_c[0],setSelCtx=_c[1];
+var _l=useState([]),trackLog=_l[0],setTrackLog=_l[1];
+var _m=useState(false),modal=_m[0],setModal=_m[1];
+var _e=useState({energy:3,focus:3,mood:3,note:""}),entry=_e[0],setEntry=_e[1];
+
+useEffect(function(){var t=setInterval(function(){setNow(new Date())},1000);return function(){clearInterval(t)}},[]);
+useEffect(function(){try{var r=localStorage.getItem("rc-log");if(r)setTrackLog(JSON.parse(r))}catch(e){}},[]);
+
+var wo=wakeHour-7.0;
+var curHour=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
+var shiftedH=((curHour-wo)%24+24)%24;
+var curPhase=useMemo(function(){return phaseAt(shiftedH)},[shiftedH]);
+var phaseProg=useMemo(function(){return(shiftedH-curPhase.start)/(curPhase.end-curPhase.start)},[shiftedH,curPhase]);
+
+var alignScore=useCallback(function(act){
+if(act.align)return act.align[curPhase.id-1]||0;
+var r=act.optimalPhases.indexOf(curPhase.id);
+if(r===0)return 95;if(r===1)return 78;
+var d=Math.min.apply(null,act.optimalPhases.map(function(id){return Math.abs(id-curPhase.id)}));
+return d===1?60:d===2?42:20},[curPhase]);
+
+function getAdapt(act,score){if(!act.adapt)return"";if(score>=75)return act.adapt.high;if(score>=40)return act.adapt.mid;return act.adapt.low}
+
+var addEntry=useCallback(function(){
+var e=Object.assign({},entry,{time:now.toISOString(),hour:+curHour.toFixed(2),phase:curPhase.name,phaseId:curPhase.id});
+var nl=[e].concat(trackLog).slice(0,100);
+setTrackLog(nl);try{localStorage.setItem("rc-log",JSON.stringify(nl))}catch(err){}
+setModal(false);setEntry({energy:3,focus:3,mood:3,note:""})},[entry,now,curHour,curPhase,trackLog]);
+
+var hormoneData=useMemo(function(){return Array.from({length:49},function(_,i){return{hour:i/2,cortisol:+cortisol(i/2).toFixed(3),temp:+bodyTemp(i/2).toFixed(3),melatonin:+melatonin(i/2).toFixed(3),composite:+composite(i/2).toFixed(3)}})},[]);
+
+var sortedActs=useMemo(function(){return ACTIVITIES.slice().sort(function(a,b){return alignScore(b)-alignScore(a)})},[alignScore]);
+
+var CX=220,CY=220,SZ=440,R_TICK_IN=198,R_TICK_OUT=210,R_HLABEL=224,R_ARC_OUT=194,R_ARC_IN=150,R_ARC_MID=172,R_PROG=148,R_WAVE_OUT=142,R_WAVE_IN=106,R_PETAL=88,R_CENTER=70;
+var needleDeg=hDeg(shiftedH),nT=toXY(CX,CY,R_ARC_OUT+9,needleDeg),nB=toXY(CX,CY,18,(needleDeg+180)%360);
+var progEndH=curPhase.start+(curPhase.end-curPhase.start)*phaseProg,pA=toXY(CX,CY,R_PROG,hDeg(curPhase.start)),pB=toXY(CX,CY,R_PROG,hDeg(Math.min(progEndH,23.9999)));
+var progLA=(hDeg(progEndH)-hDeg(curPhase.start))>180?1:0;
+var timeStr=String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0"),secStr=String(now.getSeconds()).padStart(2,"0");
+
+var h=React.createElement;
+var F=React.Fragment;
+
+return h("div",{style:{minHeight:"100vh",fontFamily:"'DM Sans',sans-serif",background:"#040810",maxWidth:480,margin:"0 auto",color:"white",display:"flex",flexDirection:"column"}},
+
+// HEADER
+h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderBottom:"1px solid rgba(255,255,255,0.07)"}},
+h("div",null,h("div",{style:{fontFamily:"Cinzel,serif",fontSize:14,fontWeight:700,letterSpacing:"0.22em",color:curPhase.glow}},"RESONANCE"),h("div",{style:{fontSize:10,color:"rgba(255,255,255,0.3)",letterSpacing:"0.04em"}},"9-Phase Circadian Clock \u00B7 H.A. Marouf")),
+h("div",{style:{display:"flex",alignItems:"center",gap:8}},h("div",{style:{fontSize:10,color:"rgba(255,255,255,0.3)"}},now.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})),h("button",{onClick:function(){setModal(true)},style:{fontSize:11,padding:"5px 12px",borderRadius:20,border:"1px solid "+curPhase.glow+"50",color:curPhase.glow,background:curPhase.glow+"14"}},"\u002B Track"))),
+
+// TABS
+h("div",{style:{display:"flex",background:"rgba(0,0,0,0.5)",borderBottom:"1px solid rgba(255,255,255,0.06)"}},
+[["clock","\u{1F550}","Clock"],["align","\u{1F3AF}","Align"],["insights","\u{1F4CA}","Insights"],["science","\u{1F52C}","Science"]].map(function(a){return h("button",{key:a[0],onClick:function(){setTab(a[0])},style:{flex:1,padding:"7px 0",fontSize:11,fontWeight:500,background:"transparent",border:"none",borderBottom:"2px solid "+(tab===a[0]?curPhase.glow:"transparent"),color:tab===a[0]?curPhase.glow:"rgba(255,255,255,0.35)",transition:"color .2s,border-color .2s"}},h("div",{style:{fontSize:13}},a[1]),h("div",null,a[2]))})),
+
+// CONTENT
+h("div",{style:{flex:1,overflowY:"auto",paddingBottom:28}},
+
+// ====== CLOCK TAB ======
+tab==="clock"&&h("div",{className:"su"},
+h("div",{style:{padding:"6px 2px 0"}},
+h("svg",{viewBox:"0 0 "+SZ+" "+SZ,width:"100%",style:{display:"block"}},
+h("defs",null,
+h("filter",{id:"gw4"},h("feGaussianBlur",{stdDeviation:"4",result:"b"}),h("feMerge",null,h("feMergeNode",{in:"b"}),h("feMergeNode",{in:"SourceGraphic"}))),
+h("filter",{id:"gw2"},h("feGaussianBlur",{stdDeviation:"2.5",result:"b"}),h("feMerge",null,h("feMergeNode",{in:"b"}),h("feMergeNode",{in:"SourceGraphic"}))),
+PHASES.map(function(p){return h("radialGradient",{key:"rg"+p.id,id:"rg"+p.id,cx:"50%",cy:"50%",r:"50%"},h("stop",{offset:"0%",stopColor:p.stroke,stopOpacity:"1"}),h("stop",{offset:"55%",stopColor:p.fill,stopOpacity:"1"}),h("stop",{offset:"100%",stopColor:p.fill,stopOpacity:"0.75"}))}),
+h("radialGradient",{id:"centGr",cx:"50%",cy:"50%",r:"50%"},h("stop",{offset:"0%",stopColor:curPhase.fill,stopOpacity:"0.65"}),h("stop",{offset:"100%",stopColor:"#030608",stopOpacity:"1"}))),
+h("circle",{cx:CX,cy:CY,r:R_ARC_OUT+24,fill:"none",stroke:curPhase.glow,strokeWidth:"48",strokeOpacity:"0.032"}),
+Array.from({length:24},function(_,i){var a=hDeg(i),maj=i%6===0,m3=i%3===0,xy1=toXY(CX,CY,R_TICK_IN,a),xy2=toXY(CX,CY,R_TICK_OUT+(maj?9:m3?5:2),a);return h("line",{key:i,x1:xy1[0],y1:xy1[1],x2:xy2[0],y2:xy2[1],stroke:maj?"rgba(255,255,255,0.8)":m3?"rgba(255,255,255,0.38)":"rgba(255,255,255,0.13)",strokeWidth:maj?1.8:m3?1:0.7})}),
+[0,3,6,9,12,15,18,21].map(function(hr){var lxy=toXY(CX,CY,R_HLABEL,hDeg(hr));return h("text",{key:hr,x:lxy[0],y:lxy[1],textAnchor:"middle",dominantBaseline:"middle",fontSize:"8.5",fill:"rgba(255,255,255,0.6)",fontFamily:"DM Mono,monospace",fontWeight:"500"},hr===0?"12a":hr===12?"12p":hr>12?hr+"p":hr+"a")}),
+PHASES.map(function(p){var act=p.id===curPhase.id;return h("g",{key:"pa"+p.id},h("path",{d:arcD(CX,CY,R_ARC_IN,R_ARC_OUT,p.start,p.end),fill:act?"url(#rg"+p.id+")":p.fill,stroke:p.stroke,strokeWidth:act?2:0.6,opacity:act?1:0.72,filter:act?"url(#gw4)":"none"}),act&&h("path",{d:arcD(CX,CY,R_ARC_OUT,R_ARC_OUT+6,p.start,p.end),fill:p.stroke,fillOpacity:"0.45",filter:"url(#gw4)"}),act&&h("path",{d:arcD(CX,CY,R_ARC_IN,R_ARC_IN+5,p.start,p.end),fill:p.stroke,fillOpacity:"0.22",filter:"url(#gw2)"}))}),
+PHASES.map(function(p){var xy1=toXY(CX,CY,R_ARC_IN-3,hDeg(p.start)),xy2=toXY(CX,CY,R_ARC_OUT+5,hDeg(p.start));return h("line",{key:"dv"+p.id,x1:xy1[0],y1:xy1[1],x2:xy2[0],y2:xy2[1],stroke:"#040810",strokeWidth:"2.2"})}),
+PHASES.map(function(p){var mid=(p.start+p.end)/2,txy=toXY(CX,CY,R_ARC_MID,hDeg(mid)),act=p.id===curPhase.id;return h("g",{key:"lbl"+p.id},act&&h("ellipse",{cx:txy[0],cy:txy[1],rx:"13",ry:"16",fill:p.stroke,fillOpacity:"0.18"}),h("text",{x:txy[0],y:txy[1]-4,textAnchor:"middle",dominantBaseline:"middle",fontSize:act?"15":"12",opacity:act?1:0.82},p.symbol),h("text",{x:txy[0],y:txy[1]+10,textAnchor:"middle",dominantBaseline:"middle",fontFamily:"DM Mono,monospace",fontWeight:"600",fontSize:act?"9":"8",fill:act?"white":p.stroke,fillOpacity:act?1:0.7},p.id))}),
+h("path",{d:arcD(CX,CY,R_PROG-2,R_PROG+2,curPhase.start,curPhase.end),fill:"rgba(255,255,255,0.05)"}),
+phaseProg>0.015&&h("path",{d:"M"+pA[0]+","+pA[1]+" A"+R_PROG+","+R_PROG+" 0 "+progLA+",1 "+pB[0]+","+pB[1],fill:"none",stroke:"white",strokeWidth:"3.5",strokeLinecap:"round",strokeOpacity:"0.88",filter:"url(#gw2)"}),
+h("circle",{cx:CX,cy:CY,r:R_ARC_IN,fill:"none",stroke:"rgba(255,255,255,0.18)",strokeWidth:"1.2"}),
+h("circle",{cx:CX,cy:CY,r:R_WAVE_OUT+3,fill:"none",stroke:"rgba(255,255,255,0.09)",strokeWidth:"0.8"}),
+h("circle",{cx:CX,cy:CY,r:R_WAVE_IN-3,fill:"none",stroke:"rgba(255,255,255,0.09)",strokeWidth:"0.8"}),
+h("path",{d:arcD(CX,CY,R_WAVE_IN,R_WAVE_OUT,0,24),fill:"#030609",fillOpacity:"0.97"}),
+h("path",{d:wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,cortisol),fill:"none",stroke:"#fbbf24",strokeWidth:"1.4",strokeOpacity:"0.7"}),
+h("path",{d:wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,bodyTemp),fill:"none",stroke:"#f97316",strokeWidth:"1.4",strokeOpacity:"0.7"}),
+h("path",{d:wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,melatonin),fill:"none",stroke:"#818cf8",strokeWidth:"1.4",strokeOpacity:"0.7"}),
+h("path",{d:wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,composite),fill:"none",stroke:curPhase.glow,strokeWidth:"2.2",strokeOpacity:"0.92"}),
+h("circle",{cx:CX,cy:CY,r:(R_WAVE_IN+R_WAVE_OUT)/2,fill:"none",stroke:"rgba(255,255,255,0.07)",strokeWidth:"0.6",strokeDasharray:"3,4"}),
+[{l:"C",c:"#fbbf24",a:5},{l:"T",c:"#f97316",a:40},{l:"M",c:"#818cf8",a:75},{l:"F",c:curPhase.glow,a:110}].map(function(d){var lxy=toXY(CX,CY,R_WAVE_IN-8,d.a);return h("g",{key:d.l},h("circle",{cx:lxy[0],cy:lxy[1],r:"5.5",fill:d.c,fillOpacity:"0.92"}),h("text",{x:lxy[0],y:lxy[1],textAnchor:"middle",dominantBaseline:"middle",fontSize:"5",fontWeight:"700",fill:"#020507",fontFamily:"DM Mono,monospace"},d.l))}),
+h("circle",{cx:CX,cy:CY,r:R_WAVE_IN-4,fill:"#040810"}),
+Array.from({length:9},function(_,i){var angle=(i/9)*360,ph=PHASES[i],act=ph.id===curPhase.id,pxy=toXY(CX,CY,R_PETAL,angle);return h("ellipse",{key:"pt"+i,cx:pxy[0],cy:pxy[1],rx:"9",ry:"17",transform:"rotate("+angle+","+pxy[0]+","+pxy[1]+")",fill:ph.glow,fillOpacity:act?0.42:0.09,stroke:ph.glow,strokeWidth:"0.7",strokeOpacity:act?0.88:0.28,filter:act?"url(#gw2)":"none"})}),
+h("circle",{cx:CX,cy:CY,r:R_CENTER+9,fill:"#040810"}),h("circle",{cx:CX,cy:CY,r:R_CENTER,fill:"url(#centGr)"}),
+h("circle",{cx:CX,cy:CY,r:R_CENTER,fill:"none",stroke:curPhase.stroke,strokeWidth:"1.8",strokeOpacity:"0.72"}),
+h("circle",{cx:CX,cy:CY,r:R_CENTER+6,fill:"none",stroke:curPhase.glow,strokeWidth:"0.6",strokeOpacity:"0.2"}),
+h("text",{x:CX,y:CY-26,textAnchor:"middle",fontSize:"19"},curPhase.symbol),
+h("text",{x:CX,y:CY-10,textAnchor:"middle",fontSize:"7.5",fontFamily:"Cinzel,serif",fontWeight:"600",fill:curPhase.stroke,letterSpacing:"2.5"},curPhase.name.toUpperCase()),
+h("text",{x:CX,y:CY+8,textAnchor:"middle",fontSize:"21",fontFamily:"DM Mono,monospace",fontWeight:"600",fill:"white"},timeStr,h("tspan",{fontSize:"10",fill:"rgba(255,255,255,0.36)"},"."+secStr)),
+h("text",{x:CX,y:CY+24,textAnchor:"middle",fontSize:"7.5",fontFamily:"DM Sans,sans-serif",fill:"rgba(255,255,255,0.3)"},"Phase "+curPhase.id+" of 9"),
+h("rect",{x:CX-26,y:CY+30,width:52,height:2.5,rx:1.5,fill:"rgba(255,255,255,0.07)"}),
+h("rect",{x:CX-26,y:CY+30,width:52*Math.min(phaseProg,1),height:2.5,rx:1.5,fill:curPhase.stroke,opacity:"0.85"}),
+h("line",{x1:nB[0],y1:nB[1],x2:nT[0],y2:nT[1],stroke:"white",strokeWidth:"2",strokeLinecap:"round",style:{filter:"drop-shadow(0 0 6px rgba(255,255,255,0.85))"}}),
+h("circle",{cx:nT[0],cy:nT[1],r:"3.5",fill:"white",style:{filter:"drop-shadow(0 0 5px white)"}}),
+h("circle",{cx:CX,cy:CY,r:"7.5",fill:curPhase.stroke,filter:"url(#gw2)"}),
+h("circle",{cx:CX,cy:CY,r:"4",fill:"white"}))),
+
+// Phase info card
+h("div",{style:{margin:"8px 12px 10px",borderRadius:14,overflow:"hidden",border:"1px solid "+curPhase.stroke+"32",background:"linear-gradient(135deg,"+curPhase.fill+"75,#040810 65%)"}},
+h("div",{style:{padding:14}},
+h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}},
+h("div",{style:{display:"flex",alignItems:"center",gap:10}},h("span",{style:{fontSize:28}},curPhase.symbol),h("div",null,h("h2",{style:{fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,color:curPhase.stroke,margin:0}},curPhase.name),h("p",{style:{fontSize:11,color:"rgba(255,255,255,0.5)",margin:"2px 0 0"}},curPhase.desc))),
+h("div",{style:{textAlign:"right",fontFamily:"DM Mono,monospace",fontSize:11,color:"rgba(255,255,255,0.35)",flexShrink:0,marginLeft:8}},h("div",null,fmtS(curPhase.start,wo)),h("div",null,"\u2192 "+fmtS(curPhase.end>=24?0:curPhase.end,wo)))),
+h("div",{style:{height:4,borderRadius:2,background:"rgba(255,255,255,0.08)",overflow:"hidden",marginBottom:4}},h("div",{style:{height:"100%",borderRadius:2,width:(phaseProg*100)+"%",background:"linear-gradient(90deg,"+curPhase.fill+","+curPhase.stroke+")",transition:"width 1s"}})),
+h("div",{style:{display:"flex",justifyContent:"space-between",fontSize:10,color:"rgba(255,255,255,0.28)",marginBottom:10}},h("span",null,(phaseProg*100).toFixed(0)+"% complete"),h("span",null,((1-phaseProg)*(curPhase.end-curPhase.start)*60).toFixed(0)+" min remaining")),
+h("p",{style:{fontSize:11,lineHeight:1.6,color:"rgba(255,255,255,0.6)",marginBottom:10}},curPhase.science),
+h("div",{style:{display:"flex",flexWrap:"wrap",gap:6}},curPhase.best.map(function(a){return h("span",{key:a,style:{fontSize:10,padding:"3px 9px",borderRadius:20,background:curPhase.stroke+"22",color:curPhase.stroke,border:"1px solid "+curPhase.stroke+"35"}},"\u2713 "+a)}),curPhase.avoid.map(function(a){return h("span",{key:a,style:{fontSize:10,padding:"3px 9px",borderRadius:20,background:"rgba(239,68,68,0.1)",color:"#f87171",border:"1px solid rgba(239,68,68,0.18)"}},"\u2717 "+a)})))),
+
+// Wake time
+h("div",{style:{margin:"0 12px 10px",padding:"11px 14px",borderRadius:12,background:"rgba(0,0,0,0.45)",border:"1px solid rgba(255,255,255,0.08)"}},
+h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between"}},
+h("div",null,h("div",{style:{fontSize:12,fontWeight:600,color:"white"}},"Wake time"),h("div",{style:{fontSize:10,color:"rgba(255,255,255,0.3)"}},"Shifts all 9 phase boundaries")),
+h("div",{style:{display:"flex",alignItems:"center",gap:10}},
+h("button",{onClick:function(){setWakeHour(function(v){return Math.max(4,+(v-.5).toFixed(1))})},style:{width:30,height:30,borderRadius:15,border:"1px solid rgba(255,255,255,0.15)",background:"rgba(255,255,255,0.06)",color:"white",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}},"\u2212"),
+h("span",{style:{fontSize:15,fontWeight:700,fontFamily:"DM Mono,monospace",color:"white",width:44,textAlign:"center"}},Math.floor(wakeHour)+":"+(wakeHour%1*60).toFixed(0).padStart(2,"0")),
+h("button",{onClick:function(){setWakeHour(function(v){return Math.min(11,+(v+.5).toFixed(1))})},style:{width:30,height:30,borderRadius:15,border:"1px solid rgba(255,255,255,0.15)",background:"rgba(255,255,255,0.06)",color:"white",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}},"\u002B"))))),
+
+// ====== ALIGN TAB ======
+tab==="align"&&h("div",{className:"su",style:{padding:12,display:"flex",flexDirection:"column",gap:12}},
+h("div",{style:{borderRadius:12,padding:12,display:"flex",alignItems:"center",gap:12,border:"1px solid "+curPhase.stroke+"35",background:"linear-gradient(135deg,"+curPhase.fill+"55,rgba(0,0,0,0.5))"}},h("span",{style:{fontSize:32}},curPhase.symbol),h("div",null,h("p",{style:{fontFamily:"Cinzel,serif",fontSize:13,fontWeight:700,color:curPhase.stroke,margin:0}},curPhase.name),h("p",{style:{fontSize:11,color:"rgba(255,255,255,0.5)",margin:"2px 0 0"}},curPhase.desc))),
+
+h("p",{style:{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",margin:0,fontFamily:"DM Mono,monospace"}},"WHAT ARE YOU DOING?"),
+h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}},
+ACTIVITIES.map(function(act){var score=alignScore(act),sel=selAct&&selAct.name===act.name,col=score>=75?"#10b981":score>=40?"#f59e0b":"#ef4444";
+return h("button",{key:act.name,onClick:function(){setSelAct(act)},style:{padding:12,borderRadius:12,textAlign:"left",border:"1px solid "+(sel?curPhase.stroke+"60":"rgba(255,255,255,0.08)"),background:sel?curPhase.glow+"18":"rgba(0,0,0,0.4)"}},
+h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}},h("span",{style:{fontSize:22}},act.icon),h("span",{style:{fontSize:12,fontWeight:700,fontFamily:"DM Mono,monospace",color:col}},score+"%")),
+h("p",{style:{fontSize:12,fontWeight:600,color:"white",margin:"6px 0 5px"}},act.name),
+h("div",{style:{height:2.5,borderRadius:1.5,background:"rgba(255,255,255,0.07)"}},h("div",{style:{width:score+"%",height:"100%",borderRadius:1.5,background:col}})))})),
+
+h("p",{style:{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",margin:0,fontFamily:"DM Mono,monospace"}},"WHERE ARE YOU?"),
+h("div",{style:{display:"flex",flexWrap:"wrap",gap:8}},
+CONTEXTS.map(function(ctx){var sel=selCtx&&selCtx.id===ctx.id;
+return h("button",{key:ctx.id,onClick:function(){setSelCtx(sel?null:ctx)},style:{padding:"8px 14px",borderRadius:20,display:"flex",alignItems:"center",gap:6,fontSize:12,border:"1px solid "+(sel?curPhase.glow+"55":"rgba(255,255,255,0.1)"),background:sel?curPhase.glow+"18":"rgba(0,0,0,0.4)",color:sel?curPhase.glow:"rgba(255,255,255,0.5)"}},h("span",{style:{fontSize:15}},ctx.icon),ctx.label)})),
+
+selAct&&(function(){var score=alignScore(selAct),col=score>=75?"#10b981":score>=40?"#f59e0b":"#ef4444",best=PHASES.find(function(p){return p.id===selAct.optimalPhases[0]}),label=score>=75?"Excellent \u2014 peak biological window":score>=40?"Good \u2014 workable alignment":"Low \u2014 suboptimal timing",advice=getAdapt(selAct,score);
+return h("div",{style:{borderRadius:12,padding:14,border:"1px solid "+col+"28",background:col+"10"}},
+h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}},
+h("div",{style:{display:"flex",alignItems:"center",gap:8}},h("span",{style:{fontSize:22}},selAct.icon),h("span",{style:{fontSize:14,fontWeight:600,color:"white"}},selAct.name)),
+h("div",{style:{position:"relative",width:52,height:52}},h("svg",{viewBox:"0 0 44 44",width:"52",height:"52"},h("circle",{cx:"22",cy:"22",r:"17",fill:"none",stroke:"rgba(255,255,255,0.07)",strokeWidth:"4.5"}),h("circle",{cx:"22",cy:"22",r:"17",fill:"none",stroke:col,strokeWidth:"4.5",strokeDasharray:(score*1.069)+" 106.9",strokeLinecap:"round",transform:"rotate(-90 22 22)"})),h("div",{style:{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:col,fontFamily:"DM Mono,monospace"}},score+"%"))),
+h("p",{style:{fontSize:11,fontWeight:600,color:col,margin:"0 0 5px"}},label),
+h("p",{style:{fontSize:11,lineHeight:1.55,color:"rgba(255,255,255,0.55)",margin:"0 0 10px"}},advice),
+selCtx&&(function(){var boosted=selCtx.boost.indexOf(selAct.name)>=0;return h("div",{style:{padding:"10px 12px",borderRadius:10,marginBottom:10,background:boosted?"rgba(16,185,129,0.08)":"rgba(255,255,255,0.03)",border:"1px solid "+(boosted?"rgba(16,185,129,0.2)":"rgba(255,255,255,0.06)")}},h("p",{style:{fontSize:10,fontWeight:600,color:boosted?"#10b981":"rgba(255,255,255,0.5)",margin:"0 0 6px"}},selCtx.icon+" "+(boosted?"Environment supports this":"Location tips")),selCtx.tips.map(function(tip,i){return h("p",{key:i,style:{fontSize:10,color:"rgba(255,255,255,0.45)",margin:"3px 0",lineHeight:1.5}},"\u{1F4A1} "+tip)}))})(),
+score<75&&best&&h("div",{style:{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",borderRadius:8,background:best.glow+"16",border:"1px solid "+best.glow+"28"}},h("span",{style:{fontSize:18}},best.symbol),h("div",null,h("p",{style:{fontSize:11,fontWeight:600,color:best.stroke,margin:0}},"Optimal: "+best.name),h("p",{style:{fontSize:10,color:"rgba(255,255,255,0.38)",margin:"1px 0 0",fontFamily:"DM Mono,monospace"}},fmtS(best.start,wo)+" \u2013 "+fmtS(best.end>=24?0:best.end,wo)))))})(),
+
+h("div",{style:{borderRadius:12,padding:14,border:"1px solid rgba(16,185,129,0.15)",background:"rgba(16,185,129,0.05)"}},
+h("p",{style:{fontSize:9,fontWeight:600,letterSpacing:"0.12em",color:"#10b981",margin:"0 0 10px",fontFamily:"DM Mono,monospace"}},"BEST FOR "+curPhase.name.toUpperCase()+" PHASE"),
+sortedActs.slice(0,3).map(function(act,i){var sc=alignScore(act);return h("div",{key:act.name,style:{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:i<2?"1px solid rgba(255,255,255,0.04)":"none"}},h("span",{style:{fontSize:20}},act.icon),h("div",{style:{flex:1}},h("p",{style:{fontSize:12,fontWeight:600,color:"white",margin:0}},act.name),h("p",{style:{fontSize:10,color:"rgba(255,255,255,0.35)",margin:"2px 0 0",lineHeight:1.4}},getAdapt(act,sc))),h("span",{style:{fontSize:12,fontWeight:700,color:"#10b981",fontFamily:"DM Mono,monospace"}},sc+"%"))}))),
+
+// ====== INSIGHTS TAB ======
+tab==="insights"&&h("div",{className:"su",style:{padding:12,display:"flex",flexDirection:"column",gap:14}},
+h("div",null,h("p",{style:{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",marginBottom:7,fontFamily:"DM Mono,monospace"}},"LIVE HORMONE LEVELS \u00B7 BIOLOGICAL MODEL"),
+h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}},
+[{name:"Cortisol",val:cortisol(curHour),color:"#fbbf24",peak:"07:30",icon:"\u26A1",ref:"Brabant 1990"},{name:"Core Temp",val:bodyTemp(curHour),color:"#f97316",peak:"17:00",icon:"\u{1F321}",ref:"Refinetti 2010"},{name:"Melatonin",val:melatonin(curHour),color:"#818cf8",peak:"03:00",icon:"\u{1F319}",ref:"Lewy 1999"}].map(function(d){
+return h("div",{key:d.name,style:{borderRadius:12,padding:"11px 8px",textAlign:"center",border:"1px solid rgba(255,255,255,0.07)",background:"rgba(0,0,0,0.45)"}},
+h("div",{style:{fontSize:18}},d.icon),h("p",{style:{fontSize:9,color:"rgba(255,255,255,0.4)",margin:"5px 0 2px",fontFamily:"DM Mono,monospace"}},d.name),
+h("p",{style:{fontSize:22,fontWeight:700,color:d.color,fontFamily:"DM Mono,monospace",margin:0}},(d.val*100).toFixed(0),h("span",{style:{fontSize:10,fontWeight:400}},"%")),
+h("div",{style:{height:3,borderRadius:2,background:"rgba(255,255,255,0.07)",overflow:"hidden",margin:"7px 0 5px"}},h("div",{style:{width:(d.val*100)+"%",height:"100%",background:d.color,borderRadius:2}})),
+h("div",{style:{fontSize:8,color:"rgba(255,255,255,0.22)",fontFamily:"DM Mono,monospace"}},h("div",null,"Peak "+d.peak),h("div",null,d.ref)))}))),
+
+h("div",null,h("p",{style:{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",marginBottom:7,fontFamily:"DM Mono,monospace"}},"24H HORMONE MODEL \u00B7 F(t)=0.5C+0.3T+0.2M"),
+h("div",{style:{borderRadius:12,padding:12,border:"1px solid rgba(255,255,255,0.07)",background:"rgba(0,0,0,0.45)"}},
+h(ResponsiveContainer,{width:"100%",height:155},
+h(AreaChart,{data:hormoneData,margin:{top:5,right:8,bottom:5,left:-28}},
+h("defs",null,[["cg","#fbbf24"],["tg","#f97316"],["mg","#818cf8"],["fg",curPhase.glow]].map(function(a){return h("linearGradient",{key:a[0],id:a[0],x1:"0",y1:"0",x2:"0",y2:"1"},h("stop",{offset:"5%",stopColor:a[1],stopOpacity:"0.25"}),h("stop",{offset:"95%",stopColor:a[1],stopOpacity:"0"}))})),
+h(XAxis,{dataKey:"hour",tick:{fill:"#374151",fontSize:8},axisLine:false,tickLine:false,tickFormatter:function(v){return v%6===0?(v===0?"12a":v===12?"12p":v<12?v+"a":v+"p"):""}}),
+h(YAxis,{domain:[0,1],tick:false,axisLine:false}),
+h(Tooltip,{contentStyle:{background:"#07101f",border:"1px solid #1e293b",borderRadius:8,fontSize:11},formatter:function(v,n){return[(v*100).toFixed(0)+"%",n]},labelFormatter:function(v){return Math.floor(v)+":"+(v%1===0.5?"30":"00")}}),
+h(ReferenceLine,{x:curHour,stroke:"rgba(255,255,255,0.4)",strokeDasharray:"3 2",strokeWidth:1.2}),
+h(Area,{type:"monotone",dataKey:"cortisol",name:"Cortisol",stroke:"#fbbf24",fill:"url(#cg)",strokeWidth:1.5,dot:false}),
+h(Area,{type:"monotone",dataKey:"temp",name:"Body Temp",stroke:"#f97316",fill:"url(#tg)",strokeWidth:1.5,dot:false}),
+h(Area,{type:"monotone",dataKey:"melatonin",name:"Melatonin",stroke:"#818cf8",fill:"url(#mg)",strokeWidth:1.5,dot:false}),
+h(Area,{type:"monotone",dataKey:"composite",name:"F(t)",stroke:curPhase.glow,fill:"none",strokeWidth:2.2,dot:false,strokeDasharray:"5 2"}))),
+h("div",{style:{display:"flex",flexWrap:"wrap",gap:"5px 12px",justifyContent:"center",marginTop:4}},
+[["Cortisol","#fbbf24"],["Body Temp","#f97316"],["Melatonin","#818cf8"],["F(t)",curPhase.glow]].map(function(a){return h("div",{key:a[0],style:{display:"flex",alignItems:"center",gap:5}},h("div",{style:{width:8,height:8,borderRadius:2,background:a[1]}}),h("span",{style:{fontSize:9,color:"rgba(255,255,255,0.4)"}},a[0]))})))),
+
+// Energy log
+h("div",null,h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:7}},
+h("p",{style:{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",margin:0,fontFamily:"DM Mono,monospace"}},"YOUR ENERGY LOG"),
+h("button",{onClick:function(){setModal(true)},style:{fontSize:10,padding:"4px 12px",borderRadius:20,border:"1px solid "+curPhase.stroke+"45",color:curPhase.stroke,background:"transparent"}},"\u002B Entry")),
+trackLog.length===0?h("div",{style:{borderRadius:12,padding:22,textAlign:"center",border:"1px solid rgba(255,255,255,0.07)",background:"rgba(0,0,0,0.3)"}},
+h("div",{style:{fontSize:32,marginBottom:8}},"\u{1F4CA}"),h("p",{style:{fontSize:13,color:"white",margin:"0 0 5px"}},"No entries yet"),
+h("p",{style:{fontSize:11,color:"rgba(255,255,255,0.35)",margin:"0 0 12px",lineHeight:1.5}},"Log energy, focus & mood to compare against the biological model."),
+h("button",{onClick:function(){setModal(true)},style:{fontSize:11,padding:"7px 18px",borderRadius:20,fontWeight:600,background:curPhase.glow+"28",color:curPhase.glow,border:"1px solid "+curPhase.glow+"45"}},"Start Tracking"))
+:h(F,null,
+trackLog.length>=3&&h("div",{style:{borderRadius:12,padding:12,marginBottom:10,border:"1px solid rgba(255,255,255,0.07)",background:"rgba(0,0,0,0.45)"}},
+h(ResponsiveContainer,{width:"100%",height:90},h(LineChart,{data:trackLog.slice().reverse().slice(-20),margin:{top:5,right:5,bottom:5,left:-32}},
+h(XAxis,{dataKey:"phase",tick:{fill:"#374151",fontSize:7},tickFormatter:function(v,i){return i%3===0?v.substring(0,4):""},axisLine:false,tickLine:false}),
+h(YAxis,{domain:[1,5],ticks:[1,3,5],tick:{fill:"#374151",fontSize:7},axisLine:false,tickLine:false}),
+h(Tooltip,{contentStyle:{background:"#07101f",border:"1px solid #1e293b",borderRadius:8,fontSize:10}}),
+h(Line,{type:"monotone",dataKey:"energy",name:"Energy",stroke:"#f59e0b",strokeWidth:2,dot:false}),
+h(Line,{type:"monotone",dataKey:"focus",name:"Focus",stroke:"#2dd4bf",strokeWidth:2,dot:false}),
+h(Line,{type:"monotone",dataKey:"mood",name:"Mood",stroke:"#a78bfa",strokeWidth:2,dot:false})))),
+h("div",{style:{display:"flex",flexDirection:"column",gap:6,maxHeight:260,overflowY:"auto"}},
+trackLog.map(function(e,i){var ep=PHASES.find(function(p){return p.name===e.phase})||PHASES[0];
+return h("div",{key:i,style:{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",borderRadius:10,border:"1px solid rgba(255,255,255,0.06)",background:"rgba(0,0,0,0.3)"}},
+h("span",{style:{fontSize:18}},ep.symbol),h("div",{style:{flex:1,minWidth:0}},
+h("div",{style:{display:"flex",justifyContent:"space-between"}},h("span",{style:{fontSize:11,fontWeight:600,color:"white"}},e.phase),h("span",{style:{fontSize:10,color:"rgba(255,255,255,0.3)",fontFamily:"DM Mono,monospace"}},new Date(e.time).toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"}))),
+h("div",{style:{display:"flex",gap:10,marginTop:3}},
+[["\u26A1",e.energy,"#f59e0b"],["\u{1F3AF}",e.focus,"#2dd4bf"],["\u{1F60A}",e.mood,"#a78bfa"]].map(function(a){return h("span",{key:a[0],style:{fontSize:10,color:a[2]}},a[0]+" "+"\u25CF".repeat(a[1])+"\u25CB".repeat(5-a[1]))})),
+e.note&&h("p",{style:{fontSize:10,margin:"2px 0 0",color:"rgba(255,255,255,0.28)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},e.note)))})))),
+
+// ====== SCIENCE TAB ======
+tab==="science"&&h("div",{className:"su",style:{padding:12,display:"flex",flexDirection:"column",gap:12}},
+h("div",{style:{borderRadius:14,padding:14,border:"1px solid rgba(129,140,248,0.28)",background:"rgba(26,22,80,0.5)"}},
+h("p",{style:{fontSize:9,fontWeight:600,letterSpacing:"0.15em",color:"#818cf8",marginBottom:8,fontFamily:"DM Mono,monospace"}},"THE DISCOVERY"),
+h("h2",{style:{fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,color:"white",marginBottom:10}},"Artwork Validates Biology"),
+h("p",{style:{fontSize:12,lineHeight:1.65,color:"rgba(255,255,255,0.65)",marginBottom:8}},"H.A. Marouf derived this 9-phase model entirely from hormonal mathematics, blind to any artwork. The composite F(t) was computed solely from published biochemical parameters."),
+h("p",{style:{fontSize:12,lineHeight:1.65,color:"rgba(255,255,255,0.65)",marginBottom:14}},"When phase boundaries were later overlaid on independent automatic mandala drawings \u2014 created through meditative practice as a wholly separate process \u2014 the alignment was statistically extraordinary."),
+h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}},
+[{stat:"R\u00B2=0.993",label:"Model fit",color:"#10b981"},{stat:"10.1\u00B0",label:"Mean Ang. Error",color:"#60a5fa"},{stat:"p<0.001",label:"Significance",color:"#a78bfa"}].map(function(s){return h("div",{key:s.label,style:{textAlign:"center",padding:"10px 6px",borderRadius:10,background:"rgba(0,0,0,0.45)",border:"1px solid "+s.color+"25"}},h("p",{style:{fontSize:13,fontWeight:700,color:s.color,fontFamily:"DM Mono,monospace",margin:"0 0 3px"}},s.stat),h("p",{style:{fontSize:9,color:"rgba(255,255,255,0.3)",margin:0}},s.label))}))),
+
+h("div",{style:{borderRadius:14,padding:14,border:"1px solid rgba(45,212,191,0.18)",background:"rgba(0,0,0,0.6)"}},
+h("p",{style:{fontSize:9,letterSpacing:"0.15em",color:"#2dd4bf",marginBottom:10,fontFamily:"DM Mono,monospace"}},"THE MATHEMATICS"),
+h("div",{style:{borderRadius:10,padding:12,background:"rgba(0,0,0,0.75)",fontFamily:"DM Mono,monospace",fontSize:11,lineHeight:1.9}},
+h("div",{style:{color:"#2dd4bf",marginBottom:4}},"F(t) = 0.5\u00B7C(t) + 0.3\u00B7T(t) + 0.2\u00B7M(t)"),
+h("div",{style:{color:"rgba(255,255,255,0.2)",fontSize:9,marginBottom:10}},"// Composite circadian function"),
+h("div",null,h("span",{style:{color:"#fbbf24"}},"C(t)"),h("span",{style:{color:"rgba(255,255,255,0.5)"}}," = \u03A3 a\u2099\u00B7cos(2\u03C0n(t\u22127.5)/24) n=1..4")),
+h("div",null,h("span",{style:{color:"#f97316"}},"T(t)"),h("span",{style:{color:"rgba(255,255,255,0.5)"}}," = \u03A3 b\u2099\u00B7cos(2\u03C0n(t\u221217.0)/24) n=1..3")),
+h("div",null,h("span",{style:{color:"#818cf8"}},"M(t)"),h("span",{style:{color:"rgba(255,255,255,0.5)"}}," = \u03A3 c\u2099\u00B7cos(2\u03C0n(t\u22123.0)/24) n=1..3")),
+h("div",{style:{marginTop:10,paddingTop:8,borderTop:"1px solid rgba(255,255,255,0.07)",color:"rgba(255,255,255,0.3)",fontSize:9}},"9 inflection points of F(t) \u2192 9 phase boundaries \u2192 9-fold mandala symmetry (p < 0.001)"))),
+
+h("div",{style:{borderRadius:14,padding:14,border:"1px solid rgba(251,191,36,0.15)",background:"rgba(107,45,0,0.2)"}},
+h("p",{style:{fontSize:9,letterSpacing:"0.15em",color:"#fbbf24",marginBottom:8,fontFamily:"DM Mono,monospace"}},"WHY EXACTLY 9 PHASES?"),
+h("p",{style:{fontSize:12,lineHeight:1.65,color:"rgba(255,255,255,0.65)",margin:"0 0 8px"}},"The composite F(t) naturally produces exactly 9 critical inflection points \u2014 as an emergent consequence of superimposing 10 Fourier harmonics across three biological systems."),
+h("p",{style:{fontSize:12,lineHeight:1.65,color:"rgba(255,255,255,0.65)",margin:0}},"These transitions map to biologically significant events: cortisol peak, temperature inflections, melatonin onset, and composite turning points. The emergent 9-fold structure independently matched the 9-fold rotational symmetry in H.A. Marouf\u2019s artwork (p\u00A0<\u00A00.001).")),
+
+h("div",{style:{borderRadius:14,padding:14,border:"1px solid rgba(16,185,129,0.18)",background:"rgba(5,60,40,0.25)"}},
+h("p",{style:{fontSize:9,letterSpacing:"0.15em",color:"#10b981",marginBottom:12,fontFamily:"DM Mono,monospace"}},"BLIND VALIDATION PROTOCOL"),
+[{n:"1",title:"Blind derivation",desc:"Phase boundaries computed solely from F(t) inflection points \u2014 zero reference to artwork.",c:"#10b981"},{n:"2",title:"Independent artwork",desc:"Automatic mandala drawings created through meditative practice as a wholly separate process.",c:"#60a5fa"},{n:"3",title:"Angular comparison",desc:"Artwork sector boundaries vs model transitions. MAE = 10.1\u00B0, R\u00B2 = 0.993, p < 0.001.",c:"#a78bfa"}].map(function(item){return h("div",{key:item.n,style:{display:"flex",gap:12,marginBottom:12}},h("div",{style:{width:24,height:24,borderRadius:12,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,background:item.c+"1f",color:item.c,border:"1px solid "+item.c+"40"}},item.n),h("div",null,h("p",{style:{fontSize:12,fontWeight:600,color:"white",margin:"0 0 2px"}},item.title),h("p",{style:{fontSize:11,color:"rgba(255,255,255,0.5)",margin:0,lineHeight:1.5}},item.desc)))}),
+h("p",{style:{fontSize:9,color:"rgba(255,255,255,0.22)",borderTop:"1px solid rgba(255,255,255,0.06)",paddingTop:10,margin:0,fontFamily:"DM Mono,monospace"}},"Brabant (1990) \u00B7 Van Cauter (1999) \u00B7 Refinetti (2010) \u00B7 Lewy (1999)")))),
+
+),
+// ====== MODAL ======
+modal&&h("div",{className:"fi",onClick:function(e){if(e.target===e.currentTarget)setModal(false)},style:{position:"fixed",inset:0,zIndex:50,display:"flex",alignItems:"flex-end",justifyContent:"center",background:"rgba(0,0,0,0.82)",backdropFilter:"blur(12px)"}},
+h("div",{className:"su",style:{width:"100%",maxWidth:480,borderRadius:"20px 20px 0 0",padding:20,background:"linear-gradient(180deg,#0c1828,#050a12)",border:"1px solid rgba(255,255,255,0.1)",borderBottom:"none"}},
+h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}},
+h("div",null,h("h3",{style:{fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,color:"white",margin:0}},"Track Your State"),h("p",{style:{fontSize:11,color:"rgba(255,255,255,0.4)",margin:"3px 0 0"}},curPhase.symbol+" "+curPhase.name+" \u00B7 "+timeStr)),
+h("button",{onClick:function(){setModal(false)},style:{width:30,height:30,borderRadius:15,border:"1px solid rgba(255,255,255,0.15)",background:"rgba(255,255,255,0.07)",color:"rgba(255,255,255,0.6)",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}},"\u2715")),
+[{k:"energy",l:"Energy Level",i:"\u26A1",c:"#f59e0b"},{k:"focus",l:"Mental Focus",i:"\u{1F3AF}",c:"#2dd4bf"},{k:"mood",l:"Mood / Wellbeing",i:"\u{1F60A}",c:"#a78bfa"}].map(function(item){
+return h("div",{key:item.k,style:{marginBottom:14}},
+h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:7}},h("span",{style:{fontSize:12,color:"rgba(255,255,255,0.7)"}},item.i+" "+item.l),h("span",{style:{fontSize:12,fontWeight:700,color:item.c,fontFamily:"DM Mono,monospace"}},entry[item.k]+"/5")),
+h("div",{style:{display:"flex",gap:6}},[1,2,3,4,5].map(function(v){var upd={};upd[item.k]=v;return h("button",{key:v,onClick:function(){setEntry(function(prev){return Object.assign({},prev,upd)})},style:{flex:1,padding:"9px 0",borderRadius:8,fontSize:13,fontWeight:700,background:entry[item.k]>=v?item.c+"28":"rgba(255,255,255,0.05)",color:entry[item.k]>=v?item.c:"rgba(255,255,255,0.2)",border:entry[item.k]===v?"1.5px solid "+item.c:"1.5px solid transparent"}},v)})))}),
+h("textarea",{placeholder:"Optional note\u2026",value:entry.note,onChange:function(e){setEntry(function(prev){return Object.assign({},prev,{note:e.target.value})})},rows:2,style:{width:"100%",borderRadius:10,padding:"10px 12px",fontSize:12,background:"rgba(0,0,0,0.55)",border:"1px solid rgba(255,255,255,0.1)",resize:"none",outline:"none",display:"block"}}),
+h("button",{onClick:addEntry,style:{width:"100%",marginTop:12,padding:"13px 0",borderRadius:12,fontSize:13,fontWeight:700,background:curPhase.stroke,color:"#020507",border:"none",letterSpacing:"0.06em"}},"SAVE ENTRY")))
+)}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(ResonanceClock));
+</script>
+</body>
 </html>
