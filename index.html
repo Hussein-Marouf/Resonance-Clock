@@ -2,79 +2,36 @@ import { useState, useEffect, useMemo, useCallback } from “react”;
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from “recharts”;
 
 const PHASES = [
-{ id:1, name:“Rest”,        symbol:“🌙”, start:0,    end:6.95,
-fill:”#1a1650”, stroke:”#a5b4fc”, glow:”#818cf8”,
-desc:“Deep restoration & memory consolidation”,
-science:“Growth hormone secretion peaks. Neural synaptic pruning. Hippocampal consolidation via slow-wave sleep. Glymphatic system clears adenosine and metabolic waste.”,
-best:[“Sleep”,“Rest”,“Meditation”], avoid:[“Stimulants”,“Screens”,“Heavy food”] },
-{ id:2, name:“Awakening”,   symbol:“🌅”, start:6.95, end:8.5,
-fill:”#6b2d00”, stroke:”#fcd34d”, glow:”#fbbf24”,
-desc:“Cortisol Awakening Response activates the system”,
-science:“HPA axis cortisol surge (CAR) within 30–45 min of waking. Blood pressure and heart rate rise rapidly. Delay caffeine 90 min to preserve the natural CAR (Brabant 1990).”,
-best:[“Planning”,“Light exercise”,“Journaling”], avoid:[“Caffeine (delay 90 min)”,“High-stakes decisions”] },
-{ id:3, name:“Focus Rise”,  symbol:“⚡”, start:8.5,  end:10.0,
-fill:”#0d3d38”, stroke:”#5eead4”, glow:”#2dd4bf”,
-desc:“Dopamine & norepinephrine build cognitive clarity”,
-science:“Dopamine and norepinephrine rising sharply. Prefrontal cortex activation strengthens. Working memory capacity expanding. Best for structured analytical intake.”,
-best:[“Deep work”,“Writing”,“Analysis”], avoid:[“Multitasking”,“Passive meetings”] },
-{ id:4, name:“Peak Focus”,  symbol:“🎯”, start:10.0, end:12.5,
-fill:”#6b2200”, stroke:”#fb923c”, glow:”#f97316”,
-desc:“Daily apex — cortisol & alertness both maximal”,
-science:“Cortisol and alertness at daily apex (Van Cauter 1999). Reaction time, working memory, and executive function are all optimal. Reserve this window fiercely.”,
-best:[“Complex decisions”,“Learning”,“Problem solving”], avoid:[“Interruptions”,“Low-value tasks”] },
-{ id:5, name:“Integration”, symbol:“🔗”, start:12.5, end:14.5,
-fill:”#053d2f”, stroke:”#34d399”, glow:”#10b981”,
-desc:“Serotonin supports social bonding & consolidation”,
-science:“Post-peak serotonin supports empathy and social bonding. Post-lunch dip (PLD) is physiological, not a failure. Ideal for collaborative synthesis.”,
-best:[“Meetings”,“Collaboration”,“Lunch”], avoid:[“Critical solo analysis”,“Major decisions”] },
-{ id:6, name:“Creative”,    symbol:“🎨”, start:14.5, end:16.5,
-fill:”#3b1580”, stroke:”#c084fc”, glow:”#a78bfa”,
-desc:“Reduced inhibition unlocks divergent thinking”,
-science:“Slightly reduced prefrontal inhibition enables novel associative connections. Core temperature still elevated. Lateral thinking and creative synthesis naturally emerge.”,
-best:[“Brainstorming”,“Art”,“Lateral thinking”], avoid:[“Rigid analysis”,“Detailed editing”] },
-{ id:7, name:“Vitality”,    symbol:“🔥”, start:16.5, end:18.5,
-fill:”#6b1010”, stroke:”#f87171”, glow:”#ef4444”,
-desc:“Core temperature peaks → physical performance apex”,
-science:“Body temperature peaks at ~17:00 (Refinetti 2010). Muscle strength, VO2 max, cardiovascular efficiency, and neuromuscular coordination are all maximal.”,
-best:[“Exercise”,“Sport”,“Physical work”], avoid:[“Demanding mental tasks”] },
-{ id:8, name:“Wind Down”,   symbol:“🌆”, start:18.5, end:21.0,
-fill:”#6b0f3a”, stroke:”#f9a8d4”, glow:”#ec4899”,
-desc:“Parasympathetic shift — serotonin→melatonin conversion”,
-science:“Temperature falling. Serotonin→melatonin conversion begins in pineal gland. Digestive systems optimize. Blue light at 480nm suppresses melatonin onset by up to 50%.”,
-best:[“Light social”,“Cooking”,“Reflection”], avoid:[“Intense exercise”,“Blue light”,“News”] },
-{ id:9, name:“Preparation”, symbol:“🌌”, start:21.0, end:24.0,
-fill:”#091235”, stroke:”#93c5fd”, glow:”#60a5fa”,
-desc:“Melatonin rises — sleep architecture initiating”,
-science:“Pineal gland melatonin secretion rises sharply (Lewy 1999). Core temperature continues dropping. Protect this window: light, alcohol, and stimulants all delay sleep onset.”,
-best:[“Reading”,“Meditation”,“Journaling”], avoid:[“Screens”,“Caffeine”,“Alcohol”] },
+{ id:1, name:“Rest”,        symbol:“🌙”, start:0,    end:6.95,  fill:”#1a1650”, stroke:”#a5b4fc”, glow:”#818cf8”, desc:“Deep restoration & memory consolidation”, science:“Growth hormone secretion peaks. Neural synaptic pruning. Hippocampal consolidation via slow-wave sleep. Glymphatic system clears adenosine and metabolic waste.”, best:[“Sleep”,“Rest”,“Meditation”], avoid:[“Stimulants”,“Screens”,“Heavy food”] },
+{ id:2, name:“Awakening”,   symbol:“🌅”, start:6.95, end:8.5,   fill:”#6b2d00”, stroke:”#fcd34d”, glow:”#fbbf24”, desc:“Cortisol Awakening Response activates the system”, science:“HPA axis cortisol surge (CAR) within 30–45 min of waking. Blood pressure and heart rate rise rapidly. Delay caffeine 90 min to preserve the natural CAR (Brabant 1990).”, best:[“Planning”,“Light exercise”,“Journaling”], avoid:[“Caffeine (delay 90 min)”,“High-stakes decisions”] },
+{ id:3, name:“Focus Rise”,  symbol:“⚡”, start:8.5,  end:10.0,  fill:”#0d3d38”, stroke:”#5eead4”, glow:”#2dd4bf”, desc:“Dopamine & norepinephrine build cognitive clarity”, science:“Dopamine and norepinephrine rising sharply. Prefrontal cortex activation strengthens. Working memory capacity expanding. Best for structured analytical intake.”, best:[“Deep work”,“Writing”,“Analysis”], avoid:[“Multitasking”,“Passive meetings”] },
+{ id:4, name:“Peak Focus”,  symbol:“🎯”, start:10.0, end:12.5,  fill:”#6b2200”, stroke:”#fb923c”, glow:”#f97316”, desc:“Daily apex — cortisol & alertness both maximal”, science:“Cortisol and alertness at daily apex (Van Cauter 1999). Reaction time, working memory, and executive function are all optimal. Reserve this window fiercely.”, best:[“Complex decisions”,“Learning”,“Problem solving”], avoid:[“Interruptions”,“Low-value tasks”] },
+{ id:5, name:“Integration”, symbol:“🔗”, start:12.5, end:14.5,  fill:”#053d2f”, stroke:”#34d399”, glow:”#10b981”, desc:“Serotonin supports social bonding & consolidation”, science:“Post-peak serotonin supports empathy and social bonding. Post-lunch dip (PLD) is physiological, not a failure. Ideal for collaborative synthesis.”, best:[“Meetings”,“Collaboration”,“Lunch”], avoid:[“Critical solo analysis”,“Major decisions”] },
+{ id:6, name:“Creative”,    symbol:“🎨”, start:14.5, end:16.5,  fill:”#3b1580”, stroke:”#c084fc”, glow:”#a78bfa”, desc:“Reduced inhibition unlocks divergent thinking”, science:“Slightly reduced prefrontal inhibition enables novel associative connections. Core temperature still elevated. Lateral thinking and creative synthesis naturally emerge.”, best:[“Brainstorming”,“Art”,“Lateral thinking”], avoid:[“Rigid analysis”,“Detailed editing”] },
+{ id:7, name:“Vitality”,    symbol:“🔥”, start:16.5, end:18.5,  fill:”#6b1010”, stroke:”#f87171”, glow:”#ef4444”, desc:“Core temperature peaks → physical performance apex”, science:“Body temperature peaks at ~17:00 (Refinetti 2010). Muscle strength, VO2 max, cardiovascular efficiency, and neuromuscular coordination are all maximal.”, best:[“Exercise”,“Sport”,“Physical work”], avoid:[“Demanding mental tasks”] },
+{ id:8, name:“Wind Down”,   symbol:“🌆”, start:18.5, end:21.0,  fill:”#6b0f3a”, stroke:”#f9a8d4”, glow:”#ec4899”, desc:“Parasympathetic shift — serotonin→melatonin conversion”, science:“Temperature falling. Serotonin→melatonin conversion begins in pineal gland. Blue light at 480nm suppresses melatonin onset by up to 50%.”, best:[“Light social”,“Cooking”,“Reflection”], avoid:[“Intense exercise”,“Blue light”,“News”] },
+{ id:9, name:“Preparation”, symbol:“🌌”, start:21.0, end:24.0,  fill:”#091235”, stroke:”#93c5fd”, glow:”#60a5fa”, desc:“Melatonin rises — sleep architecture initiating”, science:“Pineal gland melatonin secretion rises sharply (Lewy 1999). Core temperature continues dropping. Protect this window: light, alcohol, and stimulants all delay sleep onset.”, best:[“Reading”,“Meditation”,“Journaling”], avoid:[“Screens”,“Caffeine”,“Alcohol”] },
 ];
 
 const ACTIVITIES = [
-{ name:“Deep Work”,  icon:“💡”, optimalPhases:[3,4] },
-{ name:“Exercise”,   icon:“🏋️”, optimalPhases:[7,2] },
-{ name:“Creative”,   icon:“🎨”, optimalPhases:[6,3] },
-{ name:“Meetings”,   icon:“👥”, optimalPhases:[5,4] },
-{ name:“Learning”,   icon:“📚”, optimalPhases:[4,3] },
-{ name:“Rest/Nap”,   icon:“😴”, optimalPhases:[1,9] },
-{ name:“Social”,     icon:“🤝”, optimalPhases:[5,8] },
-{ name:“Planning”,   icon:“📋”, optimalPhases:[2,4] },
-{ name:“Meditation”, icon:“🧘”, optimalPhases:[1,9] },
-{ name:“Sport”,      icon:“⚽”, optimalPhases:[7,6] },
+{ name:“Deep Work”, icon:“💡”, optimalPhases:[3,4] }, { name:“Exercise”, icon:“🏋️”, optimalPhases:[7,2] },
+{ name:“Creative”,  icon:“🎨”, optimalPhases:[6,3] }, { name:“Meetings”, icon:“👥”, optimalPhases:[5,4] },
+{ name:“Learning”,  icon:“📚”, optimalPhases:[4,3] }, { name:“Rest/Nap”, icon:“😴”, optimalPhases:[1,9] },
+{ name:“Social”,    icon:“🤝”, optimalPhases:[5,8] }, { name:“Planning”, icon:“📋”, optimalPhases:[2,4] },
+{ name:“Meditation”,icon:“🧘”, optimalPhases:[1,9] }, { name:“Sport”,    icon:“⚽”, optimalPhases:[7,6] },
 ];
 
-// Hormone math — Fourier, from published parameters
-function clamp(v){ return Math.max(0.02, Math.min(0.98, v)); }
+function clamp(v){ return Math.max(0.02,Math.min(0.98,v)); }
 function cosH(n,t,p){ return Math.cos(2*Math.PI*n*(t-p)/24); }
 function cortisol(t) { return clamp(0.5+0.32*cosH(1,t,7.5)+0.10*cosH(2,t,7.5)+0.04*cosH(3,t,7.5)+0.02*cosH(4,t,7.5)); }
 function bodyTemp(t) { return clamp(0.5+0.28*cosH(1,t,17.0)+0.07*cosH(2,t,17.0)+0.02*cosH(3,t,17.0)); }
 function melatonin(t){ return clamp(0.5+0.38*cosH(1,t,3.0)+0.08*cosH(2,t,3.0)+0.02*cosH(3,t,3.0)); }
 function composite(t){ return 0.5*cortisol(t)+0.3*bodyTemp(t)+0.2*melatonin(t); }
 
-// Geometry helpers
 function hDeg(h){ return (h/24)*360; }
-function toXY(cx,cy,r,deg){ const rad=(deg-90)*Math.PI/180; return [cx+r*Math.cos(rad), cy+r*Math.sin(rad)]; }
+function toXY(cx,cy,r,deg){ const rad=(deg-90)*Math.PI/180; return [cx+r*Math.cos(rad),cy+r*Math.sin(rad)]; }
 function arcD(cx,cy,r1,r2,h1,h2){
-const a1=hDeg(h1), a2=hDeg(Math.min(h2,23.9999));
+const a1=hDeg(h1),a2=hDeg(Math.min(h2,23.9999));
 const [x1,y1]=toXY(cx,cy,r2,a1),[x2,y2]=toXY(cx,cy,r2,a2);
 const [ix1,iy1]=toXY(cx,cy,r1,a2),[ix2,iy2]=toXY(cx,cy,r1,a1);
 const lg=(a2-a1)>180?1:0;
@@ -82,12 +39,12 @@ return `M${x1},${y1} A${r2},${r2} 0 ${lg},1 ${x2},${y2} L${ix1},${iy1} A${r1},${
 }
 function wavePath(cx,cy,rMin,rMax,fn,n=300){
 return Array.from({length:n+1},(_,i)=>{
-const t=(i/n)*24, r=rMin+(rMax-rMin)*fn(t);
+const t=(i/n)*24,r=rMin+(rMax-rMin)*fn(t);
 const [x,y]=toXY(cx,cy,r,(i/n)*360);
 return(i===0?“M”:“L”)+x.toFixed(2)+”,”+y.toFixed(2);
 }).join(” “)+“Z”;
 }
-function fmtShifted(modelHour, offset){
+function fmtH(modelHour,offset){
 const s=((modelHour+offset)%24+24)%24;
 return `${Math.floor(s)}:${String(Math.round((s%1)*60)).padStart(2,"0")}`;
 }
@@ -105,18 +62,13 @@ const [entry,setEntry]       = useState({energy:3,focus:3,mood:3,note:””});
 useEffect(()=>{ const t=setInterval(()=>setNow(new Date()),1000); return()=>clearInterval(t); },[]);
 useEffect(()=>{(async()=>{ try{ const r=await window.storage.get(“rc-log”); if(r?.value)setTrackLog(JSON.parse(r.value)); }catch(*){} })();},[]);
 const saveLog=useCallback(async l=>{ try{ await window.storage.set(“rc-log”,JSON.stringify(l)); }catch(*){} },[]);
-const addEntry=useCallback(()=>{
-const e={…entry,time:now.toISOString(),hour:+curHour.toFixed(2),phase:curPhase.name,phaseId:curPhase.id};
-const nl=[e,…trackLog].slice(0,100);
-setTrackLog(nl); saveLog(nl); setModal(false); setEntry({energy:3,focus:3,mood:3,note:””});
-},[entry,now,trackLog,saveLog]);
 
-const wo        = wakeHour-7.0;   // wakeOffset
-const curHour   = now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
-const shiftedH  = ((curHour-wo)%24+24)%24;
-const curPhase  = useMemo(()=>phaseAt(shiftedH),[shiftedH]);
-const phaseProg = useMemo(()=>(shiftedH-curPhase.start)/(curPhase.end-curPhase.start),[shiftedH,curPhase]);
-const alignScore= useCallback(act=>{
+const wo=wakeHour-7.0;
+const curHour=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
+const shiftedH=((curHour-wo)%24+24)%24;
+const curPhase=useMemo(()=>phaseAt(shiftedH),[shiftedH]);
+const phaseProg=useMemo(()=>(shiftedH-curPhase.start)/(curPhase.end-curPhase.start),[shiftedH,curPhase]);
+const alignScore=useCallback(act=>{
 const r=act.optimalPhases.indexOf(curPhase.id);
 if(r===0)return 95; if(r===1)return 78;
 const d=Math.min(…act.optimalPhases.map(id=>Math.abs(id-curPhase.id)));
@@ -124,47 +76,47 @@ return d===1?60:d===2?42:20;
 },[curPhase]);
 const hormoneData=useMemo(()=>Array.from({length:49},(_,i)=>({hour:i/2,cortisol:+cortisol(i/2).toFixed(3),temp:+bodyTemp(i/2).toFixed(3),melatonin:+melatonin(i/2).toFixed(3),composite:+composite(i/2).toFixed(3)})),[]);
 
-// SVG layout
-const CX=220, CY=220, SZ=440;
-const R_TICK_IN=198, R_TICK_OUT=210, R_HLABEL=224;
-const R_ARC_OUT=194, R_ARC_IN=150;   // 44px band
-const R_ARC_MID=(R_ARC_IN+R_ARC_OUT)/2;   // 172
-const R_PROG=148;
-const R_WAVE_OUT=142, R_WAVE_IN=106;
-const R_PETAL=88, R_CENTER=70;
+const addEntry=useCallback(()=>{
+const e={…entry,time:now.toISOString(),hour:+curHour.toFixed(2),phase:curPhase.name,phaseId:curPhase.id};
+const nl=[e,…trackLog].slice(0,100);
+setTrackLog(nl); saveLog(nl); setModal(false); setEntry({energy:3,focus:3,mood:3,note:””});
+},[entry,now,curHour,curPhase,trackLog,saveLog]);
 
-const needleDeg=hDeg(shiftedH);
-const [nTX,nTY]=toXY(CX,CY,R_ARC_OUT+9,needleDeg);
-const [nBX,nBY]=toXY(CX,CY,18,(needleDeg+180)%360);
+const CX=220,CY=220,SZ=440;
+const R_TO=210,R_TI=198,R_HL=224;
+const R_AO=194,R_AI=150,R_AM=(194+150)/2;
+const R_PR=148,R_WO=142,R_WI=106,R_PT=88,R_CE=70;
 
-const progEndH=curPhase.start+(curPhase.end-curPhase.start)*phaseProg;
-const [pAX,pAY]=toXY(CX,CY,R_PROG,hDeg(curPhase.start));
-const [pBX,pBY]=toXY(CX,CY,R_PROG,hDeg(Math.min(progEndH,23.9999)));
-const progLA=(hDeg(progEndH)-hDeg(curPhase.start))>180?1:0;
-const timeStr=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
-const secStr=String(now.getSeconds()).padStart(2,“0”);
+const nd=hDeg(shiftedH);
+const [nTX,nTY]=toXY(CX,CY,R_AO+9,nd);
+const [nBX,nBY]=toXY(CX,CY,18,(nd+180)%360);
+const peH=curPhase.start+(curPhase.end-curPhase.start)*phaseProg;
+const [pAX,pAY]=toXY(CX,CY,R_PR,hDeg(curPhase.start));
+const [pBX,pBY]=toXY(CX,CY,R_PR,hDeg(Math.min(peH,23.9999)));
+const pLA=(hDeg(peH)-hDeg(curPhase.start))>180?1:0;
+const ts=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+const ss=String(now.getSeconds()).padStart(2,“0”);
+const cp=curPhase;
 
 return (
 <div style={{minHeight:“100vh”,fontFamily:”‘DM Sans’,sans-serif”,background:”#040810”,maxWidth:480,margin:“0 auto”,color:“white”,display:“flex”,flexDirection:“column”}}>
-<style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&family=Cinzel:wght@500;700&display=swap'); *{box-sizing:border-box;-webkit-font-smoothing:antialiased;} ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px;} .su{animation:su .22s ease-out;}@keyframes su{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} .fi{animation:fi .2s;}@keyframes fi{from{opacity:0}to{opacity:1}} button{cursor:pointer;} textarea{font-family:'DM Sans',sans-serif;color:white;}`}</style>
+<style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&family=Cinzel:wght@500;700&display=swap'); *{box-sizing:border-box;-webkit-font-smoothing:antialiased;} ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px;} .su{animation:su .22s ease-out;}@keyframes su{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} .fi{animation:fi .2s;}@keyframes fi{from{opacity:0}to{opacity:1}} button{cursor:pointer;}textarea{font-family:'DM Sans',sans-serif;color:white;}`}</style>
 
 ```
-  {/* HEADER */}
   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
     <div>
-      <div style={{fontFamily:"Cinzel,serif",fontSize:14,fontWeight:700,letterSpacing:"0.22em",color:curPhase.glow}}>RESONANCE</div>
-      <div style={{fontSize:10,color:"rgba(255,255,255,0.3)",letterSpacing:"0.04em"}}>9-Phase Circadian Clock · H.A. Marouf</div>
+      <div style={{fontFamily:"Cinzel,serif",fontSize:14,fontWeight:700,letterSpacing:"0.22em",color:cp.glow}}>RESONANCE</div>
+      <div style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>9-Phase Circadian Clock · H.A. Marouf</div>
     </div>
     <div style={{display:"flex",alignItems:"center",gap:8}}>
       <div style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>{now.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</div>
-      <button onClick={()=>setModal(true)} style={{fontSize:11,padding:"5px 12px",borderRadius:20,border:`1px solid ${curPhase.glow}50`,color:curPhase.glow,background:curPhase.glow+"14"}}>+ Track</button>
+      <button onClick={()=>setModal(true)} style={{fontSize:11,padding:"5px 12px",borderRadius:20,border:`1px solid ${cp.glow}50`,color:cp.glow,background:cp.glow+"14"}}>+ Track</button>
     </div>
   </div>
 
-  {/* TABS */}
   <div style={{display:"flex",background:"rgba(0,0,0,0.5)",borderBottom:"1px solid rgba(255,255,255,0.06)"}}>
     {[["clock","🕐","Clock"],["align","🎯","Align"],["insights","📊","Insights"],["science","🔬","Science"]].map(([id,ic,lb])=>(
-      <button key={id} onClick={()=>setTab(id)} style={{flex:1,padding:"7px 0",fontSize:11,fontWeight:500,background:"transparent",border:"none",borderBottom:`2px solid ${tab===id?curPhase.glow:"transparent"}`,color:tab===id?curPhase.glow:"rgba(255,255,255,0.35)",transition:"color .2s,border-color .2s"}}>
+      <button key={id} onClick={()=>setTab(id)} style={{flex:1,padding:"7px 0",fontSize:11,fontWeight:500,background:"transparent",border:"none",borderBottom:`2px solid ${tab===id?cp.glow:"transparent"}`,color:tab===id?cp.glow:"rgba(255,255,255,0.35)",transition:"color .2s,border-color .2s"}}>
         <div style={{fontSize:13}}>{ic}</div><div>{lb}</div>
       </button>
     ))}
@@ -172,283 +124,146 @@ return (
 
   <div style={{flex:1,overflowY:"auto",paddingBottom:28}}>
 
-    {/* ══════════════════ CLOCK TAB ══════════════════ */}
     {tab==="clock" && <div className="su">
-      <div style={{padding:"6px 2px 0"}}>
       <svg viewBox={`0 0 ${SZ} ${SZ}`} width="100%" style={{display:"block"}}>
         <defs>
           <filter id="gw4"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <filter id="gw7"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           <filter id="gw2"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          {PHASES.map(p=>(
-            <radialGradient key={`rg${p.id}`} id={`rg${p.id}`} cx="50%" cy="50%" r="50%">
-              <stop offset="0%"  stopColor={p.stroke} stopOpacity="1"/>
-              <stop offset="55%" stopColor={p.fill}   stopOpacity="1"/>
-              <stop offset="100%" stopColor={p.fill}  stopOpacity="0.75"/>
-            </radialGradient>
-          ))}
-          <radialGradient id="centGr" cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor={curPhase.fill} stopOpacity="0.65"/>
-            <stop offset="100%" stopColor="#030608"       stopOpacity="1"/>
-          </radialGradient>
+          {PHASES.map(p=>(<radialGradient key={`rg${p.id}`} id={`rg${p.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor={p.stroke} stopOpacity="1"/><stop offset="55%" stopColor={p.fill} stopOpacity="1"/><stop offset="100%" stopColor={p.fill} stopOpacity="0.75"/></radialGradient>))}
+          <radialGradient id="cGr" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor={cp.fill} stopOpacity="0.65"/><stop offset="100%" stopColor="#030608" stopOpacity="1"/></radialGradient>
         </defs>
-
-        {/* Outer ambient glow */}
-        <circle cx={CX} cy={CY} r={R_ARC_OUT+24} fill="none" stroke={curPhase.glow} strokeWidth="48" strokeOpacity="0.032"/>
-
-        {/* Hour ticks */}
+        <circle cx={CX} cy={CY} r={R_AO+24} fill="none" stroke={cp.glow} strokeWidth="48" strokeOpacity="0.03"/>
         {Array.from({length:24},(_,i)=>{
-          const a=hDeg(i),maj=i%6===0,min3=i%3===0;
-          const [x1,y1]=toXY(CX,CY,R_TICK_IN,a);
-          const [x2,y2]=toXY(CX,CY,R_TICK_OUT+(maj?9:min3?5:2),a);
-          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
-            stroke={maj?"rgba(255,255,255,0.8)":min3?"rgba(255,255,255,0.38)":"rgba(255,255,255,0.13)"}
-            strokeWidth={maj?1.8:min3?1:0.7}/>;
+          const a=hDeg(i),mj=i%6===0,mn=i%3===0;
+          const [x1,y1]=toXY(CX,CY,R_TI,a),[x2,y2]=toXY(CX,CY,R_TO+(mj?9:mn?5:2),a);
+          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={mj?"rgba(255,255,255,0.8)":mn?"rgba(255,255,255,0.38)":"rgba(255,255,255,0.13)"} strokeWidth={mj?1.8:mn?1:0.7}/>;
         })}
-
-        {/* Hour labels every 3h */}
         {[0,3,6,9,12,15,18,21].map(h=>{
-          const [lx,ly]=toXY(CX,CY,R_HLABEL,hDeg(h));
-          return <text key={h} x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
-            fontSize="8.5" fill="rgba(255,255,255,0.6)" fontFamily="DM Mono,monospace" fontWeight="500">
-            {h===0?"12a":h===12?"12p":h>12?`${h}p`:`${h}a`}
-          </text>;
+          const [lx,ly]=toXY(CX,CY,R_HL,hDeg(h));
+          return <text key={h} x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" fontSize="8.5" fill="rgba(255,255,255,0.6)" fontFamily="DM Mono,monospace">{h===0?"12a":h===12?"12p":h>12?`${h}p`:`${h}a`}</text>;
         })}
-
-        {/* ── PHASE ARCS ── */}
         {PHASES.map(p=>{
-          const active=p.id===curPhase.id;
-          return (
-            <g key={`pa${p.id}`}>
-              <path d={arcD(CX,CY,R_ARC_IN,R_ARC_OUT,p.start,p.end)}
-                fill={active?`url(#rg${p.id})`:p.fill}
-                stroke={p.stroke} strokeWidth={active?2:0.6}
-                opacity={active?1:0.72}
-                filter={active?"url(#gw4)":"none"}/>
-              {active && <>
-                <path d={arcD(CX,CY,R_ARC_OUT,R_ARC_OUT+6,p.start,p.end)} fill={p.stroke} fillOpacity="0.45" filter="url(#gw4)"/>
-                <path d={arcD(CX,CY,R_ARC_IN,R_ARC_IN+5,p.start,p.end)} fill={p.stroke} fillOpacity="0.22" filter="url(#gw2)"/>
-              </>}
-            </g>
-          );
-        })}
-
-        {/* Phase boundary divider lines */}
-        {PHASES.map(p=>{
-          const [x1,y1]=toXY(CX,CY,R_ARC_IN-3,hDeg(p.start));
-          const [x2,y2]=toXY(CX,CY,R_ARC_OUT+5,hDeg(p.start));
-          return <line key={`dv${p.id}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#040810" strokeWidth="2.2"/>;
-        })}
-
-        {/* ── PHASE LABELS: emoji (centered, no rotation — always readable) ── */}
-        {PHASES.map(p=>{
-          const mid=(p.start+p.end)/2;
-          const [tx,ty]=toXY(CX,CY,R_ARC_MID,hDeg(mid));
-          const active=p.id===curPhase.id;
-          return (
-            <g key={`lbl${p.id}`}>
-              {/* Subtle bg pill for active */}
-              {active && <ellipse cx={tx} cy={ty} rx="13" ry="16" fill={p.stroke} fillOpacity="0.18"/>}
-              {/* Emoji — always horizontal, always readable */}
-              <text x={tx} y={ty-4} textAnchor="middle" dominantBaseline="middle"
-                fontSize={active?"15":"12"} opacity={active?1:0.82}>{p.symbol}</text>
-              {/* Phase number — tiny, below emoji */}
-              <text x={tx} y={ty+10} textAnchor="middle" dominantBaseline="middle"
-                fontFamily="DM Mono,monospace" fontWeight="600"
-                fontSize={active?"9":"8"} fill={active?"white":p.stroke} fillOpacity={active?1:0.7}>{p.id}</text>
-            </g>
-          );
-        })}
-
-        {/* ── PROGRESS TRACK ── */}
-        <path d={arcD(CX,CY,R_PROG-2,R_PROG+2,curPhase.start,curPhase.end)} fill="rgba(255,255,255,0.05)"/>
-        {phaseProg>0.015 && <path d={`M${pAX},${pAY} A${R_PROG},${R_PROG} 0 ${progLA},1 ${pBX},${pBY}`}
-          fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeOpacity="0.88"
-          filter="url(#gw2)"/>}
-
-        {/* Ring separators */}
-        <circle cx={CX} cy={CY} r={R_ARC_IN}    fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.2"/>
-        <circle cx={CX} cy={CY} r={R_WAVE_OUT+3} fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth="0.8"/>
-        <circle cx={CX} cy={CY} r={R_WAVE_IN-3}  fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth="0.8"/>
-
-        {/* ── HORMONE WAVE RING ── */}
-        {/* Dark background for the ring */}
-        <path d={arcD(CX,CY,R_WAVE_IN,R_WAVE_OUT,0,24)} fill="#030609" fillOpacity="0.97"/>
-
-        {/* Three individual hormone curves — each distinct color, no fill */}
-        <path d={wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,cortisol)}
-          fill="none" stroke="#fbbf24" strokeWidth="1.4" strokeOpacity="0.7"/>
-        <path d={wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,bodyTemp)}
-          fill="none" stroke="#f97316" strokeWidth="1.4" strokeOpacity="0.7"/>
-        <path d={wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,melatonin)}
-          fill="none" stroke="#818cf8" strokeWidth="1.4" strokeOpacity="0.7"/>
-
-        {/* Composite F(t) — prominent, phase-colored, no fill, dashed */}
-        <path d={wavePath(CX,CY,R_WAVE_IN+2,R_WAVE_OUT-2,composite)}
-          fill="none" stroke={curPhase.glow} strokeWidth="2.2" strokeOpacity="0.92"/>
-
-        {/* Midpoint baseline dashed ring */}
-        <circle cx={CX} cy={CY} r={(R_WAVE_IN+R_WAVE_OUT)/2}
-          fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="0.6" strokeDasharray="3,4"/>
-
-        {/* Hormone legend dots — inside wave ring, at inner edge */}
-        {[{l:"C",c:"#fbbf24",a:5},{l:"T",c:"#f97316",a:40},{l:"M",c:"#818cf8",a:75},{l:"F",c:curPhase.glow,a:110}].map(({l,c,a})=>{
-          const [lx,ly]=toXY(CX,CY,R_WAVE_IN-8,a);
-          return <g key={l}>
-            <circle cx={lx} cy={ly} r="5.5" fill={c} fillOpacity="0.92"/>
-            <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
-              fontSize="5" fontWeight="700" fill="#020507" fontFamily="DM Mono,monospace">{l}</text>
+          const ac=p.id===cp.id;
+          return <g key={`pa${p.id}`}>
+            <path d={arcD(CX,CY,R_AI,R_AO,p.start,p.end)} fill={ac?`url(#rg${p.id})`:p.fill} stroke={p.stroke} strokeWidth={ac?2:0.6} opacity={ac?1:0.72} filter={ac?"url(#gw4)":"none"}/>
+            {ac && <><path d={arcD(CX,CY,R_AO,R_AO+6,p.start,p.end)} fill={p.stroke} fillOpacity="0.45" filter="url(#gw4)"/><path d={arcD(CX,CY,R_AI,R_AI+5,p.start,p.end)} fill={p.stroke} fillOpacity="0.22" filter="url(#gw2)"/></>}
           </g>;
         })}
-
-        {/* ── 9-PETAL MANDALA ── */}
-        <circle cx={CX} cy={CY} r={R_WAVE_IN-4} fill="#040810"/>
-        {Array.from({length:9},(_,i)=>{
-          const angle=(i/9)*360, ph=PHASES[i], active=ph.id===curPhase.id;
-          const [px,py]=toXY(CX,CY,R_PETAL,angle);
-          return <ellipse key={`pt${i}`} cx={px} cy={py} rx="9" ry="17"
-            transform={`rotate(${angle},${px},${py})`}
-            fill={ph.glow} fillOpacity={active?0.42:0.09}
-            stroke={ph.glow} strokeWidth="0.7" strokeOpacity={active?0.88:0.28}
-            filter={active?"url(#gw2)":"none"}/>;
+        {PHASES.map(p=>{
+          const [x1,y1]=toXY(CX,CY,R_AI-3,hDeg(p.start)),[x2,y2]=toXY(CX,CY,R_AO+5,hDeg(p.start));
+          return <line key={`dv${p.id}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#040810" strokeWidth="2.2"/>;
         })}
-
-        {/* ── CENTER ── */}
-        <circle cx={CX} cy={CY} r={R_CENTER+9} fill="#040810"/>
-        <circle cx={CX} cy={CY} r={R_CENTER}   fill="url(#centGr)"/>
-        <circle cx={CX} cy={CY} r={R_CENTER}   fill="none" stroke={curPhase.stroke} strokeWidth="1.8" strokeOpacity="0.72"/>
-        <circle cx={CX} cy={CY} r={R_CENTER+6} fill="none" stroke={curPhase.glow}   strokeWidth="0.6" strokeOpacity="0.2"/>
-
-        <text x={CX} y={CY-26} textAnchor="middle" fontSize="19">{curPhase.symbol}</text>
-        <text x={CX} y={CY-10} textAnchor="middle" fontSize="7.5"
-          fontFamily="Cinzel,serif" fontWeight="600" fill={curPhase.stroke} letterSpacing="2.5">
-          {curPhase.name.toUpperCase()}</text>
-        <text x={CX} y={CY+8} textAnchor="middle" fontSize="21"
-          fontFamily="DM Mono,monospace" fontWeight="600" fill="white">
-          {timeStr}<tspan fontSize="10" fill="rgba(255,255,255,0.36)">.{secStr}</tspan></text>
-        <text x={CX} y={CY+24} textAnchor="middle" fontSize="7.5"
-          fontFamily="DM Sans,sans-serif" fill="rgba(255,255,255,0.3)">Phase {curPhase.id} of 9</text>
+        {PHASES.map(p=>{
+          const mid=(p.start+p.end)/2,[tx,ty]=toXY(CX,CY,R_AM,hDeg(mid)),ac=p.id===cp.id;
+          return <g key={`lbl${p.id}`}>
+            {ac && <ellipse cx={tx} cy={ty} rx="13" ry="16" fill={p.stroke} fillOpacity="0.18"/>}
+            <text x={tx} y={ty-4} textAnchor="middle" dominantBaseline="middle" fontSize={ac?"15":"12"} opacity={ac?1:0.82}>{p.symbol}</text>
+            <text x={tx} y={ty+10} textAnchor="middle" dominantBaseline="middle" fontFamily="DM Mono,monospace" fontWeight="600" fontSize={ac?"9":"8"} fill={ac?"white":p.stroke} fillOpacity={ac?1:0.7}>{p.id}</text>
+          </g>;
+        })}
+        <path d={arcD(CX,CY,R_PR-2,R_PR+2,cp.start,cp.end)} fill="rgba(255,255,255,0.05)"/>
+        {phaseProg>0.015 && <path d={`M${pAX},${pAY} A${R_PR},${R_PR} 0 ${pLA},1 ${pBX},${pBY}`} fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeOpacity="0.88" filter="url(#gw2)"/>}
+        <circle cx={CX} cy={CY} r={R_AI} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.2"/>
+        <circle cx={CX} cy={CY} r={R_WO+3} fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth="0.8"/>
+        <circle cx={CX} cy={CY} r={R_WI-3} fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth="0.8"/>
+        <path d={arcD(CX,CY,R_WI,R_WO,0,24)} fill="#030609" fillOpacity="0.97"/>
+        <path d={wavePath(CX,CY,R_WI+2,R_WO-2,cortisol)} fill="none" stroke="#fbbf24" strokeWidth="1.4" strokeOpacity="0.7"/>
+        <path d={wavePath(CX,CY,R_WI+2,R_WO-2,bodyTemp)} fill="none" stroke="#f97316" strokeWidth="1.4" strokeOpacity="0.7"/>
+        <path d={wavePath(CX,CY,R_WI+2,R_WO-2,melatonin)} fill="none" stroke="#818cf8" strokeWidth="1.4" strokeOpacity="0.7"/>
+        <path d={wavePath(CX,CY,R_WI+2,R_WO-2,composite)} fill="none" stroke={cp.glow} strokeWidth="2.2" strokeOpacity="0.92"/>
+        <circle cx={CX} cy={CY} r={(R_WI+R_WO)/2} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="0.6" strokeDasharray="3,4"/>
+        {[{l:"C",c:"#fbbf24",a:5},{l:"T",c:"#f97316",a:40},{l:"M",c:"#818cf8",a:75},{l:"F",c:cp.glow,a:110}].map(({l,c,a})=>{
+          const [lx,ly]=toXY(CX,CY,R_WI-8,a);
+          return <g key={l}><circle cx={lx} cy={ly} r="5.5" fill={c} fillOpacity="0.92"/><text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" fontSize="5" fontWeight="700" fill="#020507" fontFamily="DM Mono,monospace">{l}</text></g>;
+        })}
+        <circle cx={CX} cy={CY} r={R_WI-4} fill="#040810"/>
+        {Array.from({length:9},(_,i)=>{
+          const angle=(i/9)*360,ph=PHASES[i],ac=ph.id===cp.id,[px,py]=toXY(CX,CY,R_PT,angle);
+          return <ellipse key={`pt${i}`} cx={px} cy={py} rx="9" ry="17" transform={`rotate(${angle},${px},${py})`} fill={ph.glow} fillOpacity={ac?0.42:0.09} stroke={ph.glow} strokeWidth="0.7" strokeOpacity={ac?0.88:0.28} filter={ac?"url(#gw2)":"none"}/>;
+        })}
+        <circle cx={CX} cy={CY} r={R_CE+9} fill="#040810"/>
+        <circle cx={CX} cy={CY} r={R_CE} fill="url(#cGr)"/>
+        <circle cx={CX} cy={CY} r={R_CE} fill="none" stroke={cp.stroke} strokeWidth="1.8" strokeOpacity="0.72"/>
+        <text x={CX} y={CY-26} textAnchor="middle" fontSize="19">{cp.symbol}</text>
+        <text x={CX} y={CY-10} textAnchor="middle" fontSize="7.5" fontFamily="Cinzel,serif" fontWeight="600" fill={cp.stroke} letterSpacing="2.5">{cp.name.toUpperCase()}</text>
+        <text x={CX} y={CY+8} textAnchor="middle" fontSize="21" fontFamily="DM Mono,monospace" fontWeight="600" fill="white">{ts}<tspan fontSize="10" fill="rgba(255,255,255,0.36)">.{ss}</tspan></text>
+        <text x={CX} y={CY+24} textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.3)">Phase {cp.id} of 9</text>
         <rect x={CX-26} y={CY+30} width="52" height="2.5" rx="1.5" fill="rgba(255,255,255,0.07)"/>
-        <rect x={CX-26} y={CY+30} width={52*Math.min(phaseProg,1)} height="2.5" rx="1.5" fill={curPhase.stroke} opacity="0.85"/>
-
-        {/* ── NEEDLE ── */}
-        <line x1={nBX} y1={nBY} x2={nTX} y2={nTY}
-          stroke="white" strokeWidth="2" strokeLinecap="round"
-          style={{filter:"drop-shadow(0 0 6px rgba(255,255,255,0.85))"}}/>
+        <rect x={CX-26} y={CY+30} width={52*Math.min(phaseProg,1)} height="2.5" rx="1.5" fill={cp.stroke} opacity="0.85"/>
+        <line x1={nBX} y1={nBY} x2={nTX} y2={nTY} stroke="white" strokeWidth="2" strokeLinecap="round" style={{filter:"drop-shadow(0 0 6px rgba(255,255,255,0.85))"}}/>
         <circle cx={nTX} cy={nTY} r="3.5" fill="white" style={{filter:"drop-shadow(0 0 5px white)"}}/>
-        <circle cx={CX} cy={CY} r="7.5" fill={curPhase.stroke} filter="url(#gw2)"/>
-        <circle cx={CX} cy={CY} r="4"   fill="white"/>
+        <circle cx={CX} cy={CY} r="7.5" fill={cp.stroke} filter="url(#gw2)"/>
+        <circle cx={CX} cy={CY} r="4" fill="white"/>
       </svg>
-      </div>
 
-      {/* CLOCK ANATOMY LEGEND */}
       <div style={{margin:"4px 12px 10px",padding:"11px 13px",borderRadius:12,background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)"}}>
         <p style={{fontSize:9,color:"rgba(255,255,255,0.3)",letterSpacing:"0.12em",marginBottom:9,fontFamily:"DM Mono,monospace"}}>CLOCK ANATOMY</p>
-        <div style={{display:"flex",flexDirection:"column",gap:7}}>
-          {[
-            [{sw:curPhase.stroke,lb:"OUTER RING",ds:"9 colored circadian phase arcs"},{sw:"white",lb:"PROGRESS ARC",ds:"How far through current phase"}],
-            [{sw:curPhase.glow,  lb:"F(t) WAVE", ds:"Composite hormone curve (inner ring)"},{sw:"#fbbf24",lb:"C · Cortisol",ds:"Peaks ~07:30 — Brabant 1990"}],
-            [{sw:"#f97316",lb:"T · Body Temp",ds:"Peaks ~17:00 — Refinetti 2010"},{sw:"#818cf8",lb:"M · Melatonin",ds:"Peaks ~03:00 — Lewy 1999"}],
-          ].map((row,i)=>(
-            <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"6px 14px"}}>
-              {row.map(({sw,lb,ds})=>(
-                <div key={lb} style={{display:"flex",alignItems:"flex-start",gap:7}}>
-                  <div style={{width:9,height:9,borderRadius:2,background:sw,flexShrink:0,marginTop:1,border:"1px solid rgba(255,255,255,0.12)"}}/>
-                  <div>
-                    <div style={{fontSize:9,fontFamily:"DM Mono,monospace",color:"rgba(255,255,255,0.75)",lineHeight:1.2}}>{lb}</div>
-                    <div style={{fontSize:9,color:"rgba(255,255,255,0.3)",lineHeight:1.3}}>{ds}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
+        {[[{sw:cp.stroke,lb:"OUTER RING",ds:"9 colored circadian phase arcs"},{sw:"white",lb:"PROGRESS ARC",ds:"How far through current phase"}],[{sw:cp.glow,lb:"F(t) WAVE",ds:"Composite hormone curve (inner ring)"},{sw:"#fbbf24",lb:"C · Cortisol",ds:"Peaks ~07:30 — Brabant 1990"}],[{sw:"#f97316",lb:"T · Body Temp",ds:"Peaks ~17:00 — Refinetti 2010"},{sw:"#818cf8",lb:"M · Melatonin",ds:"Peaks ~03:00 — Lewy 1999"}]].map((row,i)=>(
+          <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"6px 14px",marginBottom:6}}>
+            {row.map(({sw,lb,ds})=>(<div key={lb} style={{display:"flex",alignItems:"flex-start",gap:7}}><div style={{width:9,height:9,borderRadius:2,background:sw,flexShrink:0,marginTop:1,border:"1px solid rgba(255,255,255,0.12)"}}/><div><div style={{fontSize:9,fontFamily:"DM Mono,monospace",color:"rgba(255,255,255,0.75)"}}>{lb}</div><div style={{fontSize:9,color:"rgba(255,255,255,0.3)"}}>{ds}</div></div></div>))}
+          </div>
+        ))}
       </div>
 
-      {/* PHASE COLOR MAP */}
       <div style={{margin:"0 12px 10px"}}>
         <p style={{fontSize:9,color:"rgba(255,255,255,0.3)",letterSpacing:"0.12em",marginBottom:7,fontFamily:"DM Mono,monospace"}}>PHASE REFERENCE MAP</p>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
           {PHASES.map(p=>{
-            const active=p.id===curPhase.id;
-            return (
-              <div key={p.id} style={{padding:"7px 8px",borderRadius:9,
-                background:active?p.fill+"b0":"rgba(255,255,255,0.04)",
-                border:`1px solid ${active?p.stroke+"75":"rgba(255,255,255,0.08)"}`,
-                display:"flex",alignItems:"center",gap:6}}>
-                <div style={{width:8,height:8,borderRadius:2,background:p.stroke,flexShrink:0}}/>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:9.5,fontFamily:"DM Mono,monospace",fontWeight:500,
-                    color:active?p.stroke:"rgba(255,255,255,0.65)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-                    {p.name}</div>
-                  <div style={{fontSize:8,color:"rgba(255,255,255,0.28)",marginTop:1}}>{fmtShifted(p.start,wo)}</div>
-                </div>
-                <div style={{fontSize:12}}>{p.symbol}</div>
+            const ac=p.id===cp.id;
+            return <div key={p.id} style={{padding:"7px 8px",borderRadius:9,background:ac?p.fill+"b0":"rgba(255,255,255,0.04)",border:`1px solid ${ac?p.stroke+"75":"rgba(255,255,255,0.08)"}`,display:"flex",alignItems:"center",gap:6}}>
+              <div style={{width:8,height:8,borderRadius:2,background:p.stroke,flexShrink:0}}/>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:9.5,fontFamily:"DM Mono,monospace",fontWeight:500,color:ac?p.stroke:"rgba(255,255,255,0.65)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.name}</div>
+                <div style={{fontSize:8,color:"rgba(255,255,255,0.28)",marginTop:1}}>{fmtH(p.start,wo)}</div>
               </div>
-            );
+              <div style={{fontSize:12}}>{p.symbol}</div>
+            </div>;
           })}
         </div>
       </div>
 
-      {/* PHASE INFO CARD */}
-      <div style={{margin:"0 12px 10px",borderRadius:14,overflow:"hidden",border:`1px solid ${curPhase.stroke}32`,background:`linear-gradient(135deg,${curPhase.fill}75,#040810 65%)`}}>
+      <div style={{margin:"0 12px 10px",borderRadius:14,overflow:"hidden",border:`1px solid ${cp.stroke}32`,background:`linear-gradient(135deg,${cp.fill}75,#040810 65%)`}}>
         <div style={{padding:14}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
-              <span style={{fontSize:28}}>{curPhase.symbol}</span>
-              <div>
-                <h2 style={{fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,color:curPhase.stroke,margin:0}}>{curPhase.name}</h2>
-                <p style={{fontSize:11,color:"rgba(255,255,255,0.5)",margin:"2px 0 0"}}>{curPhase.desc}</p>
-              </div>
+              <span style={{fontSize:28}}>{cp.symbol}</span>
+              <div><h2 style={{fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,color:cp.stroke,margin:0}}>{cp.name}</h2><p style={{fontSize:11,color:"rgba(255,255,255,0.5)",margin:"2px 0 0"}}>{cp.desc}</p></div>
             </div>
             <div style={{textAlign:"right",fontFamily:"DM Mono,monospace",fontSize:11,color:"rgba(255,255,255,0.35)",flexShrink:0,marginLeft:8}}>
-              <div>{fmtShifted(curPhase.start,wo)}</div>
-              <div>→ {fmtShifted(curPhase.end>=24?0:curPhase.end,wo)}</div>
+              <div>{fmtH(cp.start,wo)}</div><div>→ {fmtH(cp.end>=24?0:cp.end,wo)}</div>
             </div>
           </div>
-          <div style={{height:4,borderRadius:2,background:"rgba(255,255,255,0.08)",overflow:"hidden",marginBottom:4}}>
-            <div style={{height:"100%",borderRadius:2,width:`${phaseProg*100}%`,background:`linear-gradient(90deg,${curPhase.fill},${curPhase.stroke})`,transition:"width 1s"}}/>
-          </div>
+          <div style={{height:4,borderRadius:2,background:"rgba(255,255,255,0.08)",overflow:"hidden",marginBottom:4}}><div style={{height:"100%",borderRadius:2,width:`${phaseProg*100}%`,background:`linear-gradient(90deg,${cp.fill},${cp.stroke})`,transition:"width 1s"}}/></div>
           <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:"rgba(255,255,255,0.28)",marginBottom:10}}>
-            <span>{(phaseProg*100).toFixed(0)}% complete</span>
-            <span>{((1-phaseProg)*(curPhase.end-curPhase.start)*60).toFixed(0)} min remaining</span>
+            <span>{(phaseProg*100).toFixed(0)}% complete</span><span>{((1-phaseProg)*(cp.end-cp.start)*60).toFixed(0)} min remaining</span>
           </div>
-          <p style={{fontSize:11,lineHeight:1.6,color:"rgba(255,255,255,0.6)",marginBottom:10}}>{curPhase.science}</p>
+          <p style={{fontSize:11,lineHeight:1.6,color:"rgba(255,255,255,0.6)",marginBottom:10}}>{cp.science}</p>
           <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-            {curPhase.best.map(a=><span key={a} style={{fontSize:10,padding:"3px 9px",borderRadius:20,background:curPhase.stroke+"22",color:curPhase.stroke,border:`1px solid ${curPhase.stroke}35`}}>✓ {a}</span>)}
-            {curPhase.avoid.map(a=><span key={a} style={{fontSize:10,padding:"3px 9px",borderRadius:20,background:"rgba(239,68,68,0.1)",color:"#f87171",border:"1px solid rgba(239,68,68,0.18)"}}>✗ {a}</span>)}
+            {cp.best.map(a=><span key={a} style={{fontSize:10,padding:"3px 9px",borderRadius:20,background:cp.stroke+"22",color:cp.stroke,border:`1px solid ${cp.stroke}35`}}>✓ {a}</span>)}
+            {cp.avoid.map(a=><span key={a} style={{fontSize:10,padding:"3px 9px",borderRadius:20,background:"rgba(239,68,68,0.1)",color:"#f87171",border:"1px solid rgba(239,68,68,0.18)"}}>✗ {a}</span>)}
           </div>
         </div>
       </div>
 
-      {/* WAKE TIME */}
       <div style={{margin:"0 12px 10px",padding:"11px 14px",borderRadius:12,background:"rgba(0,0,0,0.45)",border:"1px solid rgba(255,255,255,0.08)"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <div>
-            <div style={{fontSize:12,fontWeight:600,color:"white"}}>Wake time</div>
-            <div style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>Shifts all 9 phase boundaries</div>
-          </div>
+          <div><div style={{fontSize:12,fontWeight:600,color:"white"}}>Wake time</div><div style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>Shifts all 9 phase boundaries</div></div>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             <button onClick={()=>setWakeHour(h=>Math.max(4,+(h-.5).toFixed(1)))} style={{width:30,height:30,borderRadius:15,border:"1px solid rgba(255,255,255,0.15)",background:"rgba(255,255,255,0.06)",color:"white",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
-            <span style={{fontSize:15,fontWeight:700,fontFamily:"DM Mono,monospace",color:"white",width:44,textAlign:"center"}}>
-              {Math.floor(wakeHour)}:{(wakeHour%1*60).toFixed(0).padStart(2,"0")}
-            </span>
+            <span style={{fontSize:15,fontWeight:700,fontFamily:"DM Mono,monospace",color:"white",width:44,textAlign:"center"}}>{Math.floor(wakeHour)}:{(wakeHour%1*60).toFixed(0).padStart(2,"0")}</span>
             <button onClick={()=>setWakeHour(h=>Math.min(11,+(h+.5).toFixed(1)))} style={{width:30,height:30,borderRadius:15,border:"1px solid rgba(255,255,255,0.15)",background:"rgba(255,255,255,0.06)",color:"white",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
           </div>
         </div>
       </div>
 
-      {/* UPCOMING */}
       <div style={{margin:"0 12px"}}>
         <p style={{fontSize:9,color:"rgba(255,255,255,0.3)",letterSpacing:"0.12em",marginBottom:7,fontFamily:"DM Mono,monospace"}}>UPCOMING PHASES</p>
         <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4}}>
           {PHASES.map(p=>{
-            const past=p.id<curPhase.id,cur=p.id===curPhase.id;
-            return <div key={p.id} style={{flexShrink:0,padding:"7px 9px",borderRadius:10,textAlign:"center",minWidth:56,
-              background:cur?p.fill+"65":"rgba(255,255,255,0.04)",
-              border:`1px solid ${cur?p.stroke+"65":"rgba(255,255,255,0.07)"}`,opacity:past?0.35:1}}>
+            const past=p.id<cp.id,cur=p.id===cp.id;
+            return <div key={p.id} style={{flexShrink:0,padding:"7px 9px",borderRadius:10,textAlign:"center",minWidth:56,background:cur?p.fill+"65":"rgba(255,255,255,0.04)",border:`1px solid ${cur?p.stroke+"65":"rgba(255,255,255,0.07)"}`,opacity:past?0.35:1}}>
               <div style={{fontSize:15}}>{p.symbol}</div>
-              <div style={{fontSize:8.5,fontFamily:"DM Mono,monospace",color:cur?p.stroke:"rgba(255,255,255,0.45)",marginTop:3}}>{fmtShifted(p.start,wo)}</div>
+              <div style={{fontSize:8.5,fontFamily:"DM Mono,monospace",color:cur?p.stroke:"rgba(255,255,255,0.45)",marginTop:3}}>{fmtH(p.start,wo)}</div>
               <div style={{fontSize:7.5,color:cur?p.stroke:"rgba(255,255,255,0.28)",marginTop:1}}>{p.id}</div>
             </div>;
           })}
@@ -456,136 +271,87 @@ return (
       </div>
     </div>}
 
-    {/* ══════════════════ ALIGN TAB ══════════════════ */}
     {tab==="align" && <div className="su" style={{padding:12,display:"flex",flexDirection:"column",gap:12}}>
-      <div style={{borderRadius:12,padding:12,display:"flex",alignItems:"center",gap:12,border:`1px solid ${curPhase.stroke}35`,background:`linear-gradient(135deg,${curPhase.fill}55,rgba(0,0,0,0.5))`}}>
-        <span style={{fontSize:32}}>{curPhase.symbol}</span>
-        <div>
-          <p style={{fontFamily:"Cinzel,serif",fontSize:13,fontWeight:700,color:curPhase.stroke,margin:0}}>{curPhase.name}</p>
-          <p style={{fontSize:11,color:"rgba(255,255,255,0.5)",margin:"2px 0 0"}}>{curPhase.desc}</p>
-        </div>
+      <div style={{borderRadius:12,padding:12,display:"flex",alignItems:"center",gap:12,border:`1px solid ${cp.stroke}35`,background:`linear-gradient(135deg,${cp.fill}55,rgba(0,0,0,0.5))`}}>
+        <span style={{fontSize:32}}>{cp.symbol}</span>
+        <div><p style={{fontFamily:"Cinzel,serif",fontSize:13,fontWeight:700,color:cp.stroke,margin:0}}>{cp.name}</p><p style={{fontSize:11,color:"rgba(255,255,255,0.5)",margin:"2px 0 0"}}>{cp.desc}</p></div>
       </div>
       <p style={{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",margin:0,fontFamily:"DM Mono,monospace"}}>SELECT ACTIVITY — SEE BIOLOGICAL ALIGNMENT</p>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
         {ACTIVITIES.map(act=>{
           const score=alignScore(act),sel=selAct?.name===act.name,col=score>=80?"#10b981":score>=60?"#f59e0b":"#ef4444";
-          return <button key={act.name} onClick={()=>setSelAct(act)} style={{padding:12,borderRadius:12,textAlign:"left",border:`1px solid ${sel?curPhase.stroke+"60":"rgba(255,255,255,0.08)"}`,background:sel?curPhase.glow+"18":"rgba(0,0,0,0.4)"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-              <span style={{fontSize:22}}>{act.icon}</span>
-              <span style={{fontSize:12,fontWeight:700,fontFamily:"DM Mono,monospace",color:col}}>{score}%</span>
-            </div>
+          return <button key={act.name} onClick={()=>setSelAct(act)} style={{padding:12,borderRadius:12,textAlign:"left",border:`1px solid ${sel?cp.stroke+"60":"rgba(255,255,255,0.08)"}`,background:sel?cp.glow+"18":"rgba(0,0,0,0.4)"}}>
+            <div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontSize:22}}>{act.icon}</span><span style={{fontSize:12,fontWeight:700,fontFamily:"DM Mono,monospace",color:col}}>{score}%</span></div>
             <p style={{fontSize:12,fontWeight:600,color:"white",margin:"6px 0 5px"}}>{act.name}</p>
-            <div style={{height:2.5,borderRadius:1.5,background:"rgba(255,255,255,0.07)"}}>
-              <div style={{width:`${score}%`,height:"100%",borderRadius:1.5,background:col}}/>
-            </div>
+            <div style={{height:2.5,borderRadius:1.5,background:"rgba(255,255,255,0.07)"}}><div style={{width:`${score}%`,height:"100%",borderRadius:1.5,background:col}}/></div>
           </button>;
         })}
       </div>
       {selAct&&(()=>{
         const score=alignScore(selAct),col=score>=80?"#10b981":score>=60?"#f59e0b":"#ef4444";
         const best=PHASES.find(p=>p.id===selAct.optimalPhases[0]);
-        const label=score>=80?"Excellent — peak biological window":score>=60?"Good — workable alignment":"Low — suboptimal timing";
-        const advice=score>=80
-          ?`${curPhase.name} is the biological sweet spot for ${selAct.name}. Take full advantage.`
-          :score>=60
-          ?`Moderate alignment. ${selAct.name} works now, but ${best?.name} (${fmtShifted(best?.start??0,wo)}) is meaningfully better.`
-          :`${selAct.name} performs best during ${best?.name} at ${fmtShifted(best?.start??0,wo)}. Consider waiting or adjusting approach.`;
         return <div style={{borderRadius:12,padding:14,border:`1px solid ${col}28`,background:col+"10"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-            <div style={{display:"flex",alignItems:"center",gap:8}}>
-              <span style={{fontSize:22}}>{selAct.icon}</span>
-              <span style={{fontSize:14,fontWeight:600,color:"white"}}>{selAct.name}</span>
-            </div>
+            <div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:22}}>{selAct.icon}</span><span style={{fontSize:14,fontWeight:600,color:"white"}}>{selAct.name}</span></div>
             <div style={{position:"relative",width:52,height:52}}>
-              <svg viewBox="0 0 44 44" width="52" height="52">
-                <circle cx="22" cy="22" r="17" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="4.5"/>
-                <circle cx="22" cy="22" r="17" fill="none" stroke={col} strokeWidth="4.5"
-                  strokeDasharray={`${score*1.069} 106.9`} strokeLinecap="round" transform="rotate(-90 22 22)"/>
-              </svg>
+              <svg viewBox="0 0 44 44" width="52" height="52"><circle cx="22" cy="22" r="17" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="4.5"/><circle cx="22" cy="22" r="17" fill="none" stroke={col} strokeWidth="4.5" strokeDasharray={`${score*1.069} 106.9`} strokeLinecap="round" transform="rotate(-90 22 22)"/></svg>
               <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:col,fontFamily:"DM Mono,monospace"}}>{score}%</div>
             </div>
           </div>
-          <p style={{fontSize:11,fontWeight:600,color:col,margin:"0 0 5px"}}>{label}</p>
-          <p style={{fontSize:11,lineHeight:1.55,color:"rgba(255,255,255,0.55)",margin:"0 0 10px"}}>{advice}</p>
-          {score<80&&best&&<div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",borderRadius:8,background:best.glow+"16",border:`1px solid ${best.glow}28`}}>
-            <span style={{fontSize:18}}>{best.symbol}</span>
-            <div>
-              <p style={{fontSize:11,fontWeight:600,color:best.stroke,margin:0}}>Optimal: {best.name}</p>
-              <p style={{fontSize:10,color:"rgba(255,255,255,0.38)",margin:"1px 0 0",fontFamily:"DM Mono,monospace"}}>{fmtShifted(best.start,wo)} – {fmtShifted(best.end>=24?0:best.end,wo)}</p>
-            </div>
-          </div>}
+          <p style={{fontSize:11,fontWeight:600,color:col,margin:"0 0 5px"}}>{score>=80?"Excellent — peak biological window":score>=60?"Good — workable alignment":"Low — suboptimal timing"}</p>
+          <p style={{fontSize:11,lineHeight:1.55,color:"rgba(255,255,255,0.55)",margin:"0 0 10px"}}>{score>=80?`${cp.name} is the sweet spot for ${selAct.name}.`:score>=60?`Works now, but ${best?.name} (${fmtH(best?.start??0,wo)}) is biologically superior.`:`Best during ${best?.name} at ${fmtH(best?.start??0,wo)}.`}</p>
+          {score<80&&best&&<div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",borderRadius:8,background:best.glow+"16",border:`1px solid ${best.glow}28`}}><span style={{fontSize:18}}>{best.symbol}</span><div><p style={{fontSize:11,fontWeight:600,color:best.stroke,margin:0}}>Optimal: {best.name}</p><p style={{fontSize:10,color:"rgba(255,255,255,0.38)",margin:"1px 0 0",fontFamily:"DM Mono,monospace"}}>{fmtH(best.start,wo)} – {fmtH(best.end>=24?0:best.end,wo)}</p></div></div>}
         </div>;
       })()}
     </div>}
 
-    {/* ══════════════════ INSIGHTS TAB ══════════════════ */}
     {tab==="insights" && <div className="su" style={{padding:12,display:"flex",flexDirection:"column",gap:14}}>
       <div>
-        <p style={{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",marginBottom:7,fontFamily:"DM Mono,monospace"}}>LIVE HORMONE LEVELS · BIOLOGICAL MODEL</p>
+        <p style={{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",marginBottom:7,fontFamily:"DM Mono,monospace"}}>LIVE HORMONE LEVELS</p>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
-          {[{name:"Cortisol",val:cortisol(curHour),color:"#fbbf24",peak:"07:30",icon:"⚡",ref:"Brabant 1990"},
-            {name:"Core Temp",val:bodyTemp(curHour),color:"#f97316",peak:"17:00",icon:"🌡",ref:"Refinetti 2010"},
-            {name:"Melatonin",val:melatonin(curHour),color:"#818cf8",peak:"03:00",icon:"🌙",ref:"Lewy 1999"}].map(h=>(
+          {[{name:"Cortisol",val:cortisol(curHour),color:"#fbbf24",peak:"07:30",icon:"⚡",ref:"Brabant 1990"},{name:"Core Temp",val:bodyTemp(curHour),color:"#f97316",peak:"17:00",icon:"🌡",ref:"Refinetti 2010"},{name:"Melatonin",val:melatonin(curHour),color:"#818cf8",peak:"03:00",icon:"🌙",ref:"Lewy 1999"}].map(h=>(
             <div key={h.name} style={{borderRadius:12,padding:"11px 8px",textAlign:"center",border:"1px solid rgba(255,255,255,0.07)",background:"rgba(0,0,0,0.45)"}}>
               <div style={{fontSize:18}}>{h.icon}</div>
               <p style={{fontSize:9,color:"rgba(255,255,255,0.4)",margin:"5px 0 2px",fontFamily:"DM Mono,monospace"}}>{h.name}</p>
               <p style={{fontSize:22,fontWeight:700,color:h.color,fontFamily:"DM Mono,monospace",margin:0}}>{(h.val*100).toFixed(0)}<span style={{fontSize:10,fontWeight:400}}>%</span></p>
-              <div style={{height:3,borderRadius:2,background:"rgba(255,255,255,0.07)",overflow:"hidden",margin:"7px 0 5px"}}>
-                <div style={{width:`${h.val*100}%`,height:"100%",background:h.color,borderRadius:2}}/>
-              </div>
-              <div style={{fontSize:8,color:"rgba(255,255,255,0.22)",fontFamily:"DM Mono,monospace"}}>
-                <div>Peak {h.peak}</div><div>{h.ref}</div>
-              </div>
+              <div style={{height:3,borderRadius:2,background:"rgba(255,255,255,0.07)",overflow:"hidden",margin:"7px 0 5px"}}><div style={{width:`${h.val*100}%`,height:"100%",background:h.color,borderRadius:2}}/></div>
+              <div style={{fontSize:8,color:"rgba(255,255,255,0.22)",fontFamily:"DM Mono,monospace"}}><div>Peak {h.peak}</div><div>{h.ref}</div></div>
             </div>
           ))}
         </div>
       </div>
       <div>
-        <p style={{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",marginBottom:7,fontFamily:"DM Mono,monospace"}}>24H HORMONE MODEL · F(t)=0.5C+0.3T+0.2M</p>
+        <p style={{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",marginBottom:7,fontFamily:"DM Mono,monospace"}}>24H MODEL · F(t)=0.5C+0.3T+0.2M</p>
         <div style={{borderRadius:12,padding:12,border:"1px solid rgba(255,255,255,0.07)",background:"rgba(0,0,0,0.45)"}}>
           <ResponsiveContainer width="100%" height={155}>
             <AreaChart data={hormoneData} margin={{top:5,right:8,bottom:5,left:-28}}>
-              <defs>
-                {[["cg","#fbbf24"],["tg","#f97316"],["mg","#818cf8"],["fg",curPhase.glow]].map(([id,c])=>(
-                  <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={c} stopOpacity="0.25"/>
-                    <stop offset="95%" stopColor={c} stopOpacity="0"/>
-                  </linearGradient>
-                ))}
-              </defs>
-              <XAxis dataKey="hour" tick={{fill:"#374151",fontSize:8}} axisLine={false} tickLine={false}
-                tickFormatter={h=>h%6===0?(h===0?"12a":h===12?"12p":h<12?`${h}a`:`${h}p`):""}/>
+              <defs>{[["cg","#fbbf24"],["tg","#f97316"],["mg","#818cf8"],["fg",cp.glow]].map(([id,c])=>(<linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={c} stopOpacity="0.25"/><stop offset="95%" stopColor={c} stopOpacity="0"/></linearGradient>))}</defs>
+              <XAxis dataKey="hour" tick={{fill:"#374151",fontSize:8}} axisLine={false} tickLine={false} tickFormatter={h=>h%6===0?(h===0?"12a":h===12?"12p":h<12?`${h}a`:`${h}p`):""}/>
               <YAxis domain={[0,1]} tick={false} axisLine={false}/>
-              <Tooltip contentStyle={{background:"#07101f",border:"1px solid #1e293b",borderRadius:8,fontSize:11}}
-                formatter={(v,n)=>[`${(v*100).toFixed(0)}%`,n]}
-                labelFormatter={h=>`${Math.floor(h)}:${h%1===.5?"30":"00"}`}/>
+              <Tooltip contentStyle={{background:"#07101f",border:"1px solid #1e293b",borderRadius:8,fontSize:11}} formatter={(v,n)=>[`${(v*100).toFixed(0)}%`,n]} labelFormatter={h=>`${Math.floor(h)}:${h%1===.5?"30":"00"}`}/>
               <ReferenceLine x={curHour} stroke="rgba(255,255,255,0.4)" strokeDasharray="3 2" strokeWidth={1.2}/>
-              <Area type="monotone" dataKey="cortisol"  name="Cortisol"  stroke="#fbbf24" fill="url(#cg)" strokeWidth={1.5} dot={false}/>
-              <Area type="monotone" dataKey="temp"      name="Body Temp" stroke="#f97316" fill="url(#tg)" strokeWidth={1.5} dot={false}/>
+              <Area type="monotone" dataKey="cortisol" name="Cortisol" stroke="#fbbf24" fill="url(#cg)" strokeWidth={1.5} dot={false}/>
+              <Area type="monotone" dataKey="temp" name="Body Temp" stroke="#f97316" fill="url(#tg)" strokeWidth={1.5} dot={false}/>
               <Area type="monotone" dataKey="melatonin" name="Melatonin" stroke="#818cf8" fill="url(#mg)" strokeWidth={1.5} dot={false}/>
-              <Area type="monotone" dataKey="composite" name="F(t)"      stroke={curPhase.glow} fill="none" strokeWidth={2.2} dot={false} strokeDasharray="5 2"/>
+              <Area type="monotone" dataKey="composite" name="F(t)" stroke={cp.glow} fill="none" strokeWidth={2.2} dot={false} strokeDasharray="5 2"/>
             </AreaChart>
           </ResponsiveContainer>
           <div style={{display:"flex",flexWrap:"wrap",gap:"5px 12px",justifyContent:"center",marginTop:4}}>
-            {[["Cortisol","#fbbf24"],["Body Temp","#f97316"],["Melatonin","#818cf8"],["F(t) Composite",curPhase.glow]].map(([n,c])=>(
-              <div key={n} style={{display:"flex",alignItems:"center",gap:5}}>
-                <div style={{width:8,height:8,borderRadius:2,background:c}}/><span style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>{n}</span>
-              </div>
-            ))}
+            {[["Cortisol","#fbbf24"],["Body Temp","#f97316"],["Melatonin","#818cf8"],["F(t)",cp.glow]].map(([n,c])=>(<div key={n} style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:8,height:8,borderRadius:2,background:c}}/><span style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>{n}</span></div>))}
           </div>
         </div>
       </div>
       <div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:7}}>
           <p style={{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.12em",margin:0,fontFamily:"DM Mono,monospace"}}>YOUR ENERGY LOG</p>
-          <button onClick={()=>setModal(true)} style={{fontSize:10,padding:"4px 12px",borderRadius:20,border:`1px solid ${curPhase.stroke}45`,color:curPhase.stroke,background:"transparent"}}>+ Entry</button>
+          <button onClick={()=>setModal(true)} style={{fontSize:10,padding:"4px 12px",borderRadius:20,border:`1px solid ${cp.stroke}45`,color:cp.stroke,background:"transparent"}}>+ Entry</button>
         </div>
         {trackLog.length===0?(
           <div style={{borderRadius:12,padding:22,textAlign:"center",border:"1px solid rgba(255,255,255,0.07)",background:"rgba(0,0,0,0.3)"}}>
             <div style={{fontSize:32,marginBottom:8}}>📊</div>
             <p style={{fontSize:13,color:"white",margin:"0 0 5px"}}>No entries yet</p>
-            <p style={{fontSize:11,color:"rgba(255,255,255,0.35)",margin:"0 0 12px",lineHeight:1.5}}>Log energy, focus & mood to compare your experience against the biological model.</p>
-            <button onClick={()=>setModal(true)} style={{fontSize:11,padding:"7px 18px",borderRadius:20,fontWeight:600,background:curPhase.glow+"28",color:curPhase.glow,border:`1px solid ${curPhase.glow}45`}}>Start Tracking</button>
+            <p style={{fontSize:11,color:"rgba(255,255,255,0.35)",margin:"0 0 12px",lineHeight:1.5}}>Log energy, focus & mood to compare against the biological model.</p>
+            <button onClick={()=>setModal(true)} style={{fontSize:11,padding:"7px 18px",borderRadius:20,fontWeight:600,background:cp.glow+"28",color:cp.glow,border:`1px solid ${cp.glow}45`}}>Start Tracking</button>
           </div>
         ):(
           <>
@@ -596,8 +362,8 @@ return (
                   <YAxis domain={[1,5]} ticks={[1,3,5]} tick={{fill:"#374151",fontSize:7}} axisLine={false} tickLine={false}/>
                   <Tooltip contentStyle={{background:"#07101f",border:"1px solid #1e293b",borderRadius:8,fontSize:10}}/>
                   <Line type="monotone" dataKey="energy" name="Energy" stroke="#f59e0b" strokeWidth={2} dot={false}/>
-                  <Line type="monotone" dataKey="focus"  name="Focus"  stroke="#2dd4bf" strokeWidth={2} dot={false}/>
-                  <Line type="monotone" dataKey="mood"   name="Mood"   stroke="#a78bfa" strokeWidth={2} dot={false}/>
+                  <Line type="monotone" dataKey="focus" name="Focus" stroke="#2dd4bf" strokeWidth={2} dot={false}/>
+                  <Line type="monotone" dataKey="mood" name="Mood" stroke="#a78bfa" strokeWidth={2} dot={false}/>
                 </LineChart>
               </ResponsiveContainer>
             </div>}
@@ -607,16 +373,8 @@ return (
                 return <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",borderRadius:10,border:"1px solid rgba(255,255,255,0.06)",background:"rgba(0,0,0,0.3)"}}>
                   <span style={{fontSize:18}}>{ep.symbol}</span>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{display:"flex",justifyContent:"space-between"}}>
-                      <span style={{fontSize:11,fontWeight:600,color:"white"}}>{e.phase}</span>
-                      <span style={{fontSize:10,color:"rgba(255,255,255,0.3)",fontFamily:"DM Mono,monospace"}}>{new Date(e.time).toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"})}</span>
-                    </div>
-                    <div style={{display:"flex",gap:10,marginTop:3}}>
-                      {[["⚡",e.energy,"#f59e0b"],["🎯",e.focus,"#2dd4bf"],["😊",e.mood,"#a78bfa"]].map(([ic,v,c])=>(
-                        <span key={ic} style={{fontSize:10,color:c}}>{ic} {"●".repeat(v)}{"○".repeat(5-v)}</span>
-                      ))}
-                    </div>
-                    {e.note&&<p style={{fontSize:10,margin:"2px 0 0",color:"rgba(255,255,255,0.28)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.note}</p>}
+                    <div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontSize:11,fontWeight:600,color:"white"}}>{e.phase}</span><span style={{fontSize:10,color:"rgba(255,255,255,0.3)",fontFamily:"DM Mono,monospace"}}>{new Date(e.time).toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"})}</span></div>
+                    <div style={{display:"flex",gap:10,marginTop:3}}>{[["⚡",e.energy,"#f59e0b"],["🎯",e.focus,"#2dd4bf"],["😊",e.mood,"#a78bfa"]].map(([ic,v,c])=>(<span key={ic} style={{fontSize:10,color:c}}>{ic} {"●".repeat(v)}{"○".repeat(5-v)}</span>))}</div>
                   </div>
                 </div>;
               })}
@@ -626,113 +384,63 @@ return (
       </div>
     </div>}
 
-    {/* ══════════════════ SCIENCE TAB ══════════════════ */}
     {tab==="science" && <div className="su" style={{padding:12,display:"flex",flexDirection:"column",gap:12}}>
       <div style={{borderRadius:14,padding:14,border:"1px solid rgba(129,140,248,0.28)",background:"rgba(26,22,80,0.5)"}}>
         <p style={{fontSize:9,fontWeight:600,letterSpacing:"0.15em",color:"#818cf8",marginBottom:8,fontFamily:"DM Mono,monospace"}}>THE DISCOVERY</p>
         <h2 style={{fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,color:"white",marginBottom:10}}>Artwork Validates Biology</h2>
         <p style={{fontSize:12,lineHeight:1.65,color:"rgba(255,255,255,0.65)",marginBottom:8}}>H.A. Marouf derived this 9-phase model <em>entirely from hormonal mathematics</em>, blind to any artwork. The composite F(t) was computed solely from published biochemical parameters.</p>
-        <p style={{fontSize:12,lineHeight:1.65,color:"rgba(255,255,255,0.65)",marginBottom:14}}>When phase boundaries were later overlaid on independent automatic mandala drawings — created through meditative practice as a wholly separate process — the alignment was statistically extraordinary.</p>
+        <p style={{fontSize:12,lineHeight:1.65,color:"rgba(255,255,255,0.65)",marginBottom:14}}>When phase boundaries were overlaid on independent automatic mandala drawings — a wholly separate meditative process — the alignment was statistically extraordinary.</p>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
-          {[{stat:"R²=0.993",label:"Model fit",color:"#10b981"},{stat:"10.1°",label:"Mean Ang. Error",color:"#60a5fa"},{stat:"p<0.001",label:"Significance",color:"#a78bfa"}].map(s=>(
-            <div key={s.label} style={{textAlign:"center",padding:"10px 6px",borderRadius:10,background:"rgba(0,0,0,0.45)",border:`1px solid ${s.color}25`}}>
-              <p style={{fontSize:13,fontWeight:700,color:s.color,fontFamily:"DM Mono,monospace",margin:"0 0 3px"}}>{s.stat}</p>
-              <p style={{fontSize:9,color:"rgba(255,255,255,0.3)",margin:0}}>{s.label}</p>
-            </div>
-          ))}
+          {[{stat:"R²=0.993",label:"Model fit",color:"#10b981"},{stat:"10.1°",label:"Mean Ang. Error",color:"#60a5fa"},{stat:"p<0.001",label:"Significance",color:"#a78bfa"}].map(s=>(<div key={s.label} style={{textAlign:"center",padding:"10px 6px",borderRadius:10,background:"rgba(0,0,0,0.45)",border:`1px solid ${s.color}25`}}><p style={{fontSize:13,fontWeight:700,color:s.color,fontFamily:"DM Mono,monospace",margin:"0 0 3px"}}>{s.stat}</p><p style={{fontSize:9,color:"rgba(255,255,255,0.3)",margin:0}}>{s.label}</p></div>))}
         </div>
       </div>
       <div style={{borderRadius:14,padding:14,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.5)"}}>
-        <p style={{fontSize:9,letterSpacing:"0.15em",color:"rgba(255,255,255,0.35)",marginBottom:10,fontFamily:"DM Mono,monospace"}}>HORMONE OSCILLATIONS · 24H WITH PHASE BANDS</p>
+        <p style={{fontSize:9,letterSpacing:"0.15em",color:"rgba(255,255,255,0.35)",marginBottom:10,fontFamily:"DM Mono,monospace"}}>HORMONE OSCILLATIONS · 24H PHASE BANDS</p>
         <svg viewBox="0 0 420 185" width="100%" style={{display:"block"}}>
           {PHASES.map(p=><rect key={p.id} x={(p.start/24)*420} y="0" width={((p.end-p.start)/24)*420} height="162" fill={p.fill} fillOpacity="0.3"/>)}
-          {PHASES.map(p=><g key={`sl${p.id}`}>
-            <line x1={(p.start/24)*420} y1="0" x2={(p.start/24)*420} y2="162" stroke="rgba(255,255,255,0.07)" strokeWidth="0.8"/>
-            <text x={((p.start+p.end)/2/24)*420} y="12" textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.55)">{p.symbol}</text>
-          </g>)}
+          {PHASES.map(p=><g key={`sl${p.id}`}><line x1={(p.start/24)*420} y1="0" x2={(p.start/24)*420} y2="162" stroke="rgba(255,255,255,0.07)" strokeWidth="0.8"/><text x={((p.start+p.end)/2/24)*420} y="12" textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.55)">{p.symbol}</text></g>)}
           {[0.25,0.5,0.75].map(v=><line key={v} x1="0" y1={162-v*148} x2="420" y2={162-v*148} stroke="rgba(255,255,255,0.05)" strokeWidth="0.7" strokeDasharray="4,3"/>)}
-          {[0,6,12,18,24].map(h=><g key={h}>
-            <line x1={(h/24)*420} y1="0" x2={(h/24)*420} y2="162" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5"/>
-            <text x={(h/24)*420+2} y="178" fontSize="8" fill="rgba(255,255,255,0.35)" fontFamily="DM Mono,monospace">{h===0?"12a":h===12?"12p":h<12?`${h}a`:`${h}p`}</text>
-          </g>)}
-          {[{fn:cortisol,c:"#fbbf24"},{fn:bodyTemp,c:"#f97316"},{fn:melatonin,c:"#818cf8"}].map(({fn,c})=>{
-            const d=Array.from({length:200},(_,i)=>{const t=i/199*24;return`${i===0?"M":"L"}${(t/24*420).toFixed(1)},${(162-fn(t)*148).toFixed(1)}`;}).join(" ");
-            return <path key={c} d={d} fill="none" stroke={c} strokeWidth="1.5" strokeOpacity="0.85"/>;
-          })}
-          {(()=>{const d=Array.from({length:200},(_,i)=>{const t=i/199*24;return`${i===0?"M":"L"}${(t/24*420).toFixed(1)},${(162-composite(t)*148).toFixed(1)}`;}).join(" ");return <path d={d} fill="none" stroke={curPhase.glow} strokeWidth="2.5" strokeDasharray="7,3" strokeOpacity="0.95"/>;})()}
+          {[0,6,12,18,24].map(h=><g key={h}><line x1={(h/24)*420} y1="0" x2={(h/24)*420} y2="162" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5"/><text x={(h/24)*420+2} y="178" fontSize="8" fill="rgba(255,255,255,0.35)" fontFamily="DM Mono,monospace">{h===0?"12a":h===12?"12p":h<12?`${h}a`:`${h}p`}</text></g>)}
+          {[{fn:cortisol,c:"#fbbf24"},{fn:bodyTemp,c:"#f97316"},{fn:melatonin,c:"#818cf8"}].map(({fn,c})=>{const d=Array.from({length:200},(_,i)=>{const t=i/199*24;return`${i===0?"M":"L"}${(t/24*420).toFixed(1)},${(162-fn(t)*148).toFixed(1)}`;}).join(" ");return <path key={c} d={d} fill="none" stroke={c} strokeWidth="1.5" strokeOpacity="0.85"/>;})}
+          {(()=>{const d=Array.from({length:200},(_,i)=>{const t=i/199*24;return`${i===0?"M":"L"}${(t/24*420).toFixed(1)},${(162-composite(t)*148).toFixed(1)}`;}).join(" ");return <path d={d} fill="none" stroke={cp.glow} strokeWidth="2.5" strokeDasharray="7,3" strokeOpacity="0.95"/>;})()}
           <line x1={(curHour/24)*420} y1="0" x2={(curHour/24)*420} y2="162" stroke="white" strokeWidth="1.2" strokeDasharray="3,2" strokeOpacity="0.5"/>
           <text x={Math.min(curHour/24*420+4,400)} y="14" fontSize="7" fill="white" fillOpacity="0.45" fontFamily="DM Mono,monospace">NOW</text>
         </svg>
-        <div style={{display:"flex",flexWrap:"wrap",gap:"5px 14px",justifyContent:"center",marginTop:8}}>
-          {[["Cortisol","#fbbf24"],["Body Temp","#f97316"],["Melatonin","#818cf8"],["F(t) Composite",curPhase.glow]].map(([n,c])=>(
-            <div key={n} style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:8,height:8,borderRadius:2,background:c}}/><span style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>{n}</span></div>
-          ))}
-        </div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:"5px 14px",justifyContent:"center",marginTop:8}}>{[["Cortisol","#fbbf24"],["Body Temp","#f97316"],["Melatonin","#818cf8"],["F(t)",cp.glow]].map(([n,c])=>(<div key={n} style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:8,height:8,borderRadius:2,background:c}}/><span style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>{n}</span></div>))}</div>
       </div>
       <div style={{borderRadius:14,padding:14,border:"1px solid rgba(45,212,191,0.18)",background:"rgba(0,0,0,0.6)"}}>
         <p style={{fontSize:9,letterSpacing:"0.15em",color:"#2dd4bf",marginBottom:10,fontFamily:"DM Mono,monospace"}}>THE MATHEMATICS</p>
         <div style={{borderRadius:10,padding:12,background:"rgba(0,0,0,0.75)",fontFamily:"DM Mono,monospace",fontSize:11,lineHeight:1.9}}>
-          <div style={{color:"#2dd4bf",marginBottom:4}}>F(t) = 0.5·C(t)  +  0.3·T(t)  +  0.2·M(t)</div>
-          <div style={{color:"rgba(255,255,255,0.2)",fontSize:9,marginBottom:10}}>// Composite circadian function (weighted sum)</div>
-          <div><span style={{color:"#fbbf24"}}>C(t)</span><span style={{color:"rgba(255,255,255,0.5)"}}> = Σ aₙ·cos(2πn(t−7.5)/24)</span><span style={{color:"rgba(255,255,255,0.2)",fontSize:9}}>  n=1..4</span></div>
-          <div><span style={{color:"#f97316"}}>T(t)</span><span style={{color:"rgba(255,255,255,0.5)"}}> = Σ bₙ·cos(2πn(t−17.0)/24)</span><span style={{color:"rgba(255,255,255,0.2)",fontSize:9}}>  n=1..3</span></div>
-          <div><span style={{color:"#818cf8"}}>M(t)</span><span style={{color:"rgba(255,255,255,0.5)"}}> = Σ cₙ·cos(2πn(t−3.0)/24)</span><span style={{color:"rgba(255,255,255,0.2)",fontSize:9}}>  n=1..3</span></div>
-          <div style={{marginTop:10,paddingTop:8,borderTop:"1px solid rgba(255,255,255,0.07)",color:"rgba(255,255,255,0.3)",fontSize:9}}>
-            9 inflection points of F(t) → 9 phase boundaries → 9-fold mandala symmetry (p &lt; 0.001)
-          </div>
+          <div style={{color:"#2dd4bf",marginBottom:4}}>F(t) = 0.5·C(t) + 0.3·T(t) + 0.2·M(t)</div>
+          <div style={{color:"rgba(255,255,255,0.2)",fontSize:9,marginBottom:10}}>// Composite circadian function</div>
+          <div><span style={{color:"#fbbf24"}}>C(t)</span><span style={{color:"rgba(255,255,255,0.5)"}}> = Σ aₙ·cos(2πn(t−7.5)/24)</span><span style={{color:"rgba(255,255,255,0.2)",fontSize:9}}> n=1..4</span></div>
+          <div><span style={{color:"#f97316"}}>T(t)</span><span style={{color:"rgba(255,255,255,0.5)"}}> = Σ bₙ·cos(2πn(t−17.0)/24)</span><span style={{color:"rgba(255,255,255,0.2)",fontSize:9}}> n=1..3</span></div>
+          <div><span style={{color:"#818cf8"}}>M(t)</span><span style={{color:"rgba(255,255,255,0.5)"}}> = Σ cₙ·cos(2πn(t−3.0)/24)</span><span style={{color:"rgba(255,255,255,0.2)",fontSize:9}}> n=1..3</span></div>
+          <div style={{marginTop:10,paddingTop:8,borderTop:"1px solid rgba(255,255,255,0.07)",color:"rgba(255,255,255,0.3)",fontSize:9}}>9 inflection points → 9 phase boundaries → 9-fold mandala symmetry (p &lt; 0.001)</div>
         </div>
-      </div>
-      <div style={{borderRadius:14,padding:14,border:"1px solid rgba(251,191,36,0.15)",background:"rgba(107,45,0,0.2)"}}>
-        <p style={{fontSize:9,letterSpacing:"0.15em",color:"#fbbf24",marginBottom:8,fontFamily:"DM Mono,monospace"}}>WHY EXACTLY 9 PHASES?</p>
-        <p style={{fontSize:12,lineHeight:1.65,color:"rgba(255,255,255,0.65)",margin:"0 0 8px"}}>The composite F(t) naturally produces exactly <strong style={{color:"white"}}>9 critical inflection points</strong> — as an emergent consequence of superimposing 10 Fourier harmonics across three biological systems. This was not chosen; it emerged from the mathematics.</p>
-        <p style={{fontSize:12,lineHeight:1.65,color:"rgba(255,255,255,0.65)",margin:0}}>These transitions map to biologically significant events: cortisol peak, temperature inflections, melatonin onset, and composite turning points. The emergent 9-fold structure independently matched the 9-fold rotational symmetry in H.A. Marouf's artwork (p&nbsp;&lt;&nbsp;0.001).</p>
       </div>
       <div style={{borderRadius:14,padding:14,border:"1px solid rgba(16,185,129,0.18)",background:"rgba(5,60,40,0.25)"}}>
         <p style={{fontSize:9,letterSpacing:"0.15em",color:"#10b981",marginBottom:12,fontFamily:"DM Mono,monospace"}}>BLIND VALIDATION PROTOCOL</p>
-        {[{n:"1",title:"Blind derivation",desc:"Phase boundaries computed solely from F(t) inflection points — zero reference to artwork.",c:"#10b981"},
-          {n:"2",title:"Independent artwork",desc:"Automatic mandala drawings created through meditative practice as a wholly separate process.",c:"#60a5fa"},
-          {n:"3",title:"Angular comparison",desc:"Artwork sector boundaries vs. model transitions. MAE = 10.1°, R² = 0.993, p < 0.001.",c:"#a78bfa"}].map(({n,title,desc,c})=>(
-          <div key={n} style={{display:"flex",gap:12,marginBottom:12}}>
-            <div style={{width:24,height:24,borderRadius:12,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,background:c+"1f",color:c,border:`1px solid ${c}40`}}>{n}</div>
-            <div><p style={{fontSize:12,fontWeight:600,color:"white",margin:"0 0 2px"}}>{title}</p><p style={{fontSize:11,color:"rgba(255,255,255,0.5)",margin:0,lineHeight:1.5}}>{desc}</p></div>
-          </div>
-        ))}
-        <p style={{fontSize:9,color:"rgba(255,255,255,0.22)",borderTop:"1px solid rgba(255,255,255,0.06)",paddingTop:10,margin:0,fontFamily:"DM Mono,monospace"}}>
-          Brabant (1990) · Van Cauter (1999) · Refinetti (2010) · Lewy (1999)
-        </p>
+        {[{n:"1",title:"Blind derivation",desc:"Phase boundaries computed solely from F(t) inflection points — zero artwork reference.",c:"#10b981"},{n:"2",title:"Independent artwork",desc:"Automatic mandala drawings created through meditative practice as a wholly separate process.",c:"#60a5fa"},{n:"3",title:"Angular comparison",desc:"Artwork sectors vs. model transitions. MAE = 10.1°, R² = 0.993, p < 0.001.",c:"#a78bfa"}].map(({n,title,desc,c})=>(<div key={n} style={{display:"flex",gap:12,marginBottom:12}}><div style={{width:24,height:24,borderRadius:12,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,background:c+"1f",color:c,border:`1px solid ${c}40`}}>{n}</div><div><p style={{fontSize:12,fontWeight:600,color:"white",margin:"0 0 2px"}}>{title}</p><p style={{fontSize:11,color:"rgba(255,255,255,0.5)",margin:0,lineHeight:1.5}}>{desc}</p></div></div>))}
+        <p style={{fontSize:9,color:"rgba(255,255,255,0.22)",borderTop:"1px solid rgba(255,255,255,0.06)",paddingTop:10,margin:0,fontFamily:"DM Mono,monospace"}}>Brabant (1990) · Van Cauter (1999) · Refinetti (2010) · Lewy (1999)</p>
       </div>
     </div>}
   </div>
 
-  {/* MODAL */}
   {modal&&<div className="fi" onClick={e=>{if(e.target===e.currentTarget)setModal(false);}} style={{position:"fixed",inset:0,zIndex:50,display:"flex",alignItems:"flex-end",justifyContent:"center",background:"rgba(0,0,0,0.82)",backdropFilter:"blur(12px)"}}>
     <div className="su" style={{width:"100%",maxWidth:480,borderRadius:"20px 20px 0 0",padding:20,background:"linear-gradient(180deg,#0c1828,#050a12)",border:"1px solid rgba(255,255,255,0.1)",borderBottom:"none"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-        <div>
-          <h3 style={{fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,color:"white",margin:0}}>Track Your State</h3>
-          <p style={{fontSize:11,color:"rgba(255,255,255,0.4)",margin:"3px 0 0"}}>{curPhase.symbol} {curPhase.name} · {timeStr}</p>
-        </div>
+        <div><h3 style={{fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,color:"white",margin:0}}>Track Your State</h3><p style={{fontSize:11,color:"rgba(255,255,255,0.4)",margin:"3px 0 0"}}>{cp.symbol} {cp.name} · {ts}</p></div>
         <button onClick={()=>setModal(false)} style={{width:30,height:30,borderRadius:15,border:"1px solid rgba(255,255,255,0.15)",background:"rgba(255,255,255,0.07)",color:"rgba(255,255,255,0.6)",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
       </div>
-      {[{k:"energy",l:"Energy Level",i:"⚡",c:"#f59e0b"},{k:"focus",l:"Mental Focus",i:"🎯",c:"#2dd4bf"},{k:"mood",l:"Mood / Wellbeing",i:"😊",c:"#a78bfa"}].map(({k,l,i,c})=>(
+      {[{k:"energy",l:"Energy Level",i:"⚡",c:"#f59e0b"},{k:"focus",l:"Mental Focus",i:"🎯",c:"#2dd4bf"},{k:"mood",l:"Mood",i:"😊",c:"#a78bfa"}].map(({k,l,i,c})=>(
         <div key={k} style={{marginBottom:14}}>
-          <div style={{display:"flex",justifyContent:"space-between",marginBottom:7}}>
-            <span style={{fontSize:12,color:"rgba(255,255,255,0.7)"}}>{i} {l}</span>
-            <span style={{fontSize:12,fontWeight:700,color:c,fontFamily:"DM Mono,monospace"}}>{entry[k]}/5</span>
-          </div>
-          <div style={{display:"flex",gap:6}}>
-            {[1,2,3,4,5].map(v=>(
-              <button key={v} onClick={()=>setEntry(e=>({...e,[k]:v}))} style={{flex:1,padding:"9px 0",borderRadius:8,fontSize:13,fontWeight:700,
-                background:entry[k]>=v?c+"28":"rgba(255,255,255,0.05)",color:entry[k]>=v?c:"rgba(255,255,255,0.2)",
-                border:entry[k]===v?`1.5px solid ${c}`:"1.5px solid transparent"}}>{v}</button>
-            ))}
-          </div>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:7}}><span style={{fontSize:12,color:"rgba(255,255,255,0.7)"}}>{i} {l}</span><span style={{fontSize:12,fontWeight:700,color:c,fontFamily:"DM Mono,monospace"}}>{entry[k]}/5</span></div>
+          <div style={{display:"flex",gap:6}}>{[1,2,3,4,5].map(v=>(<button key={v} onClick={()=>setEntry(e=>({...e,[k]:v}))} style={{flex:1,padding:"9px 0",borderRadius:8,fontSize:13,fontWeight:700,background:entry[k]>=v?c+"28":"rgba(255,255,255,0.05)",color:entry[k]>=v?c:"rgba(255,255,255,0.2)",border:entry[k]===v?`1.5px solid ${c}`:"1.5px solid transparent"}}>{v}</button>))}</div>
         </div>
       ))}
-      <textarea placeholder="Optional note…" value={entry.note}
-        onChange={e=>setEntry(l=>({...l,note:e.target.value}))}
-        rows={2} style={{width:"100%",borderRadius:10,padding:"10px 12px",fontSize:12,background:"rgba(0,0,0,0.55)",border:"1px solid rgba(255,255,255,0.1)",resize:"none",outline:"none",display:"block"}}/>
-      <button onClick={addEntry} style={{width:"100%",marginTop:12,padding:"13px 0",borderRadius:12,fontSize:13,fontWeight:700,background:curPhase.stroke,color:"#020507",border:"none",letterSpacing:"0.06em"}}>SAVE ENTRY</button>
+      <textarea placeholder="Optional note…" value={entry.note} onChange={e=>setEntry(l=>({...l,note:e.target.value}))} rows={2} style={{width:"100%",borderRadius:10,padding:"10px 12px",fontSize:12,background:"rgba(0,0,0,0.55)",border:"1px solid rgba(255,255,255,0.1)",resize:"none",outline:"none",display:"block"}}/>
+      <button onClick={addEntry} style={{width:"100%",marginTop:12,padding:"13px 0",borderRadius:12,fontSize:13,fontWeight:700,background:cp.stroke,color:"#020507",border:"none",letterSpacing:"0.06em"}}>SAVE ENTRY</button>
     </div>
   </div>}
 </div>
