@@ -739,6 +739,10 @@ margin-left: 8px;
 // CORE DATA
 // ════════════════════════════════════════════════════════════════════════
 
+// Safe min/max for large arrays (avoids call stack overflow with spread operator)
+function arrMin(arr) { let m = arr[0]; for (let i = 1; i < arr.length; i++) if (arr[i] < m) m = arr[i]; return m; }
+function arrMax(arr) { let m = arr[0]; for (let i = 1; i < arr.length; i++) if (arr[i] > m) m = arr[i]; return m; }
+
 const ARTWORK = [0.0, 40.1, 82.0, 128.3, 171.1, 196.2, 237.2, 270.0, 317.6];
 const IDEAL   = [0,   40,   80,   120,   160,   200,   240,   280,   320  ];
 
@@ -795,7 +799,7 @@ function buildModel(params) {
   function normalize(fn, nPoints) {
     nPoints = nPoints || 1000;
     const vals = Array.from({length:nPoints}, (_,i) => fn(i * TAU / nPoints));
-    const mn = Math.min(...vals), mx = Math.max(...vals);
+    const mn = arrMin(vals), mx = arrMax(vals);
     const range = mx - mn || 1;
     return t => (fn(t) - mn) / range * 2 - 1;
   }
@@ -1255,7 +1259,7 @@ function drawMCHistogram() {
   ctx.fillStyle = '#09090f'; ctx.fillRect(0,0,W,H);
 
   const {maes, observedMAE, nSim} = mcResults;
-  const maxMAE = Math.min(80, Math.max(...maes));
+  const maxMAE = Math.min(80, arrMax(maes));
   const bins = 80;
   const binSize = maxMAE / bins;
   const counts = Array(bins).fill(0);
