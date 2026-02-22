@@ -393,7 +393,7 @@ h("span",{style:{fontSize:18}},ep.symbol),h("div",{style:{flex:1,minWidth:0}},
 h("div",{style:{display:"flex",justifyContent:"space-between"}},h("span",{style:{fontSize:11,fontWeight:600,color:"white"}},e.phase),h("span",{style:{fontSize:10,color:"rgba(255,255,255,0.3)",fontFamily:"DM Mono,monospace"}},new Date(e.time).toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"}))),
 h("div",{style:{display:"flex",gap:10,marginTop:3}},
 [["\u26A1",e.energy,"#f59e0b"],["\u{1F3AF}",e.focus,"#2dd4bf"],["\u{1F60A}",e.mood,"#a78bfa"]].map(function(a){return h("span",{key:a[0],style:{fontSize:10,color:a[2]}},a[0]+" "+"\u25CF".repeat(a[1])+"\u25CB".repeat(5-a[1]))})),
-e.note&&h("p",{style:{fontSize:10,margin:"2px 0 0",color:"rgba(255,255,255,0.28)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},e.note)))})))),
+e.note&&h("p",{style:{fontSize:10,margin:"2px 0 0",color:"rgba(255,255,255,0.28)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},e.note)))}))))),
 
 // ====== SCIENCE TAB ======
 tab==="science"&&h("div",{className:"su",style:{padding:12,display:"flex",flexDirection:"column",gap:12}},
@@ -472,7 +472,7 @@ h("p",{style:{fontSize:9,letterSpacing:"0.15em",color:"#10b981",marginBottom:12,
 ].map(function(item){return h("div",{key:item.n,style:{display:"flex",gap:12,marginBottom:12}},h("div",{style:{width:24,height:24,borderRadius:12,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,background:item.c+"1f",color:item.c,border:"1px solid "+item.c+"40"}},item.n),h("div",null,h("p",{style:{fontSize:12,fontWeight:600,color:"white",margin:"0 0 2px"}},item.title),h("p",{style:{fontSize:11,color:"rgba(255,255,255,0.5)",margin:0,lineHeight:1.5}},item.desc)))}),
 h("p",{style:{fontSize:9,color:"rgba(255,255,255,0.22)",borderTop:"1px solid rgba(255,255,255,0.06)",paddingTop:10,margin:0,fontFamily:"DM Mono,monospace"}},"Brabant (1990) \u00B7 Van Cauter (1999) \u00B7 Refinetti (2010) \u00B7 Lewy (1999) \u00B7 Weitzman (1971)"))),
 
-)),
+),
 // ====== MODAL ======
 modal&&h("div",{className:"fi",onClick:function(e){if(e.target===e.currentTarget)setModal(false)},style:{position:"fixed",inset:0,zIndex:50,display:"flex",alignItems:"flex-end",justifyContent:"center",background:"rgba(0,0,0,0.82)",backdropFilter:"blur(12px)"}},
 h("div",{className:"su",style:{width:"100%",maxWidth:480,borderRadius:"20px 20px 0 0",padding:20,background:"linear-gradient(180deg,#0c1828,#050a12)",border:"1px solid rgba(255,255,255,0.1)",borderBottom:"none"}},
