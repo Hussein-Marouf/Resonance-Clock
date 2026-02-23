@@ -112,6 +112,15 @@ function fmt(hours){
   var mm=m%60;
   return hh+":"+String(mm).padStart(2,"0");
 }
+function fmt12(hours){
+  var total=Math.round(hours*60);
+  var m=((total%1440)+1440)%1440;
+  var hh=Math.floor(m/60);
+  var mm=m%60;
+  var ampm=hh>=12?"PM":"AM";
+  var h12=hh%12;if(h12===0)h12=12;
+  return h12+":"+String(mm).padStart(2,"0")+" "+ampm;
+}
 function phAt(sh){for(var i=0;i<P.length;i++){if(sh>=P[i].a&&sh<P[i].b)return P[i]}return P[0]}
 
 // ═══ APP ═══
@@ -243,7 +252,7 @@ h("p",{style:{fontSize:12,fontWeight:600,color:"white",margin:0}},"Wake Time"),
 h("p",{style:{fontSize:10,color:"rgba(255,255,255,0.25)",margin:"2px 0 0"}},"Shifts all 9 phases")),
 h("div",{style:{display:"flex",alignItems:"center",gap:8}},
 h("button",{onClick:function(){setWk(function(v){return Math.max(4,+(v-0.5).toFixed(1))})},style:{width:32,height:32,borderRadius:10,background:"rgba(255,255,255,0.06)",fontSize:16}},"\u2212"),
-h("span",{style:{fontSize:17,fontWeight:700,color:cP.c,minWidth:48,textAlign:"center",fontFamily:"'Azeret Mono',monospace"}},fmt(wk)),
+h("span",{style:{fontSize:17,fontWeight:700,color:cP.c,minWidth:64,textAlign:"center",fontFamily:"'Azeret Mono',monospace"}},fmt12(wk)),
 h("button",{onClick:function(){setWk(function(v){return Math.min(11,+(v+0.5).toFixed(1))})},style:{width:32,height:32,borderRadius:10,background:"rgba(255,255,255,0.06)",fontSize:16}},"+"))),
 
 // Phase guide — the key insight
