@@ -6,535 +6,692 @@
 <title>Resonance</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0a0a12">
+<meta name="theme-color" content="#010103">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.10.4/Recharts.min.js"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;-webkit-font-smoothing:antialiased}
-html{margin:0;padding:0;background:#0a0a12;overflow-y:auto;-webkit-overflow-scrolling:touch}
-body{margin:0;padding:0;background:#0a0a12;font-family:'Sora',sans-serif}
-#root{min-height:100vh;min-height:100dvh;position:relative;overflow-x:hidden}
-::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:4px}
-button{cursor:pointer;font-family:'Sora',sans-serif;border:none;background:none;color:white;-webkit-tap-highlight-color:transparent}
-textarea{font-family:'Sora',sans-serif;color:white}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
-@keyframes glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
-.fu{animation:fadeUp .4s ease-out both}
-.fu2{animation:fadeUp .4s ease-out .08s both}
-.fu3{animation:fadeUp .4s ease-out .16s both}
-.glass{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.06);border-radius:20px}
-.glass2{background:rgba(255,255,255,0.03);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.05);border-radius:16px}
+*,*::before,*::after{box-sizing:border-box;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+html,body{margin:0;padding:0;background:#010103;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+#root{min-height:100vh;min-height:100dvh}
+::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:#0a2a25}::-webkit-scrollbar-track{background:transparent}
+button{cursor:pointer;font-family:'Chakra Petch',sans-serif;border:none;background:none;color:#c8e8e2;-webkit-tap-highlight-color:transparent}
+textarea,input{font-family:'Chakra Petch',sans-serif}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spinSlow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes spinSlowR{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+@keyframes pulseRing{0%,100%{opacity:0.2;transform:scale(1)}50%{opacity:0.5;transform:scale(1.008)}}
+@keyframes sweep{from{opacity:0.3}to{opacity:0.7}}
+.rise{animation:rise .32s cubic-bezier(0.16,1,0.3,1) both}
+.fi{animation:fadeIn .2s ease both}
+.chip{padding:5px 11px;border-radius:2px;font-size:10px;font-family:'Chakra Petch',sans-serif;
+  font-weight:500;letter-spacing:0.08em;transition:all .18s;cursor:pointer;
+  clip-path:polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)}
+.card{border-radius:2px;padding:16px 18px;background:rgba(0,255,200,0.018);
+  border:1px solid rgba(0,255,200,0.09);position:relative;margin-bottom:10px;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+.card-accent{border-color:rgba(0,255,200,0.18);background:rgba(0,255,200,0.03)}
+.pbar{height:2px;background:rgba(0,255,200,0.08);border-radius:0}
+.pbar-fill{height:100%;border-radius:0;transition:width .9s linear}
+.step-btn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:300;border:1px solid rgba(0,255,200,0.15);
+  background:rgba(0,255,200,0.05);border-radius:2px;color:#00FFD1;
+  clip-path:polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%);
+  transition:all .15s}
+.step-btn:active{transform:scale(0.9);background:rgba(0,255,200,0.12)}
+.nav{display:flex;border-top:1px solid rgba(0,255,200,0.1);
+  padding:0 0 calc(env(safe-area-inset-bottom));
+  background:rgba(1,1,3,0.96);backdrop-filter:blur(20px);
+  position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;z-index:90}
+.nav-btn{flex:1;padding:11px 0 9px;display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-size:9px;letter-spacing:0.12em;text-transform:uppercase;
+  font-family:'Chakra Petch',sans-serif;font-weight:500;
+  color:rgba(0,255,200,0.28);border-bottom:2px solid transparent;transition:all .2s}
+.nav-btn.active{color:#00FFD1;border-bottom-color:#00FFD1}
+.nav-icon{font-size:17px;line-height:1}
+.lbl{font-size:9px;font-weight:600;letter-spacing:0.2em;font-family:'Chakra Petch',sans-serif;
+  color:rgba(0,255,200,0.3);margin-bottom:10px;display:block;text-transform:uppercase}
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script>
+(function(){
+'use strict';
 var h=React.createElement,F=React.Fragment;
 var useState=React.useState,useEffect=React.useEffect,useMemo=React.useMemo,useCallback=React.useCallback;
-var AreaChart=Recharts.AreaChart,Area=Recharts.Area;
-var XAxis=Recharts.XAxis,YAxis=Recharts.YAxis,Tooltip=Recharts.Tooltip,ResponsiveContainer=Recharts.ResponsiveContainer;
+var RC=Recharts;
 
-// ═══ PHASES ═══
-var P=[
-{id:1,n:"Deep Rest",s:"\u{1F319}",a:0,b:4.27,c:"#6366f1",c2:"#4338ca",
-d:"Your brain is flushing toxins and consolidating memories through slow-wave sleep.",
-sc:"Melatonin at peak. Glymphatic clearance peaks during slow-wave sleep. Growth hormone in first 90-min cycle. Hippocampal replay consolidates memories.",
-y:["Sleep","Rest"],x:["Light","Stimulants"]},
-{id:2,n:"Pre-Dawn",s:"\u2728",a:4.27,b:6.83,c:"#8b5cf6",c2:"#6d28d9",
-d:"Your cortisol is starting its steep morning climb. REM dreams are most vivid now.",
-sc:"Cortisol bursts increase in amplitude (Veldhuis 1989). HPA axis pre-awakening activation. Core temp at nadir. REM predominates in final cycles.",
-y:["Sleep","Stretching"],x:["Alarm disruption"]},
-{id:3,n:"Awakening",s:"\u{1F305}",a:6.83,b:9.10,c:"#f59e0b",c2:"#d97706",
-d:"Cortisol doubles in 30 min. Get sunlight. Hold off on coffee for 90 minutes.",
-sc:"CAR: cortisol doubles within 30\u201345 min of waking (Weitzman 1971, Debono 2009). BP and heart rate rise. Delay caffeine 90\u2013120 min.",
-y:["Sunlight","Planning","Light exercise"],x:["Caffeine","Screens"]},
-{id:4,n:"Peak Focus",s:"\u26A1",a:9.10,b:10.93,c:"#ef4444",c2:"#dc2626",
-d:"This is your sharpest window. Protect it ruthlessly for your hardest work.",
-sc:"Cortisol and norepinephrine at daily max. Prefrontal cortex peaks. Working memory and executive function optimal (Van Cauter 1999).",
-y:["Deep work","Hard decisions","Learning"],x:["Meetings","Email"]},
-{id:5,n:"Sustain",s:"\u{1F3AF}",a:10.93,b:13.30,c:"#10b981",c2:"#059669",
-d:"Still sharp but declining. Good for collaborative work that needs both focus and empathy.",
-sc:"Cortisol above baseline. Dopamine sustains attention. Serotonin rising supports collaboration.",
-y:["Collaboration","Writing","Learning"],x:["Passive scrolling"]},
-{id:6,n:"Integration",s:"\u{1F517}",a:13.30,b:14.98,c:"#06b6d4",c2:"#0891b2",
-d:"The post-lunch dip is real biology, not weakness. Walk, connect, or power nap.",
-sc:"F(t) at afternoon trough. Post-prandial glucose shift. Post-lunch dip is endogenous, independent of food.",
-y:["Lunch","Walking","Social","Nap"],x:["Critical decisions"]},
-{id:7,n:"Creative",s:"\u{1F3A8}",a:14.98,b:17.84,c:"#a855f7",c2:"#9333ea",
-d:"Your inner critic is quieter and your body is warming up. Create or train.",
-sc:"Prefrontal inhibition reduced \u2192 divergent thinking (Wieth & Zacks 2011). Core temp approaching peak. Strength and VO2 max rising.",
-y:["Brainstorming","Art","Exercise"],x:["Rigid analysis"]},
-{id:8,n:"Wind Down",s:"\u{1F306}",a:17.84,b:21.75,c:"#ec4899",c2:"#db2777",
-d:"Your brain is converting serotonin to melatonin. Dim the lights, ease off screens.",
-sc:"Temp falling. Serotonin\u2192melatonin conversion begins. DLMO ~21:00 (Lewy 1999). Blue light suppresses melatonin up to 50%.",
-y:["Social","Cooking","Reading"],x:["Screens","Exercise","News"]},
-{id:9,n:"Sleep Gate",s:"\u{1F30C}",a:21.75,b:24.0,c:"#3b82f6",c2:"#2563eb",
-d:"Melatonin is surging. Everything you do now shapes tonight's sleep quality.",
-sc:"Melatonin accelerating. Core temp dropping toward nadir. Cortisol at minimum. Protect this window.",
-y:["Meditation","Journaling","Darkness"],x:["Screens","Caffeine","Alcohol"]}
+var PHASES=[
+{id:1,name:"Deep Rest",sym:"\u{1F319}",start:0,end:4.27,
+color:"#818cf8",glo:"rgba(129,140,248,0.6)",
+desc:"Melatonin dominant \u2014 neural restoration & memory consolidation",
+sci:"Melatonin at peak concentration. Glymphatic clearance of metabolic waste peaks during slow-wave sleep. Growth hormone secretion in first 90-min cycle. Hippocampal replay consolidates declarative memories.",
+best:["Sleep","Rest"],avoid:["Light","Stimulants"]},
+{id:2,name:"Pre-Dawn",sym:"\u2728",start:4.27,end:6.83,
+color:"#a78bfa",glo:"rgba(167,139,250,0.6)",
+desc:"Cortisol begins its asymmetric rise toward waking",
+sci:"Cortisol secretory bursts increase in amplitude (Veldhuis 1989). HPA axis pre-awakening activation. Core temperature at nadir begins slow ascent. REM sleep predominates in final cycles.",
+best:["Sleep","Light stretching"],avoid:["Alarm disruption of REM"]},
+{id:3,name:"Awakening",sym:"\u{1F305}",start:6.83,end:9.10,
+color:"#fb923c",glo:"rgba(251,146,60,0.6)",
+desc:"Cortisol Awakening Response \u2014 system activation",
+sci:"CAR: cortisol doubles within 30\u201345 min of waking (Weitzman 1971, Debono 2009). Blood pressure and heart rate rise sharply. Delay caffeine 90\u2013120 min to preserve natural CAR amplitude.",
+best:["Sunlight","Planning","Light exercise"],avoid:["Caffeine early","Screens"]},
+{id:4,name:"Peak Focus",sym:"\u26A1",start:9.10,end:10.93,
+color:"#f87171",glo:"rgba(248,113,113,0.65)",
+desc:"Cortisol apex \u2014 maximum analytical capacity",
+sci:"Cortisol and norepinephrine near daily maximum. Prefrontal cortex activation peaks. Working memory, reaction time, and executive function are optimal (Van Cauter 1999). Guard this window fiercely.",
+best:["Deep work","Complex decisions","Hard learning"],avoid:["Meetings","Email","Multitasking"]},
+{id:5,name:"Sustain",sym:"\u{1F3AF}",start:10.93,end:13.30,
+color:"#34d399",glo:"rgba(52,211,153,0.6)",
+desc:"Elevated performance plateau with gradual decline",
+sci:"Cortisol still above baseline. Dopamine supports sustained attention. Serotonin rising supports empathy and collaboration. Best for structured work needing focus and flexibility.",
+best:["Collaboration","Writing","Learning"],avoid:["Passive consumption"]},
+{id:6,name:"Integration",sym:"\u{1F517}",start:13.30,end:14.98,
+color:"#22d3ee",glo:"rgba(34,211,238,0.6)",
+desc:"Post-lunch dip \u2014 physiological, not a failure",
+sci:"Circadian F(t) reaches afternoon trough. Post-prandial blood glucose shift. Adenosine accumulation since waking. The post-lunch dip is endogenous. Brief rest or social activity optimal.",
+best:["Lunch","Social","Power nap"],avoid:["Critical decisions","Complex analysis"]},
+{id:7,name:"Creative",sym:"\u{1F3A8}",start:14.98,end:17.84,
+color:"#c084fc",glo:"rgba(192,132,252,0.6)",
+desc:"Reduced inhibition + temperature peak \u2192 creative-physical window",
+sci:"Prefrontal inhibition slightly reduced \u2192 divergent thinking (Wieth & Zacks 2011). Core temperature approaching peak (Refinetti 2010). Muscle strength and VO2 max rising. Dual window: create or train.",
+best:["Brainstorming","Art","Exercise","Sport"],avoid:["Rigid analytical work"]},
+{id:8,name:"Wind Down",sym:"\u{1F306}",start:17.84,end:21.75,
+color:"#f472b6",glo:"rgba(244,114,182,0.6)",
+desc:"Parasympathetic shift \u2014 melatonin synthesis begins",
+sci:"Core temperature falling from peak. Serotonin\u2192melatonin conversion in pineal gland. DLMO ~21:00 (Lewy 1999). Blue light at 480nm suppresses melatonin by up to 50%.",
+best:["Light social","Cooking","Reflection","Reading"],avoid:["Intense exercise","Blue light","News"]},
+{id:9,name:"Sleep Gate",sym:"\u{1F30C}",start:21.75,end:24.0,
+color:"#60a5fa",glo:"rgba(96,165,250,0.6)",
+desc:"Melatonin rising \u2014 sleep architecture initiating",
+sci:"Melatonin secretion accelerating. Core temperature continues dropping toward nadir. Cortisol at daily minimum. Protect this window: light, alcohol, and stimulants all delay sleep onset.",
+best:["Meditation","Journaling","Dim environment"],avoid:["Screens","Caffeine","Alcohol"]}
 ];
 
-// ═══ ACTIVITIES ═══
-var A=[
-{n:"Deep Work",i:"\u{1F4A1}",al:[0,10,70,95,80,15,25,10,0],ad:{h:"Your prefrontal cortex is at full power. Block everything. 90-min focus sprints.",m:"Solid focus window. Tackle the hardest sub-task first.",l:"Your brain wants to wander. Save deep work for your peak."}},
-{n:"Exercise",i:"\u{1F3CB}\uFE0F",al:[0,15,45,25,30,20,90,35,0],ad:{h:"Peak body temp = peak performance. Strength up 6%, effort feels 10% easier.",m:"Good training window. Warm up well, go moderate-to-hard.",l:"Not your body's prime time. Light movement only."}},
-{n:"Creative",i:"\u{1F3A8}",al:[10,15,30,40,45,50,90,40,15],ad:{h:"Inner critic offline. Associative networks wide open. Create freely.",m:"Decent creative energy. Try brainstorming or sketching.",l:"Too analytical or too tired for real creativity right now."}},
-{n:"Meetings",i:"\u{1F465}",al:[0,10,35,50,75,80,55,40,0],ad:{h:"Social cognition peaks. Schedule your most important conversations here.",m:"Engaged and articulate. Good for team sessions.",l:"Low social bandwidth. Keep it brief."}},
-{n:"Learning",i:"\u{1F4DA}",al:[5,15,55,90,75,30,40,20,5],ad:{h:"Hippocampus primed for encoding. Use active recall, not passive reading.",m:"Good for mixed study. Alternate reading and practice.",l:"Do spaced repetition reviews, not new material."}},
-{n:"Rest",i:"\u{1F634}",al:[95,80,10,0,5,20,5,55,90],ad:{h:"Your biology is begging for restoration. Protect this sleep.",m:"A 20-min nap could help. Don't go longer.",l:"Your body is primed for action. Resting now wastes it."}},
-{n:"Social",i:"\u{1F91D}",al:[5,10,25,15,60,80,55,75,20],ad:{h:"Oxytocin and warmth are high. Reach out, connect, be present.",m:"Good social energy. Quality conversations come naturally.",l:"Save the big social plans for another time."}},
-{n:"Planning",i:"\u{1F4CB}",al:[5,30,80,70,55,25,35,20,10],ad:{h:"Executive function is sharp. Map your week, set real priorities.",m:"Good enough for tactical planning and to-do lists.",l:"Not the time for strategy. Just capture quick tasks."}},
-{n:"Meditation",i:"\u{1F9D8}",al:[80,60,25,10,15,30,20,65,90],ad:{h:"Parasympathetic system ascending. Deep practice comes easily.",m:"Mind may wander more. Try body scan or breathwork.",l:"Too much sympathetic energy. Try walking meditation."}},
-{n:"Sport",i:"\u26BD",al:[0,15,40,30,35,25,95,30,0],ad:{h:"Reaction time, coordination, VO2 max all peak. Compete now.",m:"Decent window. Warm up thoroughly.",l:"Injury risk up, performance down. Light skill work only."}}
+var ACTS=[
+{name:"Deep Work",icon:"\u{1F4A1}",align:[0,10,70,95,80,15,25,10,0],
+adapt:{high:"Prefrontal cortex at peak capacity. Block all notifications. Use 90-min ultradian cycles.",mid:"Cortisol supports focus. Front-load the hardest sub-tasks.",low:"Brain in diffuse mode. Switch to creative tasks or defer."}},
+{name:"Exercise",icon:"\u{1F3CB}\uFE0F",align:[0,15,45,25,30,20,90,35,0],
+adapt:{high:"Core temp peaks, strength +6%, perceived exertion \u221210%. Train compound lifts.",mid:"Good window. HIIT and moderate strength both effective.",low:"Recovery mode. Light stretching or gentle walking only."}},
+{name:"Creative",icon:"\u{1F3A8}",align:[10,15,30,40,45,50,90,40,15],
+adapt:{high:"Inner critic quiet, associative networks open. Sketch, brainstorm, freewrite.",mid:"Moderate alertness + relaxed control. Good for novel connections.",low:"Too sharp or too foggy. Capture loose thoughts for later."}},
+{name:"Meetings",icon:"\u{1F465}",align:[0,10,35,50,75,80,55,40,0],
+adapt:{high:"Social cognition sharp. Schedule negotiations and key discussions.",mid:"Engaged and articulate. Good for collaborative sessions.",low:"Low social energy. Keep it brief and structured."}},
+{name:"Learning",icon:"\u{1F4DA}",align:[5,15,55,90,75,30,40,20,5],
+adapt:{high:"Hippocampus primed for encoding. Active recall builds strongest traces.",mid:"Mix reading with practice. Moderate complexity works.",low:"Review and spaced repetition instead of new material."}},
+{name:"Rest",icon:"\u{1F634}",align:[95,80,10,0,5,20,5,55,90],
+adapt:{high:"Biology supports deep restoration. Protect sleep architecture.",mid:"Short rest can help. Keep naps under 20 min.",low:"Body optimized for activity. Resting wastes peak neurochemistry."}},
+{name:"Social",icon:"\u{1F91D}",align:[5,10,25,15,60,80,55,75,20],
+adapt:{high:"Oxytocin and warmth peak. Connection feels natural.",mid:"Good social energy. Present and engaged.",low:"Social battery low. Brief meaningful interactions."}},
+{name:"Planning",icon:"\u{1F4CB}",align:[5,30,80,70,55,25,35,20,10],
+adapt:{high:"Executive function aligned. Map your week, set priorities.",mid:"Enough prefrontal capacity for organization.",low:"Stick to tactical to-do lists. Defer strategy."}},
+{name:"Meditation",icon:"\u{1F9D8}",align:[80,60,25,10,15,30,20,65,90],
+adapt:{high:"Parasympathetic ascending. Deep practice effortless.",mid:"Mind may wander. Body-scan and breath focus work.",low:"Sympathetic active. Walking meditation or breathwork."}},
+{name:"Sport",icon:"\u26BD",align:[0,15,40,30,35,25,95,30,0],
+adapt:{high:"Neuromuscular coordination, reaction time, VO2 max peak.",mid:"Warm up thoroughly. Moderate intensity.",low:"Suboptimal. Stick to light movement or skill work."}}
 ];
 
-// ═══ HORMONES (asymmetric) ═══
-function cl(v){return Math.max(0.02,Math.min(0.98,v))}
-function cort(t){return cl(0.3118+0.3528*Math.cos(2*Math.PI*(t-10.48)/24)+0.1596*Math.cos(2*Math.PI*2*(t-8.99)/24)+0.0709*Math.cos(2*Math.PI*3*(t-8.43)/24)+0.0320*Math.cos(2*Math.PI*4*(t-8.46)/24))}
-function temp(t){return cl(0.4806+0.3997*Math.cos(2*Math.PI*(t-16.47)/24)+0.0122*Math.cos(2*Math.PI*2*(t-17.80)/24)+0.0465*Math.cos(2*Math.PI*3*(t-8.68)/24))}
-function mela(t){return cl(0.2699+0.4346*Math.cos(2*Math.PI*(t-1.98)/24)+0.2543*Math.cos(2*Math.PI*2*(t-1.95)/24)+0.0755*Math.cos(2*Math.PI*3*(t-1.77)/24))}
-function comp(t){return 0.5*cort(t)+0.3*temp(t)+0.2*mela(t)}
+var CTXS=[
+{id:"home",icon:"\u{1F3E0}",label:"Home",boost:["Meditation","Rest","Creative"]},
+{id:"office",icon:"\u{1F3E2}",label:"Office",boost:["Deep Work","Meetings","Planning"]},
+{id:"gym",icon:"\u{1F4AA}",label:"Gym",boost:["Exercise","Sport"]},
+{id:"commute",icon:"\u{1F697}",label:"Commute",boost:["Learning","Planning","Meditation"]},
+{id:"outdoors",icon:"\u{1F333}",label:"Outside",boost:["Exercise","Social","Creative"]},
+{id:"cafe",icon:"\u2615",label:"Caf\u00E9",boost:["Creative","Learning","Planning"]}
+];
 
-// ═══ GEOMETRY ═══
-function hD(hr){return(hr/24)*360}
-function xy(cx,cy,r,deg){var rad=(deg-90)*Math.PI/180;return[cx+r*Math.cos(rad),cy+r*Math.sin(rad)]}
-function arc(cx,cy,r1,r2,h1,h2){var a1=hD(h1),a2=hD(Math.min(h2,23.999));var s1=xy(cx,cy,r2,a1),s2=xy(cx,cy,r2,a2),s3=xy(cx,cy,r1,a2),s4=xy(cx,cy,r1,a1);var big=(a2-a1)>180?1:0;return"M"+s1[0]+","+s1[1]+" A"+r2+","+r2+" 0 "+big+",1 "+s2[0]+","+s2[1]+" L"+s3[0]+","+s3[1]+" A"+r1+","+r1+" 0 "+big+",0 "+s4[0]+","+s4[1]+"Z"}
-function wave(cx,cy,rMin,rMax,fn){return Array.from({length:361},function(_,i){var t=(i/360)*24;var r=rMin+(rMax-rMin)*fn(t);var p=xy(cx,cy,r,(i/360)*360);return(i===0?"M":"L")+p[0].toFixed(1)+","+p[1].toFixed(1)}).join(" ")+"Z"}
-function fmt(hours){
-  // Convert to total minutes so negative / overflow hours format correctly.
+// ═══════════════════════════════════════════════════════
+// ASYMMETRIC FOURIER MODELS — Hussein Marouf (2024)
+// ═══════════════════════════════════════════════════════
+function clamp(v){return Math.max(0.02,Math.min(0.98,v))}
+function cortisol(t){return clamp(0.3118+0.3528*Math.cos(2*Math.PI*(t-10.48)/24)+0.1596*Math.cos(2*Math.PI*2*(t-8.99)/24)+0.0709*Math.cos(2*Math.PI*3*(t-8.43)/24)+0.0320*Math.cos(2*Math.PI*4*(t-8.46)/24))}
+function bodyTemp(t){return clamp(0.4806+0.3997*Math.cos(2*Math.PI*(t-16.47)/24)+0.0122*Math.cos(2*Math.PI*2*(t-17.80)/24)+0.0465*Math.cos(2*Math.PI*3*(t-8.68)/24))}
+function melatonin(t){return clamp(0.2699+0.4346*Math.cos(2*Math.PI*(t-1.98)/24)+0.2543*Math.cos(2*Math.PI*2*(t-1.95)/24)+0.0755*Math.cos(2*Math.PI*3*(t-1.77)/24))}
+function composite(t){return 0.5*cortisol(t)+0.3*bodyTemp(t)+0.2*melatonin(t)}
+
+// ═══════════════════════════════════════════════════════
+// GEOMETRY
+// ═══════════════════════════════════════════════════════
+function hDeg(hr){return(hr/24)*360}
+function toXY(cx,cy,r,deg){var rad=(deg-90)*Math.PI/180;return[cx+r*Math.cos(rad),cy+r*Math.sin(rad)]}
+function arcP(cx,cy,r1,r2,h1,h2){
+var a1=hDeg(h1),a2=hDeg(Math.min(h2,23.999));
+var s1=toXY(cx,cy,r2,a1),s2=toXY(cx,cy,r2,a2),s3=toXY(cx,cy,r1,a2),s4=toXY(cx,cy,r1,a1);
+var big=(a2-a1)>180?1:0;
+return"M"+s1[0]+","+s1[1]+" A"+r2+","+r2+" 0 "+big+",1 "+s2[0]+","+s2[1]+" L"+s3[0]+","+s3[1]+" A"+r1+","+r1+" 0 "+big+",0 "+s4[0]+","+s4[1]+"Z"}
+function waveP(cx,cy,rMin,rMax,fn){
+return Array.from({length:361},function(_,i){
+var t=(i/360)*24;var r=rMin+(rMax-rMin)*fn(t);
+var xy=toXY(cx,cy,r,(i/360)*360);
+return(i===0?"M":"L")+xy[0].toFixed(2)+","+xy[1].toFixed(2)
+}).join(" ")+"Z"}
+
+// ── BUG FIX 1: total-minutes approach handles negative/overflow hours ──
+function fmtT(hours){
   var total=Math.round(hours*60);
   var m=((total%1440)+1440)%1440;
   var hh=Math.floor(m/60);
   var mm=m%60;
   return hh+":"+String(mm).padStart(2,"0");
 }
-function fmt12(hours){
-  var total=Math.round(hours*60);
-  var m=((total%1440)+1440)%1440;
-  var hh=Math.floor(m/60);
-  var mm=m%60;
-  var ampm=hh>=12?"PM":"AM";
-  var h12=hh%12;if(h12===0)h12=12;
-  return h12+":"+String(mm).padStart(2,"0")+" "+ampm;
-}
-function phAt(sh){for(var i=0;i<P.length;i++){if(sh>=P[i].a&&sh<P[i].b)return P[i]}return P[0]}
+function fmtT12(h){var total=Math.round(h*60);var m=((total%1440)+1440)%1440;var hh=Math.floor(m/60);var mm=m%60;var ap=hh>=12?"p":"a";var h12=hh%12||12;return h12+(mm?":"+String(mm).padStart(2,"0"):"")+ap}
+function phaseAt(sh){for(var i=0;i<PHASES.length;i++){if(sh>=PHASES[i].start&&sh<PHASES[i].end)return PHASES[i]}return PHASES[0]}
+function sCol(s){return s>=75?"#00FFD1":s>=40?"#fb923c":"#f87171"}
 
-// ═══ APP ═══
+// ═══════════════════════════════════════════════════════
+// APP
+// ═══════════════════════════════════════════════════════
 function App(){
 var _n=useState(new Date()),now=_n[0],setNow=_n[1];
 var _w=useState(7.0),wk=_w[0],setWk=_w[1];
-var _t=useState("now"),tab=_t[0],setTab=_t[1];
-var _a=useState(null),sel=_a[0],setSel=_a[1];
+var _t=useState("clock"),tab=_t[0],setTab=_t[1];
+var _a=useState(null),selA=_a[0],setSelA=_a[1];
+var _c=useState(null),selC=_c[0],setSelC=_c[1];
 var _l=useState([]),log=_l[0],setLog=_l[1];
 var _m=useState(false),modal=_m[0],setModal=_m[1];
 var _e=useState({energy:3,focus:3,mood:3,note:""}),ent=_e[0],setEnt=_e[1];
-var _exp=useState(null),exp=_exp[0],setExp=_exp[1];
 
-useEffect(function(){var t=setInterval(function(){setNow(new Date())},1000);return function(){clearInterval(t)}},[]);
-useEffect(function(){try{var r=localStorage.getItem("rv9");if(r)setLog(JSON.parse(r))}catch(e){}},[]);
+useEffect(function(){var t=setInterval(function(){setNow(new Date())},1000);return function(){clearInterval(t)};},[]);
+useEffect(function(){try{var r=localStorage.getItem("rx16-log");if(r)setLog(JSON.parse(r))}catch(e){}},[]);
+useEffect(function(){try{var wv=localStorage.getItem("rx16-wake");if(wv)setWk(parseFloat(wv))}catch(e){}},[]);
+useEffect(function(){try{localStorage.setItem("rx16-wake",wk)}catch(e){};},[wk]);
 
 var wo=wk-7.0;
 var cH=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
 var sH=((cH-wo)%24+24)%24;
-var cP=useMemo(function(){return phAt(sH)},[sH]);
-var pP=useMemo(function(){return Math.min(1,(sH-cP.a)/(cP.b-cP.a))},[sH,cP]);
+var cP=useMemo(function(){return phaseAt(sH)},[sH]);
+var pP=useMemo(function(){return Math.min(1,(sH-cP.start)/(cP.end-cP.start))},[sH,cP]);
+var minsLeft=Math.round((cP.end-sH)*60);
 
-var sc=useCallback(function(act){return act.al?act.al[cP.id-1]||0:50},[cP]);
-var sorted=useMemo(function(){return A.slice().sort(function(a,b){return sc(b)-sc(a)})},[sc]);
+var aScore=useCallback(function(act){return act.align?act.align[cP.id-1]||0:50},[cP]);
+var sorted=useMemo(function(){return ACTS.slice().sort(function(a,b){return aScore(b)-aScore(a)})},[aScore]);
 
 var tStr=now.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
 var tFull=now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-var dStr=now.toLocaleDateString([],{weekday:"long",month:"short",day:"numeric"});
+var dStr=now.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"});
 
-var hData=useMemo(function(){var d=[];for(var i=0;i<48;i++){var t=i*0.5;d.push({t:t,hour:fmt(t+wo),cortisol:Math.round(cort(t)*100),temp:Math.round(temp(t)*100),melatonin:Math.round(mela(t)*100),composite:Math.round(comp(t)*100)})}return d},[wo]);
+var hData=useMemo(function(){var d=[];for(var i=0;i<48;i++){var t=i*0.5;d.push({t:t,hr:fmtT(t+wo),cortisol:Math.round(cortisol(t)*100),temp:Math.round(bodyTemp(t)*100),melatonin:Math.round(melatonin(t)*100),composite:Math.round(composite(t)*100)})}return d},[wo]);
 
-function addE(){var e={phase:cP.n,time:tFull,energy:ent.energy,focus:ent.focus,mood:ent.mood,note:ent.note};var nl=[e].concat(log).slice(0,50);setLog(nl);try{localStorage.setItem("rv9",JSON.stringify(nl))}catch(x){}setEnt({energy:3,focus:3,mood:3,note:""});setModal(false)}
+function addE(){var e={phase:cP.name,time:tFull,ts:new Date().toISOString(),energy:ent.energy,focus:ent.focus,mood:ent.mood,note:ent.note};var nl=[e].concat(log).slice(0,50);setLog(nl);try{localStorage.setItem("rx16-log",JSON.stringify(nl))}catch(x){}setEnt({energy:3,focus:3,mood:3,note:""});setModal(false);}
 
-function sCol(v){return v>=75?"#10b981":v>=40?"#f59e0b":"#ef4444"}
+// ═══════════════════════════════════════════════════════
+// DESIGN TOKENS
+// ═══════════════════════════════════════════════════════
+var GLOW="#00FFD1";
+var BG="#010103";
+var FG="rgba(220,245,240,0.92)";
+var DIM="rgba(0,255,200,0.32)";
+var FAINT="rgba(0,255,200,0.06)";
+var FONT="'Chakra Petch',sans-serif";
+var MONO="'Share Tech Mono',monospace";
 
-// ═══ GRADIENT BACKGROUND ═══
-var bgStyle={position:"fixed",top:0,left:0,right:0,bottom:0,zIndex:0,
-background:"radial-gradient(ellipse 80% 50% at 50% 20%, "+cP.c+"18 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 70% 80%, "+cP.c2+"10 0%, transparent 60%), #0a0a12",
-transition:"background 2s ease"};
+function card(extra){return Object.assign({borderRadius:2,padding:"16px 18px",
+background:"rgba(0,255,200,0.018)",border:"1px solid rgba(0,255,200,0.09)",
+position:"relative",marginBottom:10,
+clipPath:"polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))"},extra||{})}
 
-// ═══ SVG CLOCK ═══
-var SZ=340,CX=SZ/2,CY=SZ/2,R=128;
+// ═══════════════════════════════════════════════════════
+// SVG CLOCK
+// ═══════════════════════════════════════════════════════
+var SZ=380,CX=190,CY=190;
+var RPI=103,RPO=138;
+var RWI=142,RWO=160;
+var RICO=170;
+var RTICK_I=91,RTICK_O=100;
 
-var clock=h("svg",{viewBox:"0 0 "+SZ+" "+SZ,width:"100%",style:{display:"block",maxWidth:340,margin:"0 auto",filter:"drop-shadow(0 4px 30px "+cP.c+"20)"}},
+var clockSVG=(function(){
+var segs=[],ticks=[],waveEl,iconEls=[],needleEl,centerEl,outerRings;
 
-// Gradient defs for each phase
-h("defs",null,
-P.map(function(p){return h("linearGradient",{key:"g"+p.id,id:"g"+p.id,x1:"0%",y1:"0%",x2:"100%",y2:"100%"},
-h("stop",{offset:"0%",stopColor:p.c,stopOpacity:p.id===cP.id?"0.9":"0.2"}),
-h("stop",{offset:"100%",stopColor:p.c2,stopOpacity:p.id===cP.id?"0.7":"0.1"}))}),
-h("radialGradient",{id:"cGlow",cx:"50%",cy:"50%",r:"50%"},
-h("stop",{offset:"0%",stopColor:cP.c,stopOpacity:"0.12"}),
-h("stop",{offset:"100%",stopColor:"transparent"})),
-h("filter",{id:"blur"},h("feGaussianBlur",{stdDeviation:"2.5",result:"b"}),h("feMerge",null,h("feMergeNode",{in:"b"}),h("feMergeNode",{in:"SourceGraphic"})))),
+outerRings=[
+h("circle",{key:"or1",cx:CX,cy:CY,r:183,fill:"none",stroke:GLOW,strokeWidth:0.3,strokeOpacity:0.1}),
+h("circle",{key:"or2",cx:CX,cy:CY,r:178,fill:"none",stroke:GLOW,strokeWidth:0.4,strokeOpacity:0.06}),
+h("circle",{key:"or3",cx:CX,cy:CY,r:163,fill:"none",stroke:GLOW,strokeWidth:0.25,strokeOpacity:0.08}),
+h("circle",{key:"or4",cx:CX,cy:CY,r:140,fill:"none",stroke:GLOW,strokeWidth:0.25,strokeOpacity:0.07}),
+h("circle",{key:"or5",cx:CX,cy:CY,r:101,fill:"none",stroke:GLOW,strokeWidth:0.3,strokeOpacity:0.1})
+];
 
-// Background glow
-h("circle",{cx:CX,cy:CY,r:R+40,fill:"url(#cGlow)"}),
+for(var i=0;i<72;i++){
+var deg=i*5;
+var major=(i%6===0),mid=(i%3===0);
+var xy1=toXY(CX,CY,RTICK_I+(major?0:mid?2:4),deg);
+var xy2=toXY(CX,CY,RTICK_O,deg);
+ticks.push(h("line",{key:"tk"+i,x1:xy1[0],y1:xy1[1],x2:xy2[0],y2:xy2[1],
+stroke:major?"rgba(0,255,200,0.55)":mid?"rgba(0,255,200,0.22)":"rgba(0,255,200,0.09)",
+strokeWidth:major?1.5:mid?0.9:0.5}));
+}
 
-// Phase arcs — THICK gradient-filled bands
-P.map(function(p){
-var start=p.a+wo,end=p.b+wo;
+var cardinals=[0,6,12,18].map(function(hr){
+var xy=toXY(CX,CY,78,(hr/24)*360);
+return h("text",{key:"c"+hr,x:xy[0],y:xy[1]+3.5,textAnchor:"middle",
+fill:"rgba(0,255,200,0.4)",fontSize:9,fontFamily:FONT,fontWeight:500,letterSpacing:"0.05em"},
+fmtT(((hr+wo)%24+24)%24))});
+
+// ── BUG FIX 2: Phase arcs split at midnight wrap-around ──
+PHASES.forEach(function(p){
+var start=p.start+wo,end=p.end+wo;
 var s=((start%24)+24)%24,e=((end%24)+24)%24;
 var active=p.id===cP.id;
-var common={fill:"url(#g"+p.id+")",stroke:active?p.c+"80":"transparent",strokeWidth:active?1.5:0};
+var col=p.color;
+var common={fill:active?col+"2a":"transparent",stroke:col,
+strokeWidth:active?1.4:0.6,strokeOpacity:active?0.95:0.28,
+style:{filter:active?"drop-shadow(0 0 8px "+col+") drop-shadow(0 0 4px "+col+")":"none",
+transition:"all 0.5s"}};
 
-// Handle wrap-around at midnight by splitting into two arcs
 if(e>s){
-  return h("path",Object.assign({key:p.id,d:arc(CX,CY,R-18,R,s,e)},common));
+segs.push(h("path",Object.assign({key:"pa"+p.id,d:arcP(CX,CY,RPI,RPO,s,e)},common)));
+}else if(e===0){
+segs.push(h("path",Object.assign({key:"pa"+p.id,d:arcP(CX,CY,RPI,RPO,s,24)},common)));
+}else{
+segs.push(h("path",Object.assign({key:"pa"+p.id+"a",d:arcP(CX,CY,RPI,RPO,s,24)},common)));
+segs.push(h("path",Object.assign({key:"pa"+p.id+"b",d:arcP(CX,CY,RPI,RPO,0,e)},common)));
 }
-if(e===0){
-  return h("path",Object.assign({key:p.id,d:arc(CX,CY,R-18,R,s,24)},common));
+
+if(active&&pP>0.001){
+  var ps=s,pe;
+  if(e>s){pe=s+(e-s)*pP;}
+  else{var total=e>s?e-s:(24-s)+e;pe=s+total*pP;if(pe>24)pe-=24;}
+  if(pe<=24&&pe>=ps){
+    segs.push(h("path",{key:"pp"+p.id,d:arcP(CX,CY,RPI+2,RPO-2,ps,pe),fill:col,fillOpacity:0.3,stroke:"none",
+      style:{filter:"drop-shadow(0 0 6px "+col+")"}}));
+  }else{
+    segs.push(h("path",{key:"pp"+p.id+"a",d:arcP(CX,CY,RPI+2,RPO-2,ps,24),fill:col,fillOpacity:0.3,stroke:"none",
+      style:{filter:"drop-shadow(0 0 6px "+col+")"}}));
+    segs.push(h("path",{key:"pp"+p.id+"b",d:arcP(CX,CY,RPI+2,RPO-2,0,pe),fill:col,fillOpacity:0.3,stroke:"none",
+      style:{filter:"drop-shadow(0 0 6px "+col+")"}}));
+  }
 }
-return h(F,{key:p.id},
-  h("path",Object.assign({d:arc(CX,CY,R-18,R,s,24)},common)),
-  h("path",Object.assign({d:arc(CX,CY,R-18,R,0,e)},common))
-);
-}),
+});
 
-// Outer waveform — breathing composite
-h("path",{d:wave(CX,CY,R+3,R+18,comp),fill:"none",stroke:cP.c,strokeWidth:1,strokeOpacity:0.3}),
+waveEl=[
+h("path",{key:"wf1",d:waveP(CX,CY,RWI,RWO,composite),fill:cP.color,fillOpacity:0.07,
+stroke:cP.color,strokeWidth:1.2,strokeOpacity:0.5,
+style:{filter:"drop-shadow(0 0 5px "+cP.glo+")"}}),
+h("path",{key:"wf2",d:waveP(CX,CY,RWI-3,RWO-3,cortisol),fill:"none",stroke:"#fb923c",strokeWidth:0.6,strokeOpacity:0.2})
+];
 
-// Thin outer ring
-h("circle",{cx:CX,cy:CY,r:R+2,fill:"none",stroke:"rgba(255,255,255,0.06)",strokeWidth:0.5}),
+PHASES.forEach(function(p){
+var midDeg=((p.start+p.end)/2/24)*360;
+var xy=toXY(CX,CY,RICO,midDeg);
+var active=p.id===cP.id;
+var col=p.color;
+iconEls.push(h("circle",{key:"id"+p.id,cx:xy[0],cy:xy[1],
+r:active?20:15,fill:col,fillOpacity:active?0.28:0.09,
+stroke:col,strokeWidth:active?1.2:0.4,strokeOpacity:active?0.9:0.3,
+style:{filter:active?"drop-shadow(0 0 12px "+col+") drop-shadow(0 0 5px "+col+")":"none",
+transition:"all 0.4s cubic-bezier(0.16,1,0.3,1)"}}));
+iconEls.push(h("text",{key:"ie"+p.id,x:xy[0],y:xy[1]+9,textAnchor:"middle",
+fontSize:active?28:20,
+style:{transition:"all 0.35s cubic-bezier(0.16,1,0.3,1)",
+filter:active?"drop-shadow(0 0 10px "+col+") drop-shadow(0 0 5px "+col+")":"drop-shadow(0 0 2px rgba(255,255,255,0.2))",
+opacity:active?1:0.82}},p.sym));
+});
 
-// Hour ticks
-Array.from({length:24},function(_,i){
-var major=i%6===0;var len=major?7:3;
-var p1=xy(CX,CY,R-18-len,i*15),p2=xy(CX,CY,R-18,i*15);
-return h("line",{key:i,x1:p1[0],y1:p1[1],x2:p2[0],y2:p2[1],
-stroke:major?"rgba(255,255,255,0.25)":"rgba(255,255,255,0.06)",
-strokeWidth:major?1.2:0.5,strokeLinecap:"round"})}),
+var wa=hDeg(wk);
+var wXY1=toXY(CX,CY,RPI-2,wa),wXY2=toXY(CX,CY,RPO+2,wa);
+var wXYd=toXY(CX,CY,RICO+18,wa);
+var wakeMarker=[
+h("line",{key:"wm1",x1:wXY1[0],y1:wXY1[1],x2:wXY2[0],y2:wXY2[1],
+stroke:"#fde68a",strokeWidth:2.5,style:{filter:"drop-shadow(0 0 5px rgba(253,230,138,0.9))"}}),
+h("circle",{key:"wm2",cx:wXYd[0],cy:wXYd[1],r:5,fill:"#fde68a",
+style:{filter:"drop-shadow(0 0 10px rgba(253,230,138,1))"}})
+];
 
-// Cardinal labels
-[0,6,12,18].map(function(hr){
-var p=xy(CX,CY,R-32,(hr/24)*360);
-return h("text",{key:hr,x:p[0],y:p[1]+3,textAnchor:"middle",
-fill:"rgba(255,255,255,0.22)",fontSize:9,fontFamily:"'Sora',sans-serif",fontWeight:500},
-fmt(((hr+wo)%24+24)%24))}),
+var na=hDeg(cH);
+var nTip=toXY(CX,CY,RPO+1,na),nBase=toXY(CX,CY,12,na);
+var nScout=toXY(CX,CY,RWO+3,na);
+var nScoutI=toXY(CX,CY,RWO-4,na);
+var spr=1.2;
+var sL=toXY(CX,CY,RPO,na-spr),sR=toXY(CX,CY,RPO,na+spr);
 
-// Current time — sweeping hand with glow
-(function(){
-var a=hD(cH);var tip=xy(CX,CY,R-1,a),base=xy(CX,CY,14,a);
-return h(F,null,
-h("line",{x1:base[0],y1:base[1],x2:tip[0],y2:tip[1],
-stroke:cP.c,strokeWidth:2,strokeLinecap:"round",filter:"url(#blur)"}),
-h("circle",{cx:tip[0],cy:tip[1],r:4,fill:cP.c,filter:"url(#blur)"}),
-h("circle",{cx:CX,cy:CY,r:5,fill:cP.c,fillOpacity:0.6}))})(),
+needleEl=[
+h("polygon",{key:"sw",points:CX+","+CY+" "+sL[0]+","+sL[1]+" "+sR[0]+","+sR[1],fill:cP.color,fillOpacity:0.1}),
+h("line",{key:"nd",x1:nBase[0],y1:nBase[1],x2:nTip[0],y2:nTip[1],
+stroke:cP.color,strokeWidth:1.8,strokeLinecap:"round",
+style:{filter:"drop-shadow(0 0 8px "+cP.glo+")"}}),
+h("line",{key:"sc",x1:nScoutI[0],y1:nScoutI[1],x2:nScout[0],y2:nScout[1],
+stroke:GLOW,strokeWidth:2.5,strokeLinecap:"round",
+style:{filter:"drop-shadow(0 0 10px "+GLOW+")"}}),
+h("circle",{key:"cn1",cx:CX,cy:CY,r:10,fill:cP.color,fillOpacity:0.18,stroke:cP.color,strokeWidth:1}),
+h("circle",{key:"cn2",cx:CX,cy:CY,r:5,fill:cP.color,style:{filter:"drop-shadow(0 0 12px "+cP.glo+")"}})
+];
 
-// Center disc
-h("circle",{cx:CX,cy:CY,r:55,fill:"#0a0a12",fillOpacity:0.92,stroke:"rgba(255,255,255,0.06)",strokeWidth:0.5}),
+centerEl=[
+h("circle",{key:"cdO",cx:CX,cy:CY,r:58,fill:BG,stroke:GLOW,strokeWidth:0.8,strokeOpacity:0.15}),
+h("circle",{key:"cdI",cx:CX,cy:CY,r:54,fill:"none",stroke:cP.color,strokeWidth:0.4,strokeOpacity:0.35}),
+h("circle",{key:"cdG",cx:CX,cy:CY,r:58,fill:"url(#cgrad)",fillOpacity:1}),
+h("text",{key:"ph",x:CX,y:CY-18,textAnchor:"middle",fill:cP.color,fontSize:9,fontFamily:FONT,fontWeight:600,letterSpacing:"0.15em"},cP.name.toUpperCase()),
+h("text",{key:"tm",x:CX,y:CY+4,textAnchor:"middle",fill:FG,fontSize:20,fontFamily:FONT,fontWeight:700,letterSpacing:"0.04em"},tStr),
+h("text",{key:"pi",x:CX,y:CY+19,textAnchor:"middle",fill:"rgba(0,255,200,0.22)",fontSize:8,fontFamily:FONT,letterSpacing:"0.14em"},"PHASE "+cP.id+" \u00B7 9")
+];
 
-// Center text
-h("text",{x:CX,y:CY-10,textAnchor:"middle",fill:"white",fontSize:20,fontFamily:"'Sora',sans-serif",fontWeight:700},tStr),
-h("text",{x:CX,y:CY+8,textAnchor:"middle",fill:cP.c,fontSize:11,fontFamily:"'Sora',sans-serif",fontWeight:600},cP.s+" "+cP.n),
-h("text",{x:CX,y:CY+22,textAnchor:"middle",fill:"rgba(255,255,255,0.18)",fontSize:8,fontFamily:"'Azeret Mono',monospace"},Math.round(pP*100)+"% through phase")
-);
+return h("div",{style:{position:"relative",width:"100%"}},
+h("svg",{viewBox:"0 0 "+SZ+" "+SZ,width:"100%",style:{display:"block",maxWidth:"380px",margin:"0 auto"}},
+h("defs",null,
+h("radialGradient",{id:"cgrad",cx:"50%",cy:"50%",r:"50%"},
+h("stop",{offset:"0%",stopColor:cP.color,stopOpacity:"0.06"}),
+h("stop",{offset:"100%",stopColor:"transparent"})),
+h("radialGradient",{id:"bg1",cx:"50%",cy:"50%",r:"50%"},
+h("stop",{offset:"0%",stopColor:"#0d1a28"}),
+h("stop",{offset:"60%",stopColor:"#060a12"}),
+h("stop",{offset:"100%",stopColor:BG})),
+h("filter",{id:"gl1"},
+h("feGaussianBlur",{stdDeviation:"2.5",result:"b"}),
+h("feMerge",null,h("feMergeNode",{in:"b"}),h("feMergeNode",{in:"SourceGraphic"})))
+),
+h("circle",{cx:CX,cy:CY,r:SZ/2,fill:BG}),
+h("circle",{cx:CX,cy:CY,r:SZ/2,fill:"url(#bg1)"}),
+h("circle",{cx:CX,cy:CY,r:130,fill:cP.color,fillOpacity:0.04}),
+outerRings,ticks,cardinals,segs,waveEl,wakeMarker,iconEls,needleEl,centerEl,
+h("path",{d:"M"+(CX-168)+","+(CY-168)+" l18,0 M"+(CX-168)+","+(CY-168)+" l0,18",stroke:GLOW+"18",strokeWidth:1,fill:"none"}),
+h("path",{d:"M"+(CX+168)+","+(CY-168)+" l-18,0 M"+(CX+168)+","+(CY-168)+" l0,18",stroke:GLOW+"18",strokeWidth:1,fill:"none"}),
+h("path",{d:"M"+(CX-168)+","+(CY+168)+" l18,0 M"+(CX-168)+","+(CY+168)+" l0,-18",stroke:GLOW+"18",strokeWidth:1,fill:"none"}),
+h("path",{d:"M"+(CX+168)+","+(CY+168)+" l-18,0 M"+(CX+168)+","+(CY+168)+" l0,-18",stroke:GLOW+"18",strokeWidth:1,fill:"none"})
+));
+})();
 
-// ═══ TAB: NOW ═══
-function renderNow(){
-return h("div",{style:{padding:"0 18px",display:"flex",flexDirection:"column",gap:16}},
+// ═══════════════════════════════════════════════════════
+// WAKE TIME STEPPER
+// ═══════════════════════════════════════════════════════
+var wakePresets=[4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10];
+var wakeCard=h("div",{style:card()},
+h("span",{className:"lbl"},"Wake Time"),
+h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}},
+h("button",{className:"step-btn",onClick:function(){setWk(function(v){return Math.max(4,Math.round((v-0.5)*4)/4)})}},"\u2212"),
+h("div",{style:{textAlign:"center",flex:1}},
+h("div",{style:{fontSize:28,fontWeight:700,color:GLOW,fontFamily:MONO,letterSpacing:"0.04em"}},fmtT(wk)),
+h("div",{style:{fontSize:9,color:DIM,marginTop:3,fontFamily:FONT,letterSpacing:"0.1em"}},
+(function(){var p=phaseAt(((wk-wo)%24+24)%24);return p.sym+" wake into "+p.name;})())),
+h("button",{className:"step-btn",onClick:function(){setWk(function(v){return Math.min(10.5,Math.round((v+0.5)*4)/4)})}},"+")
+),
+h("div",{style:{display:"flex",gap:5,flexWrap:"wrap"}},
+wakePresets.map(function(t){
+var act=Math.abs(wk-t)<0.13;
+return h("button",{key:t,className:"chip",onClick:function(){setWk(t)},
+style:{background:act?"rgba(0,255,200,0.15)":FAINT,color:act?GLOW:DIM,
+border:"1px solid "+(act?"rgba(0,255,200,0.35)":"rgba(0,255,200,0.1)")}},fmtT12(t));
+})));
 
-// Clock
-h("div",{className:"fu",style:{padding:"4px 0 0"}},clock),
+// ═══════════════════════════════════════════════════════
+// TAB: CLOCK
+// ═══════════════════════════════════════════════════════
+function renderClock(){
+var hTop3=sorted.slice(0,3);
+var upcoming=[];
+var cpIdx=PHASES.findIndex(function(p){return p.id===cP.id});
+var orderedNext=[].concat(PHASES.slice(cpIdx+1),PHASES.slice(0,cpIdx));
+orderedNext.forEach(function(p){
+var away=((p.start+wo)-cH+24)%24;
+if(away<0.01)away+=24;
+upcoming.push({p:p,away:away});
+});
 
-// Wake time
-h("div",{className:"glass2",style:{padding:14,display:"flex",justifyContent:"space-between",alignItems:"center"}},
-h("div",null,
-h("p",{style:{fontSize:12,fontWeight:600,color:"white",margin:0}},"Wake Time"),
-h("p",{style:{fontSize:10,color:"rgba(255,255,255,0.25)",margin:"2px 0 0"}},"Shifts all 9 phases")),
-h("div",{style:{display:"flex",alignItems:"center",gap:8}},
-h("button",{onClick:function(){setWk(function(v){return Math.max(4,+(v-0.5).toFixed(1))})},style:{width:32,height:32,borderRadius:10,background:"rgba(255,255,255,0.06)",fontSize:16}},"\u2212"),
-h("span",{style:{fontSize:17,fontWeight:700,color:cP.c,minWidth:64,textAlign:"center",fontFamily:"'Azeret Mono',monospace"}},fmt12(wk)),
-h("button",{onClick:function(){setWk(function(v){return Math.min(11,+(v+0.5).toFixed(1))})},style:{width:32,height:32,borderRadius:10,background:"rgba(255,255,255,0.06)",fontSize:16}},"+"))),
+return h("div",{className:"rise",style:{padding:"0 14px",display:"flex",flexDirection:"column"}},
+clockSVG,
+h("div",{style:Object.assign(card(),{borderColor:cP.color+"28",background:cP.color+"08",
+  boxShadow:"0 0 40px "+cP.color+"0a",marginTop:4})},
+  h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}},
+    h("div",{style:{flex:1}},
+      h("p",{style:{fontSize:16,fontWeight:700,color:cP.color,margin:"0 0 4px",fontFamily:FONT,
+        textShadow:"0 0 20px "+cP.color+"60"}},cP.sym+" "+cP.name),
+      h("p",{style:{fontSize:11,color:DIM,margin:0,lineHeight:1.6}},cP.desc)),
+    h("div",{style:{textAlign:"right",flexShrink:0,marginLeft:14}},
+      h("div",{style:{fontSize:18,fontWeight:700,color:cP.color,fontFamily:MONO}},Math.round(pP*100)+"%"),
+      h("div",{style:{fontSize:9,color:DIM,marginTop:2}},minsLeft+"m left"),
+      h("div",{style:{fontSize:9,color:"rgba(255,255,255,0.2)",marginTop:2}},fmtT(cP.start+wo)+"\u2013"+fmtT(cP.end+wo)))),
+  h("div",{className:"pbar"},h("div",{className:"pbar-fill",style:{width:(pP*100)+"%",background:cP.color,boxShadow:"0 0 10px "+cP.color+"60"}})),
+  h("div",{style:{display:"flex",gap:6,flexWrap:"wrap",marginTop:10}},
+    cP.best.map(function(a){return h("span",{key:"b"+a,style:{fontSize:9,padding:"4px 10px",background:cP.color+"12",color:cP.color,border:"1px solid "+cP.color+"25",clipPath:"polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)",fontFamily:FONT,letterSpacing:"0.08em"}},"\u2713 "+a)}),
+    cP.avoid.map(function(a){return h("span",{key:"av"+a,style:{fontSize:9,padding:"4px 10px",background:"rgba(248,113,113,0.08)",color:"#f87171",border:"1px solid rgba(248,113,113,0.2)",clipPath:"polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)",fontFamily:FONT,letterSpacing:"0.08em"}},"\u00D7 "+a)}))),
+wakeCard,
+h("div",{style:card()},
+  h("span",{className:"lbl",style:{color:GLOW}},"Optimal Now"),
+  hTop3.map(function(act,i){
+    var sc=aScore(act),col=sCol(sc),tier=sc>=75?"high":sc>=40?"mid":"low";
+    return h("div",{key:act.name,style:{display:"flex",alignItems:"center",gap:12,padding:"11px 0",borderBottom:i<2?"1px solid rgba(0,255,200,0.06)":"none"}},
+      h("span",{style:{fontSize:22,width:30,textAlign:"center",lineHeight:1}},act.icon),
+      h("div",{style:{flex:1}},
+        h("div",{style:{fontSize:12,fontWeight:600,color:FG}},act.name),
+        h("div",{style:{fontSize:10,color:DIM,marginTop:2,lineHeight:1.4}},act.adapt[tier].split(".")[0]+".")),
+      h("div",{style:{fontSize:16,fontWeight:700,color:col,fontFamily:MONO,minWidth:38,textAlign:"right"}},sc+"%"));})),
+h("div",{style:card()},
+  h("span",{className:"lbl"},"Incoming"),
+  upcoming.slice(0,3).map(function(item,i){
+    var p=item.p,away=item.away;
+    var hh=Math.floor(away),mm=Math.round((away-hh)*60);
+    return h("div",{key:p.id,style:{display:"flex",alignItems:"center",gap:12,padding:"8px 0",borderBottom:i<2?"1px solid rgba(0,255,200,0.05)":"none"}},
+      h("div",{style:{width:3,height:26,background:p.color,boxShadow:"0 0 8px "+p.color+"50",flexShrink:0}}),
+      h("div",{style:{flex:1}},
+        h("div",{style:{fontSize:12,fontWeight:500,color:FG}},p.sym+" "+p.name),
+        h("div",{style:{fontSize:10,color:DIM,marginTop:1}},p.desc.slice(0,42)+"...")),
+      h("div",{style:{fontSize:11,color:DIM,fontFamily:MONO,textAlign:"right"}},hh>0?hh+"h "+mm+"m":mm+"m"));}))
+);}
 
-// Phase guide — the key insight
-h("div",{className:"fu2 glass",style:{padding:18}},
-h("p",{style:{fontSize:15,fontWeight:600,color:"white",margin:"0 0 6px",lineHeight:1.35}},cP.d),
-h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:12}},
-h("div",{style:{display:"flex",gap:6}},
-cP.y.map(function(a){return h("span",{key:a,style:{fontSize:10,padding:"4px 12px",borderRadius:20,background:cP.c+"18",color:cP.c,fontWeight:500}},a)})),
-h("span",{style:{fontSize:10,color:"rgba(255,255,255,0.2)",fontFamily:"'Azeret Mono',monospace"}},fmt(cP.a+wo)+" \u2013 "+fmt(cP.b+wo)))),
-
-// Three hormone gauges
-h("div",{className:"fu3",style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}},
-[{n:"Cortisol",v:cort(sH),c:"#f59e0b",c2:"#d97706"},{n:"Temp",v:temp(sH),c:"#ef4444",c2:"#dc2626"},{n:"Melatonin",v:mela(sH),c:"#818cf8",c2:"#6366f1"}].map(function(d){
-var pct=Math.round(d.v*100);
-return h("div",{key:d.n,className:"glass2",style:{padding:14,textAlign:"center"}},
-// Mini circular gauge
-h("svg",{viewBox:"0 0 60 60",width:54,height:54,style:{display:"block",margin:"0 auto 8px"}},
-h("circle",{cx:30,cy:30,r:24,fill:"none",stroke:"rgba(255,255,255,0.04)",strokeWidth:4}),
-h("circle",{cx:30,cy:30,r:24,fill:"none",stroke:d.c,strokeWidth:4,
-strokeDasharray:(d.v*150.8)+" 150.8",strokeLinecap:"round",
-transform:"rotate(-90 30 30)",style:{transition:"stroke-dasharray 1s"}}),
-h("text",{x:30,y:33,textAnchor:"middle",fill:d.c,fontSize:13,fontWeight:700,fontFamily:"'Sora',sans-serif"},pct)),
-h("p",{style:{fontSize:10,color:"rgba(255,255,255,0.35)",margin:0,fontWeight:500}},d.n))})),
-
-// Best 3 activities
-h("div",{className:"glass",style:{padding:16}},
-h("p",{style:{fontSize:10,fontWeight:600,letterSpacing:"0.1em",color:"rgba(255,255,255,0.3)",marginBottom:12}},"BEST MOVES RIGHT NOW"),
-sorted.slice(0,3).map(function(act,i){
-var v=sc(act),col=sCol(v),tier=v>=75?"h":v>=40?"m":"l";
-return h("div",{key:act.n,style:{display:"flex",alignItems:"flex-start",gap:14,padding:"12px 0",borderBottom:i<2?"1px solid rgba(255,255,255,0.04)":"none"}},
-h("div",{style:{width:40,height:40,borderRadius:12,background:col+"15",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}},act.i),
-h("div",{style:{flex:1,minWidth:0}},
-h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3}},
-h("span",{style:{fontSize:13,fontWeight:600}},act.n),
-h("span",{style:{fontSize:14,fontWeight:700,color:col}},v+"%")),
-h("p",{style:{fontSize:11,color:"rgba(255,255,255,0.4)",margin:0,lineHeight:1.45}},act.ad[tier].split(".")[0]+".")))})),
-
-// Coming phases
-h("div",{className:"glass2",style:{padding:14}},
-h("p",{style:{fontSize:10,fontWeight:600,letterSpacing:"0.1em",color:"rgba(255,255,255,0.3)",marginBottom:10}},"COMING UP"),
-P.filter(function(p){return p.id>cP.id}).slice(0,3).map(function(p,i){
-var hrs=p.a+wo-cH;if(hrs<0)hrs+=24;var hh=Math.floor(hrs),mm=Math.round((hrs-hh)*60);
-return h("div",{key:p.id,style:{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:i<2?"1px solid rgba(255,255,255,0.03)":"none"}},
-h("div",{style:{width:4,height:28,borderRadius:2,background:"linear-gradient(180deg,"+p.c+","+p.c2+")",flexShrink:0}}),
-h("div",{style:{flex:1}},
-h("span",{style:{fontSize:12,fontWeight:500}},p.s+" "+p.n),
-h("p",{style:{fontSize:10,color:"rgba(255,255,255,0.25)",margin:"2px 0 0"}},p.d.split(".")[0]+".")),
-h("span",{style:{fontSize:10,color:"rgba(255,255,255,0.2)",fontFamily:"'Azeret Mono',monospace",flexShrink:0}},hh>0?hh+"h "+mm+"m":mm+"m"))}))
-)}
-
-// ═══ TAB: ALIGN ═══
+// ═══════════════════════════════════════════════════════
+// TAB: ALIGN
+// ═══════════════════════════════════════════════════════
 function renderAlign(){
-return h("div",{style:{padding:"0 18px",display:"flex",flexDirection:"column",gap:12}},
-h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}},
-A.map(function(act){
-var v=sc(act),isSel=sel&&sel.n===act.n,col=sCol(v);
-return h("button",{key:act.n,onClick:function(){setSel(isSel?null:act)},style:{padding:14,textAlign:"left",borderRadius:16,background:isSel?col+"10":"rgba(255,255,255,0.02)",border:"1px solid "+(isSel?col+"30":"rgba(255,255,255,0.04)"),transition:"all 0.25s"}},
-h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
-h("span",{style:{fontSize:20}},act.i),
-h("span",{style:{fontSize:15,fontWeight:700,color:col}},v+"%")),
-h("p",{style:{fontSize:12,fontWeight:500,color:"white",margin:"8px 0 0"}},act.n),
-h("div",{style:{height:3,borderRadius:2,background:"rgba(255,255,255,0.04)",marginTop:10}},
-h("div",{style:{width:v+"%",height:"100%",borderRadius:2,background:"linear-gradient(90deg,"+col+","+col+"80)",transition:"width 0.4s"}})))})),
+return h("div",{className:"rise",style:{padding:"0 14px",display:"flex",flexDirection:"column"}},
+h("div",{style:Object.assign(card(),{borderColor:cP.color+"28",background:cP.color+"08"})},
+  h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
+    h("div",null,
+      h("div",{style:{fontSize:15,fontWeight:700,color:cP.color}},cP.sym+" "+cP.name),
+      h("div",{style:{fontSize:10,color:DIM,marginTop:2}},cP.desc)),
+    h("div",{style:{fontSize:13,fontWeight:700,color:GLOW,fontFamily:MONO}},minsLeft+"m left"))),
+h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}},
+  ACTS.map(function(act){
+    var sc=aScore(act),sel=selA&&selA.name===act.name,col=sCol(sc);
+    return h("button",{key:act.name,onClick:function(){setSelA(sel?null:act)},
+      style:{padding:"14px 12px",textAlign:"left",background:sel?col+"0e":"rgba(0,255,200,0.01)",
+        border:"1px solid "+(sel?col+"35":"rgba(0,255,200,0.07)"),borderLeft:"3px solid "+(sel?col:col+"50"),
+        clipPath:"polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))",transition:"all 0.18s"}},
+      h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
+        h("span",{style:{fontSize:20,lineHeight:1}},act.icon),
+        h("span",{style:{fontSize:15,fontWeight:700,color:col,fontFamily:MONO}},sc+"%")),
+      h("div",{style:{fontSize:11,fontWeight:500,color:sel?FG:DIM,margin:"8px 0 0"}},act.name),
+      h("div",{className:"pbar",style:{marginTop:8}},h("div",{className:"pbar-fill",style:{width:sc+"%",background:col,boxShadow:"0 0 6px "+col+"40"}})));})),
+h("div",{style:{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}},
+  CTXS.map(function(ctx){var sel=selC&&selC.id===ctx.id;
+    return h("button",{key:ctx.id,className:"chip",onClick:function(){setSelC(sel?null:ctx)},
+      style:{background:sel?"rgba(0,255,200,0.12)":FAINT,color:sel?GLOW:DIM,
+        border:"1px solid "+(sel?"rgba(0,255,200,0.3)":"rgba(0,255,200,0.08)")}},ctx.icon+" "+ctx.label);})),
+selA?(function(){
+  var sc=aScore(selA),col=sCol(sc),tier=sc>=75?"high":sc>=40?"mid":"low";
+  return h("div",{style:Object.assign(card(),{borderColor:col+"28",background:col+"06"})},
+    h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}},
+      h("span",{style:{fontSize:14,fontWeight:700,color:FG}},selA.icon+" "+selA.name),
+      h("span",{style:{fontSize:24,fontWeight:700,color:col,fontFamily:MONO}},sc+"%")),
+    h("p",{style:{fontSize:12,lineHeight:1.7,color:DIM,margin:"0 0 10px"}},selA.adapt[tier]),
+    sc<75&&sorted[0].name!==selA.name?h("div",{style:{padding:"8px 12px",background:"rgba(0,255,200,0.05)",border:"1px solid rgba(0,255,200,0.12)",fontSize:10,color:GLOW}},"\u2192 Better now: "+sorted[0].icon+" "+sorted[0].name+" ("+aScore(sorted[0])+"%)"):null);
+})():null,
+h("div",{style:card()},
+  h("span",{className:"lbl",style:{color:GLOW}},"Top 3 This Phase"),
+  sorted.slice(0,3).map(function(act,i){var sc=aScore(act),col=sCol(sc);
+    return h("div",{key:act.name,style:{display:"flex",alignItems:"center",gap:12,padding:"9px 0",borderBottom:i<2?"1px solid rgba(0,255,200,0.06)":"none"}},
+      h("span",{style:{fontSize:18,width:26,textAlign:"center"}},act.icon),
+      h("div",{style:{flex:1,fontSize:12,fontWeight:500,color:FG}},act.name),
+      h("span",{style:{fontSize:14,color:col,fontWeight:700,fontFamily:MONO}},sc+"%"));}))
+);}
 
-sel&&(function(){
-var v=sc(sel),col=sCol(v),tier=v>=75?"h":v>=40?"m":"l";
-return h("div",{className:"glass",style:{padding:18}},
-h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}},
-h("span",{style:{fontSize:15,fontWeight:600}},sel.i+" "+sel.n),
-h("span",{style:{fontSize:24,fontWeight:800,color:col}},v+"%")),
-h("p",{style:{fontSize:13,lineHeight:1.6,color:"rgba(255,255,255,0.5)",margin:0}},sel.ad[tier]),
-v<75&&sorted[0].n!==sel.n?h("div",{style:{marginTop:12,padding:"10px 14px",borderRadius:12,background:"#10b981"+"0c",border:"1px solid #10b981"+"20"}},
-h("p",{style:{fontSize:11,color:"#10b981",margin:0}},"\u2192 Better right now: "+sorted[0].i+" "+sorted[0].n+" ("+sc(sorted[0])+"%) \u2014 "+sorted[0].ad.h.split(".")[0]+".")):null)})(),
+// ═══════════════════════════════════════════════════════
+// TAB: INSIGHTS
+// ═══════════════════════════════════════════════════════
+function renderInsights(){
+var biomarkers=[
+{name:"Cortisol",val:cortisol(sH),color:"#fb923c",desc:cortisol(sH)>0.65?"Elevated \u2014 peak alertness":cortisol(sH)>0.38?"Moderate \u2014 steady focus":"Low \u2014 recovery"},
+{name:"Core Temp",val:bodyTemp(sH),color:"#f87171",desc:bodyTemp(sH)>0.65?"Near peak \u2014 physical window":bodyTemp(sH)>0.42?"Mid-range":"Low \u2014 rest optimal"},
+{name:"Melatonin",val:melatonin(sH),color:"#818cf8",desc:melatonin(sH)>0.52?"Elevated \u2014 sleep pressure":"Suppressed \u2014 active"},
+{name:"F(t)",val:composite(sH),color:GLOW,desc:"Composite arousal"}
+];
+function gauge(val,col,label,desc){var r=30,circ=2*Math.PI*r;
+return h("div",{style:{textAlign:"center"}},
+h("svg",{width:74,height:74,viewBox:"0 0 74 74"},
+h("circle",{cx:37,cy:37,r:r,fill:"none",stroke:"rgba(255,255,255,0.05)",strokeWidth:5}),
+h("circle",{cx:37,cy:37,r:r,fill:"none",stroke:col,strokeWidth:5,strokeLinecap:"round",
+strokeDasharray:circ,strokeDashoffset:circ*(1-val),transform:"rotate(-90 37 37)",
+style:{filter:"drop-shadow(0 0 6px "+col+")",transition:"stroke-dashoffset 1s"}}),
+h("text",{x:37,y:41,textAnchor:"middle",fill:col,fontSize:14,fontFamily:MONO,fontWeight:500},Math.round(val*100)+"%")),
+h("div",{style:{fontSize:10,color:FG,fontWeight:600,marginTop:2}},label),
+h("div",{style:{fontSize:9,color:DIM,lineHeight:1.35,marginTop:2,maxWidth:70}},desc));}
 
-h("div",{className:"glass2",style:{padding:14}},
-h("p",{style:{fontSize:10,fontWeight:600,letterSpacing:"0.1em",color:"rgba(255,255,255,0.3)",marginBottom:10}},"TOP 3 THIS PHASE"),
-sorted.slice(0,3).map(function(act,i){var v=sc(act);
-return h("div",{key:act.n,style:{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:i<2?"1px solid rgba(255,255,255,0.03)":"none"}},
-h("span",{style:{fontSize:16}},act.i),
-h("span",{style:{fontSize:12,flex:1}},act.n),
-h("span",{style:{fontSize:12,color:sCol(v),fontWeight:700}},v+"%"))}))
-)}
-
-// ═══ TAB: BODY ═══
-function renderBody(){
-return h("div",{style:{padding:"0 18px",display:"flex",flexDirection:"column",gap:14}},
-
-// Hormone chart
-h("div",{className:"glass",style:{padding:16}},
-h("p",{style:{fontSize:10,fontWeight:600,letterSpacing:"0.1em",color:"rgba(255,255,255,0.3)",marginBottom:10}},"24-HOUR WAVEFORM"),
-h(ResponsiveContainer,{width:"100%",height:160},
-h(AreaChart,{data:hData,margin:{top:4,right:4,bottom:4,left:-30}},
-h(XAxis,{dataKey:"hour",tick:{fontSize:8,fill:"rgba(255,255,255,0.12)"},axisLine:false,tickLine:false,interval:7}),
-h(YAxis,{tick:false,axisLine:false}),
-h(Tooltip,{contentStyle:{background:"rgba(10,10,18,0.95)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:12,fontSize:10,fontFamily:"'Sora',sans-serif"},labelStyle:{color:"rgba(255,255,255,0.5)"}}),
-h(Area,{type:"monotone",dataKey:"cortisol",name:"Cortisol",stroke:"#f59e0b",fill:"#f59e0b",fillOpacity:0.05,strokeWidth:1.5,dot:false}),
-h(Area,{type:"monotone",dataKey:"temp",name:"Core Temp",stroke:"#ef4444",fill:"#ef4444",fillOpacity:0.03,strokeWidth:1.2,dot:false}),
-h(Area,{type:"monotone",dataKey:"melatonin",name:"Melatonin",stroke:"#818cf8",fill:"#818cf8",fillOpacity:0.05,strokeWidth:1.2,dot:false}),
-h(Area,{type:"monotone",dataKey:"composite",name:"F(t)",stroke:cP.c,fill:cP.c,fillOpacity:0.08,strokeWidth:2,dot:false}))),
-h("div",{style:{display:"flex",gap:16,justifyContent:"center",marginTop:4}},
-[["Cortisol","#f59e0b"],["Temp","#ef4444"],["Melatonin","#818cf8"],["F(t)",cP.c]].map(function(p){return h("span",{key:p[0],style:{fontSize:9,color:p[1],fontWeight:500}},"\u25CF "+p[0])}))),
-
-// Body status
-h("div",{className:"glass",style:{padding:16}},
-h("p",{style:{fontSize:10,fontWeight:600,letterSpacing:"0.1em",color:"rgba(255,255,255,0.3)",marginBottom:12}},"RIGHT NOW"),
-[{n:"Cortisol",v:cort(sH),c:"#f59e0b",d:cort(sH)>0.6?"Peak alertness \u2014 protect this focus":cort(sH)>0.35?"Steady state \u2014 solid working energy":"Low \u2014 recovery mode active"},
-{n:"Core Temp",v:temp(sH),c:"#ef4444",d:temp(sH)>0.65?"Near peak \u2014 strength and endurance window":temp(sH)>0.4?"Mid-range \u2014 moderate physical capacity":"Low \u2014 body optimizing for rest"},
-{n:"Melatonin",v:mela(sH),c:"#818cf8",d:mela(sH)>0.5?"Rising \u2014 protect darkness for sleep quality":"Suppressed \u2014 alert and awake"},
-{n:"Composite F(t)",v:comp(sH),c:cP.c,d:"Net arousal: "+Math.round(comp(sH)*100)+"% of daily range"}
-].map(function(d){return h("div",{key:d.n,style:{marginBottom:14}},
-h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:5}},
-h("span",{style:{fontSize:12,fontWeight:500,color:"rgba(255,255,255,0.5)"}},d.n),
-h("span",{style:{fontSize:13,fontWeight:700,color:d.c}},Math.round(d.v*100)+"%")),
-h("div",{style:{height:4,borderRadius:2,background:"rgba(255,255,255,0.04)"}},
-h("div",{style:{width:(d.v*100)+"%",height:"100%",borderRadius:2,background:"linear-gradient(90deg,"+d.c+"80,"+d.c+")",boxShadow:"0 0 12px "+d.c+"30",transition:"width 1s"}})),
-h("p",{style:{fontSize:10,color:"rgba(255,255,255,0.22)",margin:"4px 0 0"}},d.d))})),
-
-// Day timeline
-h("div",{className:"glass2",style:{padding:14}},
-h("p",{style:{fontSize:10,fontWeight:600,letterSpacing:"0.1em",color:"rgba(255,255,255,0.3)",marginBottom:10}},"TODAY'S PHASES"),
-P.map(function(p){
-var isNow=p.id===cP.id,past=sH>p.b;
-return h("div",{key:p.id,style:{display:"flex",alignItems:"center",gap:10,padding:"6px 0",opacity:past&&!isNow?0.25:1}},
-h("div",{style:{width:4,height:24,borderRadius:2,background:isNow?"linear-gradient(180deg,"+p.c+","+p.c2+")":p.c+"20",boxShadow:isNow?"0 0 8px "+p.c+"40":"none",flexShrink:0}}),
-h("div",{style:{flex:1}},
-h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
-h("span",{style:{fontSize:11,fontWeight:isNow?600:400,color:isNow?"white":"rgba(255,255,255,0.35)"}},p.s+" "+p.n),
-h("span",{style:{fontSize:9,color:"rgba(255,255,255,0.12)",fontFamily:"'Azeret Mono',monospace"}},fmt(p.a+wo)+"\u2013"+fmt(p.b+wo))),
-isNow?h("div",{style:{height:3,borderRadius:2,background:"rgba(255,255,255,0.04)",marginTop:4}},
-h("div",{style:{width:(pP*100)+"%",height:"100%",borderRadius:2,background:"linear-gradient(90deg,"+p.c+","+p.c2+")",boxShadow:"0 0 8px "+p.c+"40"}})):null),
-isNow?h("span",{style:{fontSize:8,color:p.c,fontWeight:700,letterSpacing:"0.08em"}},"NOW"):null)})),
-
-// Log
-h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
-h("span",{style:{fontSize:14,fontWeight:600}},"Energy Log"),
-h("button",{onClick:function(){setModal(true)},style:{fontSize:10,padding:"6px 14px",borderRadius:10,background:cP.c+"12",border:"1px solid "+cP.c+"25",color:cP.c,fontWeight:600}},"\u271A Track")),
+return h("div",{className:"rise",style:{padding:"0 14px",display:"flex",flexDirection:"column"}},
+h("div",{style:card({paddingBottom:18})},
+  h("span",{className:"lbl",style:{color:cP.color}},"Biomarkers \u2014 "+cP.name),
+  h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:6}},
+    biomarkers.map(function(b){return gauge(b.val,b.color,b.name,b.desc)}))),
+h("div",{style:card()},
+  h("span",{className:"lbl"},"Phase Sequence"),
+  PHASES.map(function(p){
+    var isNow=p.id===cP.id,past=sH>p.end&&!isNow;var prog=isNow?pP:past?1:0;
+    return h("div",{key:p.id,style:{display:"flex",alignItems:"center",gap:10,padding:"7px 0",opacity:past?0.22:1,borderLeft:"2px solid "+(isNow?p.color:p.color+"15"),paddingLeft:10}},
+      h("span",{style:{fontSize:14,width:20,lineHeight:1}},p.sym),
+      h("div",{style:{flex:1}},
+        h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:4}},
+          h("span",{style:{fontSize:11,fontWeight:isNow?600:400,color:isNow?FG:DIM}},p.name),
+          h("span",{style:{fontSize:9,color:"rgba(0,255,200,0.18)",fontFamily:MONO}},fmtT(p.start+wo)+"\u2013"+fmtT(p.end+wo))),
+        h("div",{className:"pbar"},h("div",{className:"pbar-fill",style:{width:(prog*100)+"%",background:p.color,boxShadow:isNow?"0 0 6px "+p.color+"50":"none"}}))),
+      isNow?h("span",{style:{fontSize:8,color:p.color,fontWeight:700,letterSpacing:"0.12em",marginLeft:4}},"LIVE"):null);})),
+h("div",{style:card()},
+  h("span",{className:"lbl"},"24h Waveform"),
+  h(RC.ResponsiveContainer,{width:"100%",height:140},
+    h(RC.AreaChart,{data:hData,margin:{top:6,right:4,bottom:4,left:-28}},
+      h(RC.XAxis,{dataKey:"hr",tick:{fontSize:8,fill:"rgba(0,255,200,0.2)",fontFamily:FONT},axisLine:false,tickLine:false,interval:7}),
+      h(RC.YAxis,{tick:false,axisLine:false}),
+      h(RC.Tooltip,{contentStyle:{background:"#070810",border:"1px solid rgba(0,255,200,0.18)",borderRadius:2,fontSize:10,fontFamily:FONT},labelStyle:{color:DIM}}),
+      h(RC.Area,{type:"monotone",dataKey:"cortisol",name:"Cortisol",stroke:"#fb923c",fill:"none",strokeWidth:1.2,dot:false}),
+      h(RC.Area,{type:"monotone",dataKey:"temp",name:"Temp",stroke:"#f87171",fill:"none",strokeWidth:1.2,dot:false}),
+      h(RC.Area,{type:"monotone",dataKey:"melatonin",name:"Melatonin",stroke:"#818cf8",fill:"none",strokeWidth:1.2,dot:false}),
+      h(RC.Area,{type:"monotone",dataKey:"composite",name:"F(t)",stroke:GLOW,fill:GLOW,fillOpacity:0.06,strokeWidth:2,dot:false}))),
+  h("div",{style:{display:"flex",gap:14,justifyContent:"center",marginTop:8}},
+    [["Cortisol","#fb923c"],["Temp","#f87171"],["Melatonin","#818cf8"],["F(t)",GLOW]].map(function(p){return h("span",{key:p[0],style:{fontSize:9,color:p[1],fontFamily:FONT}},"\u25CF "+p[0])}))),
+h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}},
+  h("span",{style:{fontSize:13,fontWeight:600,color:FG}},"Energy Log"),
+  h("button",{onClick:function(){setModal(true)},style:{fontSize:10,padding:"6px 14px",background:"rgba(0,255,200,0.06)",border:"1px solid rgba(0,255,200,0.18)",color:GLOW,letterSpacing:"0.08em",clipPath:"polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)"}},"\u271A Track")),
 log.length>0?h("div",{style:{display:"flex",flexDirection:"column",gap:6}},
-log.slice(0,4).map(function(e,i){
-var ep=P.find(function(p){return p.n===e.phase})||P[0];
-return h("div",{key:i,className:"glass2",style:{padding:"10px 14px",display:"flex",alignItems:"center",gap:10}},
-h("div",{style:{width:3,height:20,borderRadius:2,background:ep.c,flexShrink:0}}),
-h("div",{style:{flex:1}},
-h("div",{style:{display:"flex",justifyContent:"space-between"}},
-h("span",{style:{fontSize:11,fontWeight:500}},e.phase),
-h("span",{style:{fontSize:9,color:"rgba(255,255,255,0.15)"}},e.time)),
-h("div",{style:{display:"flex",gap:8,marginTop:2}},
-[["\u26A1",e.energy,"#f59e0b"],["\u{1F3AF}",e.focus,"#10b981"],["\u{1F60A}",e.mood,"#818cf8"]]
-.map(function(a){return h("span",{key:a[0],style:{fontSize:9,color:a[2]}},a[0]+" "+a[1]+"/5")}))))})):null
-)}
+  log.slice(0,5).map(function(e,i){
+    var ep=PHASES.find(function(p){return p.name===e.phase})||PHASES[0];
+    return h("div",{key:i,style:{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",background:"rgba(0,255,200,0.015)",border:"1px solid rgba(0,255,200,0.07)",clipPath:"polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%)"}},
+      h("span",{style:{fontSize:16,lineHeight:1}},ep.sym),
+      h("div",{style:{flex:1}},
+        h("div",{style:{display:"flex",justifyContent:"space-between"}},
+          h("span",{style:{fontSize:11,fontWeight:600,color:FG}},e.phase),
+          h("span",{style:{fontSize:9,color:"rgba(0,255,200,0.15)",fontFamily:MONO}},e.time)),
+        h("div",{style:{display:"flex",gap:10,marginTop:3}},
+          [["\u26A1",e.energy,"#fb923c"],["\u{1F3AF}",e.focus,GLOW],["\u{1F60A}",e.mood,"#a78bfa"]].map(function(a){return h("span",{key:a[0],style:{fontSize:9,color:a[2],fontFamily:MONO}},a[0]+" "+a[1]+"/5")}))));})):null
+);}
 
-// ═══ TAB: SCIENCE ═══
+// ═══════════════════════════════════════════════════════
+// TAB: SCIENCE
+// ═══════════════════════════════════════════════════════
 function renderScience(){
 var artD=[[1,"0.0\u00B0","12.7\u00B0",12.7],[2,"40.1\u00B0","38.8\u00B0",1.3],[3,"82.0\u00B0","64.0\u00B0",18.0],[4,"128.3\u00B0","136.5\u00B0",8.2],[5,"171.1\u00B0","164.0\u00B0",7.1],[6,"196.2\u00B0","199.4\u00B0",3.2],[7,"237.2\u00B0","224.8\u00B0",12.4],[8,"270.0\u00B0","267.6\u00B0",2.4],[9,"317.6\u00B0","326.2\u00B0",8.6]];
-return h("div",{style:{padding:"0 18px",display:"flex",flexDirection:"column",gap:14}},
+return h("div",{className:"rise",style:{padding:"0 14px",display:"flex",flexDirection:"column"}},
+h("div",{style:Object.assign(card(),{borderColor:"rgba(0,255,200,0.2)"})},
+  h("span",{className:"lbl",style:{color:GLOW}},"The Discovery"),
+  h("h2",{style:{fontSize:20,fontWeight:700,color:FG,margin:"0 0 12px",fontFamily:FONT}},"Mathematics Validates Art"),
+  h("p",{style:{fontSize:12,lineHeight:1.75,color:DIM,margin:"0 0 8px"}},"H.A. Marouf derived this 9-phase model from hormonal mathematics using published biochemical parameters. The composite F(t) was computed from three biological oscillators with asymmetric, empirically-fitted Fourier harmonics."),
+  h("p",{style:{fontSize:12,lineHeight:1.75,color:DIM,margin:"0 0 16px"}},"When phase boundaries were later compared against independent automatic mandala drawings \u2014 created through meditative practice as a wholly separate process \u2014 the alignment was statistically significant."),
+  h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}},
+    [{stat:"8.2\u00B0",sub:"Mean Error",c:GLOW},{stat:"p=.003",sub:"Monte Carlo",c:"#a78bfa"},{stat:"17",sub:"F(t) Features",c:"#60a5fa"}].map(function(s){return h("div",{key:s.sub,style:{textAlign:"center",padding:"12px 6px",background:s.c+"09",border:"1px solid "+s.c+"20",clipPath:"polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)"}},
+      h("div",{style:{fontSize:18,fontWeight:700,color:s.c,fontFamily:MONO}},s.stat),
+      h("div",{style:{fontSize:8,color:DIM,marginTop:4,letterSpacing:"0.1em"}},s.sub));}))),
+h("div",{style:card()},
+  h("span",{className:"lbl"},"Artwork vs Model Boundaries"),
+  h("div",{style:{display:"grid",gridTemplateColumns:"20px 1fr 1fr 1fr 20px",gap:0,fontSize:10}},
+    ["#","Art","Model","Err",""].map(function(l,i){return h("div",{key:i,style:{padding:"4px 2px",color:DIM,fontSize:8,fontFamily:FONT,letterSpacing:"0.1em"}},l)}),
+    artD.map(function(r){var err=r[3],good=err<=5,ok=err<=10;var col=good?GLOW:ok?"#fb923c":"#f87171";
+      return h(F,{key:r[0]},
+        h("div",{style:{padding:"6px 2px",color:PHASES[r[0]-1].color,fontWeight:700,fontFamily:MONO,fontSize:10}},r[0]),
+        h("div",{style:{padding:"6px 2px",color:DIM,fontFamily:MONO,fontSize:10}},r[1]),
+        h("div",{style:{padding:"6px 2px",color:"#60a5fa",fontFamily:MONO,fontSize:10}},r[2]),
+        h("div",{style:{padding:"6px 2px",color:col,fontWeight:700,fontFamily:MONO,fontSize:10}},err.toFixed(1)+"\u00B0"),
+        h("div",{style:{padding:"6px 2px",color:col,fontSize:10}},good?"\u2713":ok?"\u2248":"\u25B3"));})),
+  h("div",{style:{marginTop:10,padding:"8px 12px",background:FAINT,fontSize:10,color:DIM,lineHeight:1.55}},"MAE = 8.2\u00B0. Asymmetric model improves on symmetric (14.6\u00B0) by 44% by resolving cortisol\u2019s steep rise vs slow decay.")),
+h("div",{style:card()},
+  h("span",{className:"lbl"},"Asymmetric Fourier Model"),
+  h("div",{style:{padding:"14px",background:FAINT,border:"1px solid rgba(0,255,200,0.08)",fontFamily:MONO,fontSize:11,lineHeight:2.1}},
+    h("div",{style:{color:GLOW,fontWeight:600,fontSize:12}},"F(t) = 0.5\u00B7C(t) + 0.3\u00B7T(t) + 0.2\u00B7M(t)"),
+    h("div",{style:{color:DIM,fontSize:9,marginBottom:8}},"// uncoupled phase angles per harmonic"),
+    h("div",null,h("span",{style:{color:"#fb923c"}},"C(t)"),h("span",{style:{color:DIM}}," = \u03A3 a\u2099\u00B7cos(2\u03C0n(t\u2212\u03C6\u2099)/24)")),
+    h("div",{style:{fontSize:9,color:"rgba(0,255,200,0.25)",marginLeft:18}},"Cortisol: \u03C6\u2081=10.5h \u03C6\u2082=9.0h \u03C6\u2083=8.4h \u03C6\u2084=8.5h"),
+    h("div",{style:{fontSize:9,color:"rgba(0,255,200,0.15)",marginLeft:18,marginBottom:6}},"4h rise + 16h decay from uncoupled phases"),
+    h("div",null,h("span",{style:{color:"#f87171"}},"T(t)"),h("span",{style:{color:DIM}}," = \u03A3 b\u2099\u00B7cos(2\u03C0n(t\u2212\u03C8\u2099)/24)")),
+    h("div",{style:{fontSize:9,color:"rgba(0,255,200,0.2)",marginLeft:18,marginBottom:6}},"Core temp: \u03C8\u2081=16.5h \u03C8\u2082=17.8h \u03C8\u2083=8.7h"),
+    h("div",null,h("span",{style:{color:"#818cf8"}},"M(t)"),h("span",{style:{color:DIM}}," = \u03A3 c\u2099\u00B7cos(2\u03C0n(t\u2212\u03B8\u2099)/24)")),
+    h("div",{style:{fontSize:9,color:"rgba(0,255,200,0.2)",marginLeft:18}},"Melatonin: \u03B8\u2081=2.0h \u03B8\u2082=2.0h \u03B8\u2083=1.8h"),
+    h("div",{style:{marginTop:10,paddingTop:8,borderTop:"1px solid rgba(0,255,200,0.08)",color:"rgba(0,255,200,0.2)",fontSize:9}},"10 harmonics \u2192 17 critical features \u2192 best 9 phase boundaries"),
+    h("div",{style:{color:"rgba(0,255,200,0.2)",fontSize:9}},"Validated: 200k Monte Carlo \u00B7 p = 0.003 \u00B7 MAE = 8.2\u00B0"))),
+h("div",{style:Object.assign(card(),{borderColor:"rgba(251,146,60,0.18)"})},
+  h("span",{className:"lbl",style:{color:"#fb923c"}},"Why Asymmetric?"),
+  h("p",{style:{fontSize:12,lineHeight:1.75,color:DIM,margin:"0 0 8px"}},"Standard cosinor locks all harmonics to the same acrophase, producing symmetric waveforms. But cortisol\u2019s Awakening Response doubles in 30\u201345 min while decay takes 12+ hours \u2014 a 4:1 asymmetry ratio."),
+  h("p",{style:{fontSize:12,lineHeight:1.75,color:DIM,margin:0}},"Uncoupling each harmonic\u2019s phase angle allows the Fourier series to capture this biological asymmetry. The higher harmonics shift earlier, steepening the morning rise.")),
+h("div",{style:card()},
+  h("span",{className:"lbl"},"Validation Protocol"),
+  [{n:"1",t:"Derivation from published data",d:"Phase boundaries computed from F(t) critical features using published parameters.",c:GLOW},
+   {n:"2",t:"Independent artwork",d:"9-fold automatic mandala drawings created through meditative practice. Sector angles measured independently.",c:"#60a5fa"},
+   {n:"3",t:"Statistical comparison",d:"Model vs artwork: MAE = 8.2\u00B0. Monte Carlo 200k random sets: p = 0.003.",c:"#a78bfa"},
+   {n:"4",t:"Sensitivity analysis",d:"Symmetric model: MAE = 14.6\u00B0. Asymmetric correction reduces error by 44%.",c:"#fb923c"}
+  ].map(function(item){return h("div",{key:item.n,style:{display:"flex",gap:12,marginBottom:14}},
+    h("div",{style:{width:24,height:24,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,background:item.c+"10",color:item.c,border:"1px solid "+item.c+"25",clipPath:"polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)"}},item.n),
+    h("div",null,
+      h("p",{style:{fontSize:12,fontWeight:600,color:FG,margin:"0 0 3px"}},item.t),
+      h("p",{style:{fontSize:11,color:DIM,margin:0,lineHeight:1.55}},item.d)));}),
+  h("p",{style:{fontSize:8,color:"rgba(0,255,200,0.15)",borderTop:"1px solid rgba(0,255,200,0.06)",paddingTop:10,margin:0,fontFamily:MONO}},"Weitzman 1971 \u00B7 Veldhuis 1989 \u00B7 Debono 2009 \u00B7 Refinetti 2010 \u00B7 Lewy 1999 \u00B7 Burgess 2008"))
+);}
 
-// Discovery
-h("div",{className:"glass",style:{padding:20,borderLeft:"3px solid "+cP.c}},
-h("p",{style:{fontSize:10,fontWeight:600,letterSpacing:"0.12em",color:cP.c,marginBottom:8}},"THE DISCOVERY"),
-h("h2",{style:{fontSize:20,fontWeight:700,color:"white",margin:"0 0 12px",lineHeight:1.3}},"Mathematics Validates Art"),
-h("p",{style:{fontSize:13,lineHeight:1.7,color:"rgba(255,255,255,0.45)",margin:"0 0 8px"}},"H.A. Marouf derived this 9-phase model from hormonal mathematics using published biochemical parameters. The composite F(t) was computed from three biological oscillators with asymmetric, empirically-fitted Fourier harmonics."),
-h("p",{style:{fontSize:13,lineHeight:1.7,color:"rgba(255,255,255,0.45)",margin:"0 0 16px"}},"When phase boundaries were later compared against independent automatic mandala drawings \u2014 created through meditative practice as a separate process \u2014 the alignment was statistically significant."),
-h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}},
-[{v:"8.2\u00B0",l:"Mean Error",c:"#10b981"},{v:"p=.003",l:"Significance",c:"#a855f7"},{v:"0.986",l:"R\u00B2",c:"#3b82f6"}].map(function(s){
-return h("div",{key:s.l,style:{textAlign:"center",padding:12,borderRadius:14,background:s.c+"0c",border:"1px solid "+s.c+"18"}},
-h("div",{style:{fontSize:18,fontWeight:800,color:s.c}},s.v),
-h("div",{style:{fontSize:9,color:"rgba(255,255,255,0.3)",marginTop:4}},s.l))}))),
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+var tabs=[["clock","Clock","\u29D6"],["align","Align","\u26A1"],["insights","Data","\u{1F4C8}"],["science","Science","\u2726"]];
 
-// Expandable phase comparison
-h("div",{className:"glass2",style:{padding:16}},
-h("button",{onClick:function(){setExp(exp==="comp"?null:"comp")},style:{width:"100%",textAlign:"left",display:"flex",justifyContent:"space-between",alignItems:"center"}},
-h("span",{style:{fontSize:11,fontWeight:600,letterSpacing:"0.1em",color:"rgba(255,255,255,0.4)"}},"ARTWORK vs MODEL \u2014 9 PHASES"),
-h("span",{style:{fontSize:14,color:"rgba(255,255,255,0.2)",transform:exp==="comp"?"rotate(180deg)":"none",transition:"transform 0.3s"}},"\u25BC")),
-exp==="comp"&&h("div",{style:{marginTop:12}},
-h("div",{style:{display:"grid",gridTemplateColumns:"24px 1fr 1fr 1fr 24px",gap:0,fontSize:10,fontFamily:"'Azeret Mono',monospace"}},
-h("div",{style:{padding:"4px 0",color:"rgba(255,255,255,0.2)",fontSize:8}},"#"),
-h("div",{style:{padding:"4px 0",color:"rgba(255,255,255,0.2)",fontSize:8}},"Art"),
-h("div",{style:{padding:"4px 0",color:"rgba(255,255,255,0.2)",fontSize:8}},"Model"),
-h("div",{style:{padding:"4px 0",color:"rgba(255,255,255,0.2)",fontSize:8}},"Err"),
-h("div",{style:{padding:"4px 0"}},""),
-artD.map(function(r){var err=r[3],g=err<=5,o=err<=10,col=g?"#10b981":o?"#f59e0b":"#ef4444";
-return h(F,{key:r[0]},
-h("div",{style:{padding:"5px 0",color:P[r[0]-1].c}},r[0]),
-h("div",{style:{padding:"5px 0",color:"rgba(255,255,255,0.35)"}},r[1]),
-h("div",{style:{padding:"5px 0",color:"rgba(255,255,255,0.35)"}},r[2]),
-h("div",{style:{padding:"5px 0",color:col,fontWeight:600}},err.toFixed(1)+"\u00B0"),
-h("div",{style:{padding:"5px 0",color:col}},g?"\u2713":o?"\u2248":"\u25B3"))})),
-h("div",{style:{marginTop:10,padding:"8px 12px",borderRadius:10,background:"#10b981"+"08"}},
-h("p",{style:{fontSize:10,color:"rgba(255,255,255,0.35)",margin:0,lineHeight:1.5}},"MAE = 8.2\u00B0. Asymmetric model improves on symmetric (14.6\u00B0) by 44%.")))),
-
-// Mathematics
-h("div",{className:"glass",style:{padding:16}},
-h("p",{style:{fontSize:10,fontWeight:600,letterSpacing:"0.1em",color:"rgba(255,255,255,0.3)",marginBottom:10}},"THE MATHEMATICS"),
-h("div",{style:{padding:14,borderRadius:12,background:"rgba(0,0,0,0.3)",fontFamily:"'Azeret Mono',monospace",fontSize:11,lineHeight:2}},
-h("div",{style:{color:"#10b981",fontWeight:600}},"F(t) = 0.5\u00B7C(t) + 0.3\u00B7T(t) + 0.2\u00B7M(t)"),
-h("div",{style:{color:"rgba(255,255,255,0.1)",fontSize:9,marginBottom:6}},"// Asymmetric: each harmonic gets its own phase angle"),
-h("div",null,h("span",{style:{color:"#f59e0b"}},"C(t)"),h("span",{style:{color:"rgba(255,255,255,0.3)"}}," = \u03A3 a\u2099\u00B7cos(2\u03C0n(t\u2212\u03C6\u2099)/24)")),
-h("div",{style:{fontSize:9,color:"rgba(255,255,255,0.12)",marginLeft:20}},"Cortisol: \u03C6\u2081=10.5h \u03C6\u2082=9.0h \u03C6\u2083=8.4h \u03C6\u2084=8.5h"),
-h("div",{style:{fontSize:9,color:"rgba(255,255,255,0.08)",marginLeft:20,marginBottom:4}},"4h rise + 16h decay"),
-h("div",null,h("span",{style:{color:"#ef4444"}},"T(t)"),h("span",{style:{color:"rgba(255,255,255,0.3)"}}," = \u03A3 b\u2099\u00B7cos(2\u03C0n(t\u2212\u03C8\u2099)/24)")),
-h("div",{style:{fontSize:9,color:"rgba(255,255,255,0.12)",marginLeft:20,marginBottom:4}},"Core temp: \u03C8\u2081=16.5h \u03C8\u2082=17.8h \u03C8\u2083=8.7h"),
-h("div",null,h("span",{style:{color:"#818cf8"}},"M(t)"),h("span",{style:{color:"rgba(255,255,255,0.3)"}}," = \u03A3 c\u2099\u00B7cos(2\u03C0n(t\u2212\u03B8\u2099)/24)")),
-h("div",{style:{fontSize:9,color:"rgba(255,255,255,0.12)",marginLeft:20}},"Melatonin: \u03B8\u2081=2.0h \u03B8\u2082=2.0h \u03B8\u2083=1.8h"),
-h("div",{style:{marginTop:8,paddingTop:8,borderTop:"1px solid rgba(255,255,255,0.04)",color:"rgba(255,255,255,0.12)",fontSize:9}},"10 harmonics \u2192 17 critical features \u2192 9 phase boundaries"),
-h("div",{style:{color:"rgba(255,255,255,0.12)",fontSize:9}},"Validated: 200k Monte Carlo, p = 0.003"))),
-
-// Sources
-h("div",{className:"glass2",style:{padding:14}},
-h("p",{style:{fontSize:10,fontWeight:600,letterSpacing:"0.1em",color:"rgba(255,255,255,0.3)",marginBottom:10}},"SOURCES"),
-h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}},
-[{m:"Cortisol",c:"#f59e0b",s:"Weitzman 1971\nVeldhuis 1989\nDebono 2009"},{m:"Core Temp",c:"#ef4444",s:"Refinetti &\nMenaker 1992"},{m:"Melatonin",c:"#818cf8",s:"Lewy 1999\nBurgess 2008"}
-].map(function(d){return h("div",{key:d.m,style:{padding:10,borderRadius:10,background:d.c+"08",borderLeft:"2px solid "+d.c}},
-h("p",{style:{fontSize:11,fontWeight:600,color:d.c,margin:"0 0 4px"}},d.m),
-h("p",{style:{fontSize:8,color:"rgba(255,255,255,0.18)",margin:0,whiteSpace:"pre-line",lineHeight:1.5}},d.s))}))),
-
-// Validation
-h("div",{className:"glass",style:{padding:16}},
-h("p",{style:{fontSize:10,fontWeight:600,letterSpacing:"0.1em",color:"rgba(255,255,255,0.3)",marginBottom:12}},"VALIDATION PROTOCOL"),
-[{n:"1",t:"Published data derivation",d:"Boundaries from F(t) critical features. Asymmetric harmonics fitted to empirical profiles.",c:"#10b981"},
-{n:"2",t:"Independent artwork",d:"9-fold mandala drawings from meditative practice. Angles measured by image analysis.",c:"#3b82f6"},
-{n:"3",t:"Statistical test",d:"MAE = 8.2\u00B0. Monte Carlo (200k): p = 0.003. Less than 3-in-1000 chance.",c:"#a855f7"},
-{n:"4",t:"Sensitivity check",d:"Symmetric model: 14.6\u00B0. Asymmetric reduces error 44%.",c:"#f59e0b"}
-].map(function(item){return h("div",{key:item.n,style:{display:"flex",gap:12,marginBottom:14}},
-h("div",{style:{width:24,height:24,borderRadius:8,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,background:item.c+"15",color:item.c}},item.n),
+return h("div",{style:{minHeight:"100vh",minHeight:"100dvh",fontFamily:FONT,background:BG,color:FG,paddingBottom:72,overflowX:"hidden"}},
+h("div",{style:{padding:"14px 16px 10px",display:"flex",justifyContent:"space-between",alignItems:"flex-start",background:"rgba(1,1,3,0.9)",backdropFilter:"blur(20px)",borderBottom:"1px solid rgba(0,255,200,0.08)",position:"sticky",top:0,zIndex:80}},
 h("div",null,
-h("p",{style:{fontSize:12,fontWeight:600,color:"white",margin:"0 0 3px"}},item.t),
-h("p",{style:{fontSize:11,color:"rgba(255,255,255,0.35)",margin:0,lineHeight:1.5}},item.d)))}),
-h("p",{style:{fontSize:8,color:"rgba(255,255,255,0.1)",borderTop:"1px solid rgba(255,255,255,0.03)",paddingTop:10,margin:0,fontFamily:"'Azeret Mono',monospace"}},"Weitzman \u00B7 Veldhuis \u00B7 Debono \u00B7 Refinetti \u00B7 Lewy \u00B7 Burgess"))
-)}
-
-// ═══ RENDER ═══
-var tabs=[["now","Now"],["align","Align"],["body","Body"],["science","Science"]];
-
-return h("div",{style:{position:"relative",minHeight:"100vh",minHeight:"100dvh"}},
-
-// Phase-shifting gradient background
-h("div",{style:bgStyle}),
-
-// Content layer
-h("div",{style:{position:"relative",zIndex:1,paddingBottom:80}},
-
-// Header
-h("div",{style:{padding:"14px 18px 10px",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}},
-h("div",null,
-h("h1",{style:{fontSize:16,fontWeight:800,color:"white",margin:0,letterSpacing:"0.04em"}},"RESONANCE"),
-h("p",{style:{fontSize:9,color:"rgba(255,255,255,0.2)",marginTop:2,letterSpacing:"0.06em",fontWeight:500}},dStr)),
-h("button",{onClick:function(){setModal(true)},style:{fontSize:10,padding:"6px 14px",borderRadius:12,background:cP.c+"15",border:"1px solid "+cP.c+"25",color:cP.c,fontWeight:600}},"\u271A Track")),
-
-// Tabs
-h("div",{style:{display:"flex",gap:0,margin:"0 18px 14px",borderRadius:14,background:"rgba(255,255,255,0.03)",padding:3,border:"1px solid rgba(255,255,255,0.04)"}},
-tabs.map(function(t_){
-var act=tab===t_[0];
-return h("button",{key:t_[0],onClick:function(){setTab(t_[0])},style:{flex:1,padding:"8px 0",borderRadius:11,fontSize:11,fontWeight:act?600:400,color:act?"white":"rgba(255,255,255,0.3)",background:act?"rgba(255,255,255,0.08)":"transparent",transition:"all 0.25s"}},t_[1])})),
-
-// Tab content
-h("div",null,
-tab==="now"&&renderNow(),
+h("h1",{style:{fontSize:19,fontWeight:700,color:GLOW,margin:0,letterSpacing:"0.18em",textShadow:"0 0 30px rgba(0,255,200,0.4)"}},"RESONANCE"),
+h("p",{style:{fontSize:8,color:"rgba(0,255,200,0.25)",marginTop:2,letterSpacing:"0.14em",fontFamily:FONT}},"9-PHASE CIRCADIAN INTELLIGENCE")),
+h("div",{style:{textAlign:"right"}},
+h("p",{style:{fontSize:10,color:"rgba(0,255,200,0.22)",margin:0,fontFamily:MONO}},dStr),
+h("button",{onClick:function(){setModal(true)},style:{marginTop:5,fontSize:9,padding:"5px 12px",background:"rgba(0,255,200,0.06)",border:"1px solid rgba(0,255,200,0.18)",color:GLOW,letterSpacing:"0.1em",clipPath:"polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)"}},"\u271A TRACK"))),
+h("div",{style:{paddingTop:4},key:tab},
+tab==="clock"&&renderClock(),
 tab==="align"&&renderAlign(),
-tab==="body"&&renderBody(),
+tab==="insights"&&renderInsights(),
 tab==="science"&&renderScience()),
-
-// Modal
-modal&&h("div",{onClick:function(e){if(e.target===e.currentTarget)setModal(false)},style:{position:"fixed",inset:0,zIndex:50,display:"flex",alignItems:"flex-end",justifyContent:"center",background:"rgba(0,0,0,0.7)",backdropFilter:"blur(10px)"}},
-h("div",{className:"fu",style:{width:"100%",maxWidth:480,borderRadius:"24px 24px 0 0",padding:22,background:"linear-gradient(180deg,rgba(20,20,30,0.98),rgba(10,10,18,0.99))",border:"1px solid rgba(255,255,255,0.06)",borderBottom:"none"}},
+h("div",{className:"nav"},
+tabs.map(function(t_){var act=tab===t_[0];
+return h("button",{key:t_[0],className:"nav-btn"+(act?" active":""),onClick:function(){setTab(t_[0])}},
+h("div",{className:"nav-icon",style:{filter:act?"drop-shadow(0 0 8px "+GLOW+")":"none",transition:"filter .25s"}},t_[2]),t_[1].toUpperCase());})),
+modal&&h("div",{onClick:function(e){if(e.target===e.currentTarget)setModal(false)},style:{position:"fixed",inset:0,zIndex:100,display:"flex",alignItems:"flex-end",justifyContent:"center",background:"rgba(1,1,3,0.88)",backdropFilter:"blur(14px)"}},
+h("div",{className:"rise",style:{width:"100%",maxWidth:480,padding:22,background:"linear-gradient(180deg,#0b0e16,#010103)",border:"1px solid rgba(0,255,200,0.14)",borderBottom:"none",clipPath:"polygon(0 18px,18px 0,calc(100% - 18px) 0,100% 18px,100% 100%,0 100%)"}},
 h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}},
 h("div",null,
-h("h3",{style:{fontSize:16,fontWeight:700,color:"white",margin:0}},"Track Your State"),
-h("p",{style:{fontSize:10,color:"rgba(255,255,255,0.25)",margin:"3px 0 0"}},cP.s+" "+cP.n+" \u00B7 "+tFull)),
-h("button",{onClick:function(){setModal(false)},style:{width:30,height:30,borderRadius:10,background:"rgba(255,255,255,0.06)",fontSize:16,color:"rgba(255,255,255,0.3)"}},"\u00D7")),
-[{k:"energy",l:"Energy",i:"\u26A1",c:"#f59e0b"},{k:"focus",l:"Focus",i:"\u{1F3AF}",c:"#10b981"},{k:"mood",l:"Mood",i:"\u{1F60A}",c:"#818cf8"}].map(function(item){
+h("h3",{style:{fontSize:15,fontWeight:700,color:FG,margin:0}},"Track State"),
+h("p",{style:{fontSize:9,color:DIM,margin:"3px 0 0"}},cP.sym+" "+cP.name+" \u00B7 "+tFull)),
+h("button",{onClick:function(){setModal(false)},style:{width:30,height:30,background:"rgba(0,255,200,0.06)",border:"1px solid rgba(0,255,200,0.18)",fontSize:16,color:GLOW}},"\u00D7")),
+[{k:"energy",l:"Energy",i:"\u26A1",c:"#fb923c"},{k:"focus",l:"Focus",i:"\u{1F3AF}",c:GLOW},{k:"mood",l:"Mood",i:"\u{1F60A}",c:"#a78bfa"}].map(function(item){
 return h("div",{key:item.k,style:{marginBottom:16}},
-h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:7}},
-h("span",{style:{fontSize:12,color:"rgba(255,255,255,0.5)",fontWeight:500}},item.i+" "+item.l),
-h("span",{style:{fontSize:12,color:item.c,fontWeight:700}},ent[item.k]+"/5")),
-h("div",{style:{display:"flex",gap:6}},
-[1,2,3,4,5].map(function(v){
-var upd={};upd[item.k]=v;
-return h("button",{key:v,onClick:function(){setEnt(Object.assign({},ent,upd))},style:{flex:1,height:40,borderRadius:10,background:v<=ent[item.k]?item.c+"20":"rgba(255,255,255,0.02)",border:"1px solid "+(v<=ent[item.k]?item.c+"35":"rgba(255,255,255,0.04)"),color:v<=ent[item.k]?item.c:"rgba(255,255,255,0.12)",fontSize:13,fontWeight:600}},v)})))}),
-h("textarea",{value:ent.note,onChange:function(e){setEnt(Object.assign({},ent,{note:e.target.value}))},placeholder:"Note\u2026",style:{width:"100%",padding:12,borderRadius:12,background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.04)",fontSize:11,resize:"none",height:48,outline:"none",display:"block"}}),
-h("button",{onClick:addE,style:{width:"100%",marginTop:14,padding:"14px 0",borderRadius:14,background:"linear-gradient(135deg,"+cP.c+"25,"+cP.c2+"20)",border:"1px solid "+cP.c+"30",fontSize:13,fontWeight:600,color:cP.c}},"\u2713 Save Entry"))))
-)}
+h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:8}},
+h("span",{style:{fontSize:11,color:DIM}},item.i+" "+item.l),
+h("span",{style:{fontSize:13,color:item.c,fontWeight:700,fontFamily:MONO}},ent[item.k]+"/5")),
+h("div",{style:{display:"flex",gap:7}},
+[1,2,3,4,5].map(function(v){var upd={};upd[item.k]=v;
+return h("button",{key:v,onClick:function(){setEnt(function(prev){return Object.assign({},prev,upd)})},
+style:{flex:1,height:38,background:v<=ent[item.k]?item.c+"18":"rgba(0,255,200,0.03)",
+border:"1px solid "+(v<=ent[item.k]?item.c+"35":"rgba(0,255,200,0.08)"),
+color:v<=ent[item.k]?item.c:"rgba(0,255,200,0.18)",fontSize:13,fontWeight:700,
+clipPath:"polygon(4px 0,100% 0,calc(100% - 4px) 100%,0 100%)"}},v)})));}),
+h("textarea",{value:ent.note,onChange:function(e){var v=e.target.value;setEnt(function(prev){return Object.assign({},prev,{note:v})})},
+placeholder:"Note\u2026",style:{width:"100%",padding:10,background:"rgba(0,255,200,0.03)",border:"1px solid rgba(0,255,200,0.08)",fontSize:11,resize:"none",height:44,outline:"none",display:"block",color:FG}}),
+h("button",{onClick:addE,style:{width:"100%",marginTop:12,padding:"13px 0",background:"rgba(0,255,200,0.1)",border:"1px solid rgba(0,255,200,0.25)",fontSize:12,fontWeight:700,color:GLOW,letterSpacing:"0.14em",clipPath:"polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))"}},"\u2713 SAVE ENTRY")))
+);}
 
-ReactDOM.createRoot(document.getElementById("root")).render(h(App))
+ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+})();
 </script>
 </body>
 </html>
