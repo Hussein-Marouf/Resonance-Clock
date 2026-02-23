@@ -83,11 +83,11 @@ var h=React.createElement;
 var useState=React.useState,useEffect=React.useEffect,useMemo=React.useMemo,useCallback=React.useCallback;
 var RC=Recharts;
 
-/* ═════════════════════════════════════════════
-   PHASE DATA — unchanged, validated
-   ═════════════════════════════════════════════ */
+/* =============================================
+   PHASE DATA -- unchanged, validated
+   ============================================= */
 var PHASES=[
-{id:1,name:"Deep Rest",sym:"\u{1F319}",start:0,end:4.27,color:"#818cf8",glo:"rgba(129,140,248,0.6)",
+{id:1,name:"Deep Rest",sym:"\uD83C\uDF19",start:0,end:4.27,color:"#818cf8",glo:"rgba(129,140,248,0.6)",
 desc:"Melatonin dominant \u2014 neural restoration & memory consolidation",
 sci:"Melatonin at peak concentration. Glymphatic clearance peaks during slow-wave sleep. Growth hormone in first 90-min cycle. Hippocampal replay consolidates declarative memories.",
 best:["Sleep","Rest"],avoid:["Light","Stimulants"]},
@@ -95,7 +95,7 @@ best:["Sleep","Rest"],avoid:["Light","Stimulants"]},
 desc:"Cortisol begins its asymmetric rise toward waking",
 sci:"Cortisol secretory bursts increase in amplitude (Veldhuis 1989). HPA axis pre-awakening activation. Core temperature at nadir. REM sleep predominates in final cycles.",
 best:["Sleep","Light stretching"],avoid:["Alarm disruption of REM"]},
-{id:3,name:"Awakening",sym:"\u{1F305}",start:6.83,end:9.10,color:"#fb923c",glo:"rgba(251,146,60,0.6)",
+{id:3,name:"Awakening",sym:"\uD83C\uDF05",start:6.83,end:9.10,color:"#fb923c",glo:"rgba(251,146,60,0.6)",
 desc:"Cortisol Awakening Response \u2014 system activation",
 sci:"CAR: cortisol doubles within 30\u201345 min of waking (Weitzman 1971, Debono 2009). Delay caffeine 90\u2013120 min to preserve natural CAR amplitude.",
 best:["Sunlight","Planning","Light exercise"],avoid:["Caffeine early","Screens"]},
@@ -103,63 +103,63 @@ best:["Sunlight","Planning","Light exercise"],avoid:["Caffeine early","Screens"]
 desc:"Cortisol apex \u2014 maximum analytical capacity",
 sci:"Cortisol and norepinephrine near daily maximum. Prefrontal cortex activation peaks. Working memory and executive function optimal (Van Cauter 1999).",
 best:["Deep work","Complex decisions","Hard learning"],avoid:["Meetings","Email","Multitasking"]},
-{id:5,name:"Sustain",sym:"\u{1F3AF}",start:10.93,end:13.30,color:"#34d399",glo:"rgba(52,211,153,0.6)",
+{id:5,name:"Sustain",sym:"\uD83C\uDFAF",start:10.93,end:13.30,color:"#34d399",glo:"rgba(52,211,153,0.6)",
 desc:"Elevated performance plateau with gradual decline",
 sci:"Cortisol still above baseline. Dopamine supports sustained attention. Serotonin rising supports empathy and collaboration.",
 best:["Collaboration","Writing","Learning"],avoid:["Passive consumption"]},
-{id:6,name:"Integration",sym:"\u{1F517}",start:13.30,end:14.98,color:"#22d3ee",glo:"rgba(34,211,238,0.6)",
+{id:6,name:"Integration",sym:"\uD83D\uDD17",start:13.30,end:14.98,color:"#22d3ee",glo:"rgba(34,211,238,0.6)",
 desc:"Post-lunch dip \u2014 physiological, not a failure",
 sci:"F(t) reaches afternoon trough. Post-prandial glucose shift. Adenosine accumulation. The dip is endogenous.",
 best:["Lunch","Social","Power nap"],avoid:["Critical decisions","Complex analysis"]},
-{id:7,name:"Creative",sym:"\u{1F3A8}",start:14.98,end:17.84,color:"#c084fc",glo:"rgba(192,132,252,0.6)",
+{id:7,name:"Creative",sym:"\uD83C\uDFA8",start:14.98,end:17.84,color:"#c084fc",glo:"rgba(192,132,252,0.6)",
 desc:"Reduced inhibition + temperature peak \u2192 creative-physical window",
 sci:"Prefrontal inhibition reduced \u2192 divergent thinking (Wieth & Zacks 2011). Core temp approaching peak (Refinetti 2010). Muscle strength and VO2 max rising.",
 best:["Brainstorming","Art","Exercise","Sport"],avoid:["Rigid analytical work"]},
-{id:8,name:"Wind Down",sym:"\u{1F306}",start:17.84,end:21.75,color:"#f472b6",glo:"rgba(244,114,182,0.6)",
+{id:8,name:"Wind Down",sym:"\uD83C\uDF06",start:17.84,end:21.75,color:"#f472b6",glo:"rgba(244,114,182,0.6)",
 desc:"Parasympathetic shift \u2014 melatonin synthesis begins",
 sci:"Core temp falling. Serotonin\u2192melatonin conversion. DLMO ~21:00 (Lewy 1999). DLMO varies \u00B190 min (Burgess 2008). Blue light suppresses melatonin up to 50%.",
 best:["Light social","Cooking","Reflection","Reading"],avoid:["Intense exercise","Blue light","News"]},
-{id:9,name:"Sleep Gate",sym:"\u{1F30C}",start:21.75,end:24.0,color:"#60a5fa",glo:"rgba(96,165,250,0.6)",
+{id:9,name:"Sleep Gate",sym:"\uD83C\uDF0C",start:21.75,end:24.0,color:"#60a5fa",glo:"rgba(96,165,250,0.6)",
 desc:"Melatonin rising \u2014 sleep architecture initiating",
 sci:"Melatonin secretion accelerating. Core temp dropping toward nadir. Cortisol at daily minimum. Protect this window.",
 best:["Meditation","Journaling","Dim environment"],avoid:["Screens","Caffeine","Alcohol"]}
 ];
 
 var ACTS=[
-{name:"Deep Work",icon:"\u{1F4A1}",align:[0,10,70,95,80,15,25,10,0],
+{name:"Deep Work",icon:"\uD83D\uDCA1",align:[0,10,70,95,80,15,25,10,0],
 adapt:{high:"Prefrontal cortex at peak capacity. Block all notifications. Use 90-min ultradian cycles.",mid:"Cortisol supports focus. Front-load the hardest sub-tasks.",low:"Brain in diffuse mode. Switch to creative tasks or defer."}},
-{name:"Exercise",icon:"\u{1F3CB}\uFE0F",align:[0,15,45,25,30,20,90,35,0],
+{name:"Exercise",icon:"\uD83C\uDFCB\uFE0F",align:[0,15,45,25,30,20,90,35,0],
 adapt:{high:"Core temp peaks, strength +6%, perceived exertion \u221210%. Train compound lifts.",mid:"Good window. HIIT and moderate strength both effective.",low:"Recovery mode. Light stretching or gentle walking only."}},
-{name:"Creative",icon:"\u{1F3A8}",align:[10,15,30,40,45,50,90,40,15],
+{name:"Creative",icon:"\uD83C\uDFA8",align:[10,15,30,40,45,50,90,40,15],
 adapt:{high:"Inner critic quiet, associative networks open. Sketch, brainstorm, freewrite.",mid:"Moderate alertness + relaxed control. Good for novel connections.",low:"Too sharp or too foggy. Capture loose thoughts for later."}},
-{name:"Meetings",icon:"\u{1F465}",align:[0,10,35,50,75,80,55,40,0],
+{name:"Meetings",icon:"\uD83D\uDC65",align:[0,10,35,50,75,80,55,40,0],
 adapt:{high:"Social cognition sharp. Schedule negotiations and key discussions.",mid:"Engaged and articulate. Good for collaborative sessions.",low:"Low social energy. Keep it brief and structured."}},
-{name:"Learning",icon:"\u{1F4DA}",align:[5,15,55,90,75,30,40,20,5],
+{name:"Learning",icon:"\uD83D\uDCDA",align:[5,15,55,90,75,30,40,20,5],
 adapt:{high:"Hippocampus primed for encoding. Active recall builds strongest traces.",mid:"Mix reading with practice. Moderate complexity works.",low:"Review and spaced repetition instead of new material."}},
-{name:"Rest",icon:"\u{1F634}",align:[95,80,10,0,5,20,5,55,90],
+{name:"Rest",icon:"\uD83D\uDE34",align:[95,80,10,0,5,20,5,55,90],
 adapt:{high:"Biology supports deep restoration. Protect sleep architecture.",mid:"Short rest can help. Keep naps under 20 min.",low:"Body optimized for activity. Resting wastes peak neurochemistry."}},
-{name:"Social",icon:"\u{1F91D}",align:[5,10,25,15,60,80,55,75,20],
+{name:"Social",icon:"\uD83E\uDD1D",align:[5,10,25,15,60,80,55,75,20],
 adapt:{high:"Oxytocin and warmth peak. Connection feels natural.",mid:"Good social energy. Present and engaged.",low:"Social battery low. Brief meaningful interactions."}},
-{name:"Planning",icon:"\u{1F4CB}",align:[5,30,80,70,55,25,35,20,10],
+{name:"Planning",icon:"\uD83D\uDCCB",align:[5,30,80,70,55,25,35,20,10],
 adapt:{high:"Executive function aligned. Map your week, set priorities.",mid:"Enough prefrontal capacity for organization.",low:"Stick to tactical to-do lists. Defer strategy."}},
-{name:"Meditation",icon:"\u{1F9D8}",align:[80,60,25,10,15,30,20,65,90],
+{name:"Meditation",icon:"\uD83E\uDDD8",align:[80,60,25,10,15,30,20,65,90],
 adapt:{high:"Parasympathetic ascending. Deep practice effortless.",mid:"Mind may wander. Body-scan and breath focus work.",low:"Sympathetic active. Walking meditation or breathwork."}},
 {name:"Sport",icon:"\u26BD",align:[0,15,40,30,35,25,95,30,0],
 adapt:{high:"Neuromuscular coordination, reaction time, VO2 max peak.",mid:"Warm up thoroughly. Moderate intensity.",low:"Suboptimal. Stick to light movement or skill work."}}
 ];
 
 var CTXS=[
-{id:"home",icon:"\u{1F3E0}",label:"Home",boost:["Meditation","Rest","Creative"]},
-{id:"office",icon:"\u{1F3E2}",label:"Office",boost:["Deep Work","Meetings","Planning"]},
-{id:"gym",icon:"\u{1F4AA}",label:"Gym",boost:["Exercise","Sport"]},
-{id:"commute",icon:"\u{1F697}",label:"Commute",boost:["Learning","Planning","Meditation"]},
-{id:"outdoors",icon:"\u{1F333}",label:"Outside",boost:["Exercise","Social","Creative"]},
+{id:"home",icon:"\uD83C\uDFE0",label:"Home",boost:["Meditation","Rest","Creative"]},
+{id:"office",icon:"\uD83C\uDFE2",label:"Office",boost:["Deep Work","Meetings","Planning"]},
+{id:"gym",icon:"\uD83D\uDCAA",label:"Gym",boost:["Exercise","Sport"]},
+{id:"commute",icon:"\uD83D\uDE97",label:"Commute",boost:["Learning","Planning","Meditation"]},
+{id:"outdoors",icon:"\uD83C\uDF33",label:"Outside",boost:["Exercise","Social","Creative"]},
 {id:"cafe",icon:"\u2615",label:"Caf\u00E9",boost:["Creative","Learning","Planning"]}
 ];
 
-/* ═════════════════════════════════════════════
-   ASYMMETRIC FOURIER MODELS — H.A. Marouf 2024
-   ═════════════════════════════════════════════ */
+/* =============================================
+   ASYMMETRIC FOURIER MODELS -- H.A. Marouf 2024
+   ============================================= */
 function clamp(v){return Math.max(0.02,Math.min(0.98,v));}
 function cortisol(t){return clamp(0.3118+0.3528*Math.cos(2*Math.PI*(t-10.48)/24)+0.1596*Math.cos(2*Math.PI*2*(t-8.99)/24)+0.0709*Math.cos(2*Math.PI*3*(t-8.43)/24)+0.0320*Math.cos(2*Math.PI*4*(t-8.46)/24));}
 function bodyTemp(t){return clamp(0.4806+0.3997*Math.cos(2*Math.PI*(t-16.47)/24)+0.0122*Math.cos(2*Math.PI*2*(t-17.80)/24)+0.0465*Math.cos(2*Math.PI*3*(t-8.68)/24));}
@@ -167,9 +167,9 @@ function melatonin(t){return clamp(0.2699+0.4346*Math.cos(2*Math.PI*(t-1.98)/24)
 function composite(t){return 0.5*cortisol(t)+0.3*bodyTemp(t)+0.2*melatonin(t);}
 function sdMod(hrs){return Math.max(0.60,1-0.05*Math.max(0,8-hrs));}
 
-/* ═════════════════════════════════════════════
+/* =============================================
    GEOMETRY
-   ═════════════════════════════════════════════ */
+   ============================================= */
 function hDeg(hr){return(hr/24)*360;}
 function toXY(cx,cy,r,deg){var rad=(deg-90)*Math.PI/180;return[cx+r*Math.cos(rad),cy+r*Math.sin(rad)];}
 function arcP(cx,cy,r1,r2,h1,h2){
@@ -203,17 +203,17 @@ function phaseAt(sh){for(var i=0;i<PHASES.length;i++){if(sh>=PHASES[i].start&&sh
 function sCol(s){return s>=75?"#00FFD1":s>=40?"#fb923c":"#f87171";}
 function sLbl(s){return s>=75?"Optimal":s>=40?"Moderate":"Low";}
 
-/* ═════════════════════════════════════════════
+/* =============================================
    DESIGN TOKENS
-   ═════════════════════════════════════════════ */
+   ============================================= */
 var GLOW="#00FFD1",BG="#010103",FG="rgba(220,245,240,0.92)";
 var DIM="rgba(0,255,200,0.45)";/* UX FIX: raised from 0.32 for readability */
 var FAINT="rgba(0,255,200,0.06)";
 var FONT="'Chakra Petch',sans-serif",MONO="'Share Tech Mono',monospace";
 
-/* ═════════════════════════════════════════════
+/* =============================================
    APP
-   ═════════════════════════════════════════════ */
+   ============================================= */
 function App(){
 var _n=useState(new Date()),now=_n[0],setNow=_n[1];
 var _w=useState(7.0),wk=_w[0],setWk=_w[1];
@@ -296,9 +296,9 @@ function doExport(){
   setTimeout(function(){URL.revokeObjectURL(url);},1000);}catch(e){}
 }
 
-/* ═════════════════════════════════════════════
+/* =============================================
    SVG CLOCK
-   ═════════════════════════════════════════════ */
+   ============================================= */
 var SZ=380,CX=190,CY=190,RPI=103,RPO=138,RWI=142,RWO=160,RICO=170;
 
 var clockEl=(function(){
@@ -336,9 +336,9 @@ return h("div",{style:{position:"relative",width:"100%"}},
     rings,ticks,cards,segs,wave,wakeM,icons,needle,center,corners));
 })();
 
-/* ═════════════════════════════════════════════
-   TAB: NOW — simplified, one purpose: "what should I do?"
-   ═════════════════════════════════════════════ */
+/* =============================================
+   TAB: NOW -- simplified, one purpose: "what should I do?"
+   ============================================= */
 function renderNow(){
   var top3=sorted.slice(0,3);
   var upcoming=[];
@@ -419,9 +419,9 @@ function renderNow(){
   );
 }
 
-/* ═════════════════════════════════════════════
-   TAB: PLAN — all activities + context
-   ═════════════════════════════════════════════ */
+/* =============================================
+   TAB: PLAN -- all activities + context
+   ============================================= */
 function renderPlan(){
   return h("div",{className:"rise",style:{padding:"0 16px"}},
     /* Context chips */
@@ -452,9 +452,9 @@ function renderPlan(){
   );
 }
 
-/* ═════════════════════════════════════════════
-   TAB: YOU — personal data + tracking
-   ═════════════════════════════════════════════ */
+/* =============================================
+   TAB: YOU -- personal data + tracking
+   ============================================= */
 function renderYou(){
   var bm=[
     {name:"Cortisol",val:cortisol(sH),color:"#fb923c"},
@@ -471,7 +471,7 @@ function renderYou(){
       h("div",{style:{fontSize:10,color:FG,fontWeight:600,marginTop:2}},label));}
 
   return h("div",{className:"rise",style:{padding:"0 16px"}},
-    /* Track button — prominent CTA */
+    /* Track button -- prominent CTA */
     h("button",{className:"btn btn-primary",onClick:function(){setModal(true);},style:{width:"100%",marginBottom:14,fontSize:13}},"\u271A  Log How You Feel"),
     /* Biomarkers */
     h("div",{className:"card"},
@@ -535,14 +535,14 @@ function renderYou(){
               h("span",{style:{fontSize:11,fontWeight:600,color:FG}},e.phase),
               h("span",{style:{fontSize:9,color:"rgba(0,255,200,0.2)",fontFamily:MONO}},e.time)),
             h("div",{style:{display:"flex",gap:12,marginTop:3}},
-              [["\u26A1",e.energy,"#fb923c"],["\u{1F3AF}",e.focus,GLOW],["\u{1F60A}",e.mood,"#a78bfa"]].map(function(a){return h("span",{key:a[0],style:{fontSize:10,color:a[2],fontFamily:MONO}},a[0]+" "+a[1]+"/5");})))));}):
+              [["\u26A1",e.energy,"#fb923c"],["\uD83C\uDFAF",e.focus,GLOW],["\uD83D\uDE0A",e.mood,"#a78bfa"]].map(function(a){return h("span",{key:a[0],style:{fontSize:10,color:a[2],fontFamily:MONO}},a[0]+" "+a[1]+"/5");})))));}):
       h("div",{style:{textAlign:"center",padding:"20px 0",color:DIM,fontSize:11}},"No entries yet. Tap the button above to start tracking.")
   );
 }
 
-/* ═════════════════════════════════════════════
-   TAB: SCIENCE — all content intact
-   ═════════════════════════════════════════════ */
+/* =============================================
+   TAB: SCIENCE -- all content intact
+   ============================================= */
 function renderScience(){
   var artD=[[1,"0.0\u00B0","12.7\u00B0",12.7],[2,"40.1\u00B0","38.8\u00B0",1.3],[3,"82.0\u00B0","64.0\u00B0",18.0],[4,"128.3\u00B0","136.5\u00B0",8.2],[5,"171.1\u00B0","164.0\u00B0",7.1],[6,"196.2\u00B0","199.4\u00B0",3.2],[7,"237.2\u00B0","224.8\u00B0",12.4],[8,"270.0\u00B0","267.6\u00B0",2.4],[9,"317.6\u00B0","326.2\u00B0",8.6]];
   var mae=artD.reduce(function(s,r){return s+r[3];},0)/artD.length;
@@ -606,9 +606,9 @@ function renderScience(){
   );
 }
 
-/* ═════════════════════════════════════════════
+/* =============================================
    TRACK MODAL
-   ═════════════════════════════════════════════ */
+   ============================================= */
 var trackModal=modal&&h("div",{onClick:function(e){if(e.target===e.currentTarget)setModal(false);},style:{position:"fixed",inset:0,zIndex:100,display:"flex",alignItems:"flex-end",justifyContent:"center",background:"rgba(1,1,3,0.88)",backdropFilter:"blur(14px)"}},
   h("div",{className:"slide-up",style:{width:"100%",maxWidth:480,padding:24,background:"linear-gradient(180deg,#0b0e16,#010103)",border:"1px solid rgba(0,255,200,0.14)",borderBottom:"none",borderRadius:"16px 16px 0 0"}},
     h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}},
@@ -629,14 +629,14 @@ var trackModal=modal&&h("div",{onClick:function(e){if(e.target===e.currentTarget
     h("textarea",{value:ent.note,onChange:function(e){var v=e.target.value;setEnt(function(prev){return Object.assign({},prev,{note:v});});},placeholder:"Note (optional)\u2026",style:{width:"100%",padding:12,background:"rgba(0,255,200,0.03)",border:"1px solid rgba(0,255,200,0.08)",borderRadius:6,fontSize:12,resize:"none",height:52,outline:"none",color:FG}}),
     h("button",{className:"btn btn-primary",onClick:addEntry,style:{width:"100%",marginTop:14,fontSize:13}},"\u2713 Save Entry")));
 
-/* ═════════════════════════════════════════════
+/* =============================================
    ROOT
-   ═════════════════════════════════════════════ */
+   ============================================= */
 var TABS=[["now","Now","\u29D6"],["plan","Plan","\u26A1"],["you","You","\u2661"],["science","Science","\u2726"]];
 
 return h("div",{style:{minHeight:"100vh",minHeight:"100dvh",fontFamily:FONT,background:BG,color:FG,paddingBottom:72,overflowX:"hidden"}},
   /* Header */
-  h("div",{style:{padding:"14px 16px 10px",display:"flex",justifyContent:"space-between",alignItems:"flex-start",background:"rgba(1,1,3,0.92)",backdropFilter:"blur(20px)",borderBottom:"1px solid rgba(0,255,200,0.08)",position:"sticky",top:0,zIndex:80}},
+  h("div",{style:{paddingTop:"calc(env(safe-area-inset-top, 0px) + 14px)",paddingLeft:16,paddingRight:16,paddingBottom:10,display:"flex",justifyContent:"space-between",alignItems:"flex-start",background:"rgba(1,1,3,0.95)",backdropFilter:"blur(20px)",borderBottom:"1px solid rgba(0,255,200,0.08)",position:"sticky",top:0,zIndex:80}},
     h("div",null,
       h("h1",{style:{fontSize:18,fontWeight:700,color:GLOW,margin:0,letterSpacing:"0.16em",textShadow:"0 0 30px rgba(0,255,200,0.4)"}},"RESONANCE"),
       h("div",{style:{display:"flex",alignItems:"center",gap:6,marginTop:4}},
