@@ -6,73 +6,224 @@
 <title>Resonance</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#010103">
+<meta name="theme-color" content="#040810">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.10.4/Recharts.min.js"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;-webkit-font-smoothing:antialiased}
-html,body{margin:0;padding:0;background:#010103;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+:root{
+  --bg:#040810;
+  --bg1:#07101e;
+  --bg2:#0b1628;
+  --bg3:#0f1d34;
+  --teal:#00DFB8;
+  --teal-hi:#00FFD8;
+  --teal-dim:rgba(0,223,184,0.42);
+  --teal-faint:rgba(0,223,184,0.055);
+  --teal-ghost:rgba(0,223,184,0.028);
+  --amber:#F97316;
+  --amber-dim:rgba(249,115,22,0.5);
+  --violet:#9B6DFF;
+  --rose:#F43F5E;
+  --sky:#38BDF8;
+  --lime:#84CC16;
+  --text:rgba(218,238,230,0.93);
+  --text-dim:rgba(140,185,168,0.52);
+  --text-ghost:rgba(120,165,148,0.28);
+  --border:rgba(0,223,184,0.09);
+  --border-hi:rgba(0,223,184,0.22);
+  --font:'Syne',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --radius:10px;
+  --radius-sm:6px;
+}
+*,*::before,*::after{box-sizing:border-box;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+html,body{margin:0;padding:0;background:var(--bg);overflow-x:hidden;-webkit-overflow-scrolling:touch}
 #root{min-height:100vh;min-height:100dvh}
-::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:#0a2a25}
-button{cursor:pointer;font-family:'Chakra Petch',sans-serif;border:none;background:none;color:#c8e8e2;-webkit-tap-highlight-color:transparent}
-textarea,input{font-family:'Chakra Petch',sans-serif}
-@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-.rise{animation:rise .3s cubic-bezier(0.16,1,0.3,1) both}
-.flash-save{animation:flashSave .6s ease-out}
-@keyframes flashSave{0%{box-shadow:0 0 0 0 rgba(0,255,200,0.5)}50%{box-shadow:0 0 30px 10px rgba(0,255,200,0.2)}100%{box-shadow:0 0 0 0 transparent}}
-.wake-input{background:transparent;border:none;outline:none;text-align:center;font-size:28px;font-weight:700;color:#00FFD1;font-family:'Share Tech Mono',monospace;width:100px;caret-color:#00FFD1;padding:4px 0;border-bottom:2px solid transparent}
-.wake-input:focus{border-bottom-color:rgba(0,255,200,0.4)}
-.slide-up{animation:slideUp .35s cubic-bezier(0.16,1,0.3,1) both}
-.pulse{animation:pulse 1.2s ease infinite}
-.pbar{height:3px;background:rgba(0,255,200,0.08);border-radius:2px}
-.pbar-fill{height:100%;border-radius:2px;transition:width .9s linear}
-/* ── Buttons: 48px min, rounded, obvious ── */
-.btn{min-height:48px;padding:12px 20px;border-radius:6px;font-size:13px;font-weight:600;
-  font-family:'Chakra Petch',sans-serif;letter-spacing:0.06em;display:inline-flex;
-  align-items:center;justify-content:center;gap:8px;transition:all .15s;touch-action:manipulation}
-.btn:active{transform:scale(0.96);opacity:0.85}
-.btn-primary{background:rgba(0,255,200,0.12);border:1px solid rgba(0,255,200,0.3);color:#00FFD1}
-.btn-ghost{background:rgba(0,255,200,0.04);border:1px solid rgba(0,255,200,0.1);color:rgba(0,255,200,0.5)}
-.btn-sm{min-height:40px;padding:8px 14px;font-size:11px;border-radius:5px}
-/* ── Chips: 40px min ── */
-.chip{min-height:40px;padding:8px 14px;border-radius:5px;font-size:11px;font-family:'Chakra Petch',sans-serif;
-  font-weight:500;letter-spacing:0.06em;transition:all .15s;cursor:pointer;
-  display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation}
-.chip:active{transform:scale(0.95)}
-/* ── Step buttons: 48px ── */
-.step-btn{width:48px;height:48px;display:flex;align-items:center;justify-content:center;
-  font-size:22px;font-weight:300;border:1px solid rgba(0,255,200,0.2);
-  background:rgba(0,255,200,0.06);border-radius:6px;color:#00FFD1;transition:all .15s;touch-action:manipulation}
-.step-btn:active{transform:scale(0.9);background:rgba(0,255,200,0.15)}
-/* ── Nav ── */
-.nav{display:flex;border-top:1px solid rgba(0,255,200,0.1);
-  padding:0 0 env(safe-area-inset-bottom);background:rgba(1,1,3,0.96);backdrop-filter:blur(20px);
-  position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;z-index:90}
-.nav-btn{flex:1;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;
-  font-size:9px;letter-spacing:0.1em;text-transform:uppercase;font-family:'Chakra Petch',sans-serif;
-  font-weight:500;color:rgba(0,255,200,0.28);border-bottom:2px solid transparent;transition:all .2s;
-  min-height:52px;touch-action:manipulation}
-.nav-btn.active{color:#00FFD1;border-bottom-color:#00FFD1}
-.nav-icon{font-size:18px;line-height:1}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:2px}
+::-webkit-scrollbar-thumb{background:rgba(0,223,184,0.12)}
+
+/* ── Noise + Grid Background ── */
+body::before{
+content:"";pointer-events:none;position:fixed;inset:0;z-index:0;
+background-image:
+radial-gradient(ellipse 80% 60% at 50% -10%,rgba(0,120,100,0.12) 0%,transparent 70%),
+radial-gradient(ellipse 50% 40% at 80% 80%,rgba(60,80,180,0.07) 0%,transparent 60%);
+}
+body::after{
+content:"";pointer-events:none;position:fixed;inset:0;z-index:0;
+background-image:
+linear-gradient(rgba(0,223,184,0.018) 1px,transparent 1px),
+linear-gradient(90deg,rgba(0,223,184,0.018) 1px,transparent 1px);
+background-size:32px 32px;
+-webkit-mask-image:radial-gradient(ellipse at center,black 20%,transparent 80%);
+mask-image:radial-gradient(ellipse at center,black 20%,transparent 80%);
+}
+#root{position:relative;z-index:1}
+
+/* ── Animations ── */
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+@keyframes pulseGlow{0%,100%{opacity:1}50%{opacity:0.45}}
+@keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+@keyframes flashSave{0%{box-shadow:0 0 0 0 rgba(0,223,184,0.5)}50%{box-shadow:0 0 32px 12px rgba(0,223,184,0.18)}100%{box-shadow:none}}
+@keyframes rotateSlow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.rise{animation:rise .32s cubic-bezier(0.16,1,0.3,1) both}
+.slide-up{animation:slideUp .38s cubic-bezier(0.16,1,0.3,1) both}
+.flash-save{animation:flashSave .7s ease-out}
+.pulse{animation:pulseGlow 1.4s ease infinite}
+
+/* ── Base elements ── */
+button{cursor:pointer;font-family:var(--font);border:none;background:none;color:var(--teal);-webkit-tap-highlight-color:transparent;transition:all .16s}
+textarea,input{font-family:var(--font)}
+
 /* ── Cards ── */
-.card{border-radius:8px;padding:16px 18px;background:rgba(0,255,200,0.018);
-  border:1px solid rgba(0,255,200,0.09);position:relative;margin-bottom:12px}
-.card-accent{background:rgba(0,255,200,0.03);border-color:rgba(0,255,200,0.18)}
-/* ── Labels ── */
-.lbl{font-size:10px;font-weight:600;letter-spacing:0.18em;font-family:'Chakra Petch',sans-serif;
-  color:rgba(0,255,200,0.35);margin-bottom:12px;display:block;text-transform:uppercase}
-/* ── Table ── */
-.sci-table{width:100%;border-collapse:collapse;font-family:'Share Tech Mono',monospace;font-size:11px}
-.sci-table th{text-align:left;padding:6px 8px;color:rgba(0,255,200,0.35);font-size:9px;
-  letter-spacing:0.12em;border-bottom:1px solid rgba(0,255,200,0.1);font-family:'Chakra Petch',sans-serif}
-.sci-table td{padding:8px;border-bottom:1px solid rgba(0,255,200,0.04)}
+.card{
+border-radius:var(--radius);
+padding:18px 20px;
+background:rgba(11,22,40,0.85);
+border:1px solid var(--border);
+position:relative;
+margin-bottom:10px;
+backdrop-filter:blur(8px);
+overflow:hidden;
+}
+.card::before{
+content:"";position:absolute;inset:0;border-radius:var(--radius);
+background:linear-gradient(135deg,rgba(0,223,184,0.025) 0%,transparent 60%);
+pointer-events:none;
+}
+.card-phase{border-left-width:3px;border-left-style:solid}
+.card-accent{background:rgba(14,26,48,0.9);border-color:var(--border-hi)}
+
+/* ── Label ── */
+.lbl{
+font-size:9px;font-weight:700;letter-spacing:0.22em;
+font-family:var(--font);color:var(--text-ghost);
+margin-bottom:14px;display:block;text-transform:uppercase;
+}
+
+/* ── Progress bar ── */
+.pbar{height:2px;background:rgba(0,223,184,0.07);border-radius:2px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:2px;transition:width .95s cubic-bezier(0.25,1,0.5,1)}
+
+/* ── Buttons ── */
+.btn{
+min-height:46px;padding:11px 20px;border-radius:var(--radius-sm);
+font-size:12px;font-weight:700;font-family:var(--font);
+letter-spacing:0.1em;text-transform:uppercase;
+display:inline-flex;align-items:center;justify-content:center;gap:8px;
+transition:all .16s;touch-action:manipulation;cursor:pointer;
+}
+.btn:active{transform:scale(0.96);opacity:0.82}
+.btn-primary{
+background:linear-gradient(135deg,rgba(0,223,184,0.14),rgba(0,223,184,0.08));
+border:1px solid rgba(0,223,184,0.32);color:var(--teal-hi);
+box-shadow:0 0 20px rgba(0,223,184,0.06),inset 0 1px 0 rgba(0,223,184,0.08);
+}
+.btn-primary:hover{background:linear-gradient(135deg,rgba(0,223,184,0.2),rgba(0,223,184,0.12));box-shadow:0 0 30px rgba(0,223,184,0.12)}
+.btn-ghost{
+background:rgba(0,223,184,0.03);
+border:1px solid rgba(0,223,184,0.1);color:var(--teal-dim);
+}
+.btn-sm{min-height:36px;padding:7px 14px;font-size:10px;border-radius:5px}
+
+/* ── Chips ── */
+.chip{
+min-height:36px;padding:7px 14px;border-radius:20px;
+font-size:10px;font-family:var(--font);font-weight:600;
+letter-spacing:0.1em;text-transform:uppercase;
+transition:all .16s;cursor:pointer;
+display:inline-flex;align-items:center;justify-content:center;
+touch-action:manipulation;
+}
+.chip:active{transform:scale(0.94)}
+
+/* ── Step buttons ── */
+.step-btn{
+width:46px;height:46px;display:flex;align-items:center;justify-content:center;
+font-size:20px;font-weight:300;
+border:1px solid rgba(0,223,184,0.16);
+background:rgba(0,223,184,0.05);border-radius:var(--radius-sm);
+color:var(--teal);transition:all .16s;touch-action:manipulation;
+}
+.step-btn:active{transform:scale(0.9);background:rgba(0,223,184,0.14)}
+.step-btn:hover{background:rgba(0,223,184,0.09);border-color:rgba(0,223,184,0.28)}
+
+/* ── Wake input ── */
+.wake-input{
+background:transparent;border:none;outline:none;text-align:center;
+font-size:30px;font-weight:600;color:var(--teal-hi);
+font-family:var(--mono);width:110px;
+caret-color:var(--teal-hi);padding:4px 0;
+border-bottom:2px solid rgba(0,223,184,0.35);
+}
+.wake-input:focus{border-bottom-color:var(--teal)}
+
+/* ── Navigation ── */
+.nav{
+display:flex;
+border-top:1px solid rgba(0,223,184,0.08);
+padding:0 0 env(safe-area-inset-bottom);
+background:rgba(4,8,16,0.96);
+backdrop-filter:blur(28px);
+position:fixed;bottom:0;left:0;right:0;
+max-width:480px;margin:0 auto;z-index:90;
+}
+.nav-btn{
+flex:1;padding:10px 0 8px;
+display:flex;flex-direction:column;align-items:center;gap:4px;
+font-size:8px;letter-spacing:0.14em;text-transform:uppercase;
+font-family:var(--font);font-weight:700;
+color:rgba(0,223,184,0.24);border-bottom:none;
+transition:all .2s;min-height:52px;touch-action:manipulation;
+position:relative;
+}
+.nav-btn::after{
+content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%) scaleX(0);
+width:24px;height:2px;background:var(--teal);border-radius:2px;
+transition:transform .2s cubic-bezier(0.34,1.56,0.64,1);
+}
+.nav-btn.active{color:var(--teal-hi)}
+.nav-btn.active::after{transform:translateX(-50%) scaleX(1)}
+.nav-icon{font-size:17px;line-height:1}
+
+/* ── Science table ── */
+.sci-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
+.sci-table th{
+text-align:left;padding:8px 10px;color:var(--text-ghost);font-size:8px;
+letter-spacing:0.16em;border-bottom:1px solid var(--border);
+font-family:var(--font);text-transform:uppercase;font-weight:700;
+}
+.sci-table td{padding:9px 10px;border-bottom:1px solid rgba(0,223,184,0.04)}
+.sci-table tr:hover td{background:rgba(0,223,184,0.02)}
+
+/* ── Stat badge ── */
+.stat-badge{
+padding:10px 8px;border-radius:var(--radius-sm);text-align:center;
+background:rgba(14,26,48,0.8);border:1px solid var(--border);
+}
+
+/* ── Tag ── */
+.tag{
+display:inline-flex;align-items:center;
+font-size:9px;padding:4px 10px;
+font-family:var(--font);font-weight:700;letter-spacing:0.1em;
+border-radius:3px;text-transform:uppercase;
+}
+
+/* ── Range input ── */
+input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:rgba(0,223,184,0.1);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--teal);cursor:pointer;box-shadow:0 0 12px rgba(0,223,184,0.5)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--teal);cursor:pointer;border:none;box-shadow:0 0 12px rgba(0,223,184,0.5)}
 </style>
+
 </head>
 <body>
 <div id="root"></div>
@@ -84,82 +235,82 @@ var useState=React.useState,useEffect=React.useEffect,useMemo=React.useMemo,useC
 var RC=Recharts;
 
 /* =============================================
-   PHASE DATA -- unchanged, validated
-   ============================================= */
+PHASE DATA — unchanged, validated
+============================================= */
 var PHASES=[
-{id:1,name:"Deep Rest",sym:"\uD83C\uDF19",start:0,end:4.27,color:"#818cf8",glo:"rgba(129,140,248,0.6)",
-desc:"Melatonin dominant \u2014 neural restoration & memory consolidation",
+{id:1,name:"Deep Rest",sym:"🌙",start:0,end:4.27,color:"#818cf8",glo:"rgba(129,140,248,0.6)",
+desc:"Melatonin dominant — neural restoration & memory consolidation",
 sci:"Melatonin at peak concentration. Glymphatic clearance peaks during slow-wave sleep. Growth hormone in first 90-min cycle. Hippocampal replay consolidates declarative memories.",
 best:["Sleep","Rest"],avoid:["Light","Stimulants"]},
-{id:2,name:"Pre-Dawn",sym:"\u2728",start:4.27,end:6.83,color:"#a78bfa",glo:"rgba(167,139,250,0.6)",
+{id:2,name:"Pre-Dawn",sym:"✨",start:4.27,end:6.83,color:"#a78bfa",glo:"rgba(167,139,250,0.6)",
 desc:"Cortisol begins its asymmetric rise toward waking",
 sci:"Cortisol secretory bursts increase in amplitude (Veldhuis 1989). HPA axis pre-awakening activation. Core temperature at nadir. REM sleep predominates in final cycles.",
 best:["Sleep","Light stretching"],avoid:["Alarm disruption of REM"]},
-{id:3,name:"Awakening",sym:"\uD83C\uDF05",start:6.83,end:9.10,color:"#fb923c",glo:"rgba(251,146,60,0.6)",
-desc:"Cortisol Awakening Response \u2014 system activation",
-sci:"CAR: cortisol doubles within 30\u201345 min of waking (Weitzman 1971, Debono 2009). Delay caffeine 90\u2013120 min to preserve natural CAR amplitude.",
+{id:3,name:"Awakening",sym:"🌅",start:6.83,end:9.10,color:"#fb923c",glo:"rgba(251,146,60,0.6)",
+desc:"Cortisol Awakening Response — system activation",
+sci:"CAR: cortisol doubles within 30–45 min of waking (Weitzman 1971, Debono 2009). Delay caffeine 90–120 min to preserve natural CAR amplitude.",
 best:["Sunlight","Planning","Light exercise"],avoid:["Caffeine early","Screens"]},
-{id:4,name:"Peak Focus",sym:"\u26A1",start:9.10,end:10.93,color:"#f87171",glo:"rgba(248,113,113,0.65)",
-desc:"Cortisol apex \u2014 maximum analytical capacity",
+{id:4,name:"Peak Focus",sym:"⚡",start:9.10,end:10.93,color:"#f87171",glo:"rgba(248,113,113,0.65)",
+desc:"Cortisol apex — maximum analytical capacity",
 sci:"Cortisol and norepinephrine near daily maximum. Prefrontal cortex activation peaks. Working memory and executive function optimal (Van Cauter 1999).",
 best:["Deep work","Complex decisions","Hard learning"],avoid:["Meetings","Email","Multitasking"]},
-{id:5,name:"Sustain",sym:"\uD83C\uDFAF",start:10.93,end:13.30,color:"#34d399",glo:"rgba(52,211,153,0.6)",
+{id:5,name:"Sustain",sym:"🎯",start:10.93,end:13.30,color:"#34d399",glo:"rgba(52,211,153,0.6)",
 desc:"Elevated performance plateau with gradual decline",
 sci:"Cortisol still above baseline. Dopamine supports sustained attention. Serotonin rising supports empathy and collaboration.",
 best:["Collaboration","Writing","Learning"],avoid:["Passive consumption"]},
-{id:6,name:"Integration",sym:"\uD83D\uDD17",start:13.30,end:14.98,color:"#22d3ee",glo:"rgba(34,211,238,0.6)",
-desc:"Post-lunch dip \u2014 physiological, not a failure",
+{id:6,name:"Integration",sym:"🔗",start:13.30,end:14.98,color:"#22d3ee",glo:"rgba(34,211,238,0.6)",
+desc:"Post-lunch dip — physiological, not a failure",
 sci:"F(t) reaches afternoon trough. Post-prandial glucose shift. Adenosine accumulation. The dip is endogenous.",
 best:["Lunch","Social","Power nap"],avoid:["Critical decisions","Complex analysis"]},
-{id:7,name:"Creative",sym:"\uD83C\uDFA8",start:14.98,end:17.84,color:"#c084fc",glo:"rgba(192,132,252,0.6)",
-desc:"Reduced inhibition + temperature peak \u2192 creative-physical window",
-sci:"Prefrontal inhibition reduced \u2192 divergent thinking (Wieth & Zacks 2011). Core temp approaching peak (Refinetti 2010). Muscle strength and VO2 max rising.",
+{id:7,name:"Creative",sym:"🎨",start:14.98,end:17.84,color:"#c084fc",glo:"rgba(192,132,252,0.6)",
+desc:"Reduced inhibition + temperature peak → creative-physical window",
+sci:"Prefrontal inhibition reduced → divergent thinking (Wieth & Zacks 2011). Core temp approaching peak (Refinetti 2010). Muscle strength and VO2 max rising.",
 best:["Brainstorming","Art","Exercise","Sport"],avoid:["Rigid analytical work"]},
-{id:8,name:"Wind Down",sym:"\uD83C\uDF06",start:17.84,end:21.75,color:"#f472b6",glo:"rgba(244,114,182,0.6)",
-desc:"Parasympathetic shift \u2014 melatonin synthesis begins",
-sci:"Core temp falling. Serotonin\u2192melatonin conversion. DLMO ~21:00 (Lewy 1999). DLMO varies \u00B190 min (Burgess 2008). Blue light suppresses melatonin up to 50%.",
+{id:8,name:"Wind Down",sym:"🌆",start:17.84,end:21.75,color:"#f472b6",glo:"rgba(244,114,182,0.6)",
+desc:"Parasympathetic shift — melatonin synthesis begins",
+sci:"Core temp falling. Serotonin→melatonin conversion. DLMO ~21:00 (Lewy 1999). DLMO varies ±90 min (Burgess 2008). Blue light suppresses melatonin up to 50%.",
 best:["Light social","Cooking","Reflection","Reading"],avoid:["Intense exercise","Blue light","News"]},
-{id:9,name:"Sleep Gate",sym:"\uD83C\uDF0C",start:21.75,end:24.0,color:"#60a5fa",glo:"rgba(96,165,250,0.6)",
-desc:"Melatonin rising \u2014 sleep architecture initiating",
+{id:9,name:"Sleep Gate",sym:"🌌",start:21.75,end:24.0,color:"#60a5fa",glo:"rgba(96,165,250,0.6)",
+desc:"Melatonin rising — sleep architecture initiating",
 sci:"Melatonin secretion accelerating. Core temp dropping toward nadir. Cortisol at daily minimum. Protect this window.",
 best:["Meditation","Journaling","Dim environment"],avoid:["Screens","Caffeine","Alcohol"]}
 ];
 
 var ACTS=[
-{name:"Deep Work",icon:"\uD83D\uDCA1",align:[0,10,70,95,80,15,25,10,0],
+{name:"Deep Work",icon:"💡",align:[0,10,70,95,80,15,25,10,0],
 adapt:{high:"Prefrontal cortex at peak capacity. Block all notifications. Use 90-min ultradian cycles.",mid:"Cortisol supports focus. Front-load the hardest sub-tasks.",low:"Brain in diffuse mode. Switch to creative tasks or defer."}},
-{name:"Exercise",icon:"\uD83C\uDFCB\uFE0F",align:[0,15,45,25,30,20,90,35,0],
-adapt:{high:"Core temp peaks, strength +6%, perceived exertion \u221210%. Train compound lifts.",mid:"Good window. HIIT and moderate strength both effective.",low:"Recovery mode. Light stretching or gentle walking only."}},
-{name:"Creative",icon:"\uD83C\uDFA8",align:[10,15,30,40,45,50,90,40,15],
+{name:"Exercise",icon:"🏋️",align:[0,15,45,25,30,20,90,35,0],
+adapt:{high:"Core temp peaks, strength +6%, perceived exertion −10%. Train compound lifts.",mid:"Good window. HIIT and moderate strength both effective.",low:"Recovery mode. Light stretching or gentle walking only."}},
+{name:"Creative",icon:"🎨",align:[10,15,30,40,45,50,90,40,15],
 adapt:{high:"Inner critic quiet, associative networks open. Sketch, brainstorm, freewrite.",mid:"Moderate alertness + relaxed control. Good for novel connections.",low:"Too sharp or too foggy. Capture loose thoughts for later."}},
-{name:"Meetings",icon:"\uD83D\uDC65",align:[0,10,35,50,75,80,55,40,0],
+{name:"Meetings",icon:"👥",align:[0,10,35,50,75,80,55,40,0],
 adapt:{high:"Social cognition sharp. Schedule negotiations and key discussions.",mid:"Engaged and articulate. Good for collaborative sessions.",low:"Low social energy. Keep it brief and structured."}},
-{name:"Learning",icon:"\uD83D\uDCDA",align:[5,15,55,90,75,30,40,20,5],
+{name:"Learning",icon:"📚",align:[5,15,55,90,75,30,40,20,5],
 adapt:{high:"Hippocampus primed for encoding. Active recall builds strongest traces.",mid:"Mix reading with practice. Moderate complexity works.",low:"Review and spaced repetition instead of new material."}},
-{name:"Rest",icon:"\uD83D\uDE34",align:[95,80,10,0,5,20,5,55,90],
+{name:"Rest",icon:"😴",align:[95,80,10,0,5,20,5,55,90],
 adapt:{high:"Biology supports deep restoration. Protect sleep architecture.",mid:"Short rest can help. Keep naps under 20 min.",low:"Body optimized for activity. Resting wastes peak neurochemistry."}},
-{name:"Social",icon:"\uD83E\uDD1D",align:[5,10,25,15,60,80,55,75,20],
+{name:"Social",icon:"🤝",align:[5,10,25,15,60,80,55,75,20],
 adapt:{high:"Oxytocin and warmth peak. Connection feels natural.",mid:"Good social energy. Present and engaged.",low:"Social battery low. Brief meaningful interactions."}},
-{name:"Planning",icon:"\uD83D\uDCCB",align:[5,30,80,70,55,25,35,20,10],
+{name:"Planning",icon:"📋",align:[5,30,80,70,55,25,35,20,10],
 adapt:{high:"Executive function aligned. Map your week, set priorities.",mid:"Enough prefrontal capacity for organization.",low:"Stick to tactical to-do lists. Defer strategy."}},
-{name:"Meditation",icon:"\uD83E\uDDD8",align:[80,60,25,10,15,30,20,65,90],
+{name:"Meditation",icon:"🧘",align:[80,60,25,10,15,30,20,65,90],
 adapt:{high:"Parasympathetic ascending. Deep practice effortless.",mid:"Mind may wander. Body-scan and breath focus work.",low:"Sympathetic active. Walking meditation or breathwork."}},
-{name:"Sport",icon:"\u26BD",align:[0,15,40,30,35,25,95,30,0],
+{name:"Sport",icon:"⚽",align:[0,15,40,30,35,25,95,30,0],
 adapt:{high:"Neuromuscular coordination, reaction time, VO2 max peak.",mid:"Warm up thoroughly. Moderate intensity.",low:"Suboptimal. Stick to light movement or skill work."}}
 ];
 
 var CTXS=[
-{id:"home",icon:"\uD83C\uDFE0",label:"Home",boost:["Meditation","Rest","Creative"]},
-{id:"office",icon:"\uD83C\uDFE2",label:"Office",boost:["Deep Work","Meetings","Planning"]},
-{id:"gym",icon:"\uD83D\uDCAA",label:"Gym",boost:["Exercise","Sport"]},
-{id:"commute",icon:"\uD83D\uDE97",label:"Commute",boost:["Learning","Planning","Meditation"]},
-{id:"outdoors",icon:"\uD83C\uDF33",label:"Outside",boost:["Exercise","Social","Creative"]},
-{id:"cafe",icon:"\u2615",label:"Caf\u00E9",boost:["Creative","Learning","Planning"]}
+{id:"home",icon:"🏠",label:"Home",boost:["Meditation","Rest","Creative"]},
+{id:"office",icon:"🏢",label:"Office",boost:["Deep Work","Meetings","Planning"]},
+{id:"gym",icon:"💪",label:"Gym",boost:["Exercise","Sport"]},
+{id:"commute",icon:"🚗",label:"Commute",boost:["Learning","Planning","Meditation"]},
+{id:"outdoors",icon:"🌳",label:"Outside",boost:["Exercise","Social","Creative"]},
+{id:"cafe",icon:"☕",label:"Café",boost:["Creative","Learning","Planning"]}
 ];
 
 /* =============================================
-   ASYMMETRIC FOURIER MODELS -- H.A. Marouf 2024
-   ============================================= */
+ASYMMETRIC FOURIER MODELS — H.A. Marouf 2024
+============================================= */
 function clamp(v){return Math.max(0.02,Math.min(0.98,v));}
 function cortisol(t){return clamp(0.3118+0.3528*Math.cos(2*Math.PI*(t-10.48)/24)+0.1596*Math.cos(2*Math.PI*2*(t-8.99)/24)+0.0709*Math.cos(2*Math.PI*3*(t-8.43)/24)+0.0320*Math.cos(2*Math.PI*4*(t-8.46)/24));}
 function bodyTemp(t){return clamp(0.4806+0.3997*Math.cos(2*Math.PI*(t-16.47)/24)+0.0122*Math.cos(2*Math.PI*2*(t-17.80)/24)+0.0465*Math.cos(2*Math.PI*3*(t-8.68)/24));}
@@ -168,52 +319,51 @@ function composite(t){return 0.5*cortisol(t)+0.3*bodyTemp(t)+0.2*melatonin(t);}
 function sdMod(hrs){return Math.max(0.60,1-0.05*Math.max(0,8-hrs));}
 
 /* =============================================
-   GEOMETRY
-   ============================================= */
+GEOMETRY
+============================================= */
 function hDeg(hr){return(hr/24)*360;}
 function toXY(cx,cy,r,deg){var rad=(deg-90)*Math.PI/180;return[cx+r*Math.cos(rad),cy+r*Math.sin(rad)];}
 function arcP(cx,cy,r1,r2,h1,h2){
-  var a1=hDeg(h1),a2=hDeg(Math.min(h2,23.999));
-  var s1=toXY(cx,cy,r2,a1),s2=toXY(cx,cy,r2,a2),s3=toXY(cx,cy,r1,a2),s4=toXY(cx,cy,r1,a1);
-  var big=(a2-a1)>180?1:0;
-  return"M"+s1[0]+","+s1[1]+" A"+r2+","+r2+" 0 "+big+",1 "+s2[0]+","+s2[1]+" L"+s3[0]+","+s3[1]+" A"+r1+","+r1+" 0 "+big+",0 "+s4[0]+","+s4[1]+"Z";
+var a1=hDeg(h1),a2=hDeg(Math.min(h2,23.999));
+var s1=toXY(cx,cy,r2,a1),s2=toXY(cx,cy,r2,a2),s3=toXY(cx,cy,r1,a2),s4=toXY(cx,cy,r1,a1);
+var big=(a2-a1)>180?1:0;
+return"M"+s1[0]+","+s1[1]+" A"+r2+","+r2+" 0 "+big+",1 "+s2[0]+","+s2[1]+" L"+s3[0]+","+s3[1]+" A"+r1+","+r1+" 0 "+big+",0 "+s4[0]+","+s4[1]+"Z";
 }
 function waveP(cx,cy,rMin,rMax,fn){
-  return Array.from({length:361},function(_,i){
-    var t=(i/360)*24,r=rMin+(rMax-rMin)*fn(t),xy=toXY(cx,cy,r,(i/360)*360);
-    return(i===0?"M":"L")+xy[0].toFixed(2)+","+xy[1].toFixed(2);
-  }).join(" ")+"Z";
+return Array.from({length:361},function(_,i){
+var t=(i/360)*24,r=rMin+(rMax-rMin)*fn(t),xy=toXY(cx,cy,r,(i/360)*360);
+return(i===0?"M":"L")+xy[0].toFixed(2)+","+xy[1].toFixed(2);
+}).join(" ")+"Z";
 }
 
-/* BUG FIX 1: total-minutes approach */
+/* Total-minutes approach for time formatting */
 function fmtT(hours){
-  var total=Math.round(hours*60);
-  var m=((total%1440)+1440)%1440;
-  var hh=Math.floor(m/60);
-  var mm=m%60;
-  return hh+":"+String(mm).padStart(2,"0");
+var total=Math.round(hours*60);
+var m=((total%1440)+1440)%1440;
+var hh=Math.floor(m/60),mm=m%60;
+return hh+":"+String(mm).padStart(2,"0");
 }
 function fmtT12(hr){
-  var total=Math.round(hr*60);
-  var m=((total%1440)+1440)%1440;
-  var hh=Math.floor(m/60),mm=m%60,ap=hh>=12?"p":"a",h12=hh%12||12;
-  return h12+(mm?":"+String(mm).padStart(2,"0"):"")+ap;
+var total=Math.round(hr*60);
+var m=((total%1440)+1440)%1440;
+var hh=Math.floor(m/60),mm=m%60,ap=hh>=12?"p":"a",h12=hh%12||12;
+return h12+(mm?":"+String(mm).padStart(2,"0"):"")+ap;
 }
 function phaseAt(sh){for(var i=0;i<PHASES.length;i++){if(sh>=PHASES[i].start&&sh<PHASES[i].end)return PHASES[i];}return PHASES[0];}
-function sCol(s){return s>=75?"#00FFD1":s>=40?"#fb923c":"#f87171";}
+function sCol(s){return s>=75?"#00DFB8":s>=40?"#F97316":"#F43F5E";}
 function sLbl(s){return s>=75?"Optimal":s>=40?"Moderate":"Low";}
 
 /* =============================================
-   DESIGN TOKENS
-   ============================================= */
-var GLOW="#00FFD1",BG="#010103",FG="rgba(220,245,240,0.92)";
-var DIM="rgba(0,255,200,0.45)";/* UX FIX: raised from 0.32 for readability */
-var FAINT="rgba(0,255,200,0.06)";
-var FONT="'Chakra Petch',sans-serif",MONO="'Share Tech Mono',monospace";
+DESIGN TOKENS
+============================================= */
+var TEAL="#00DFB8",TEAL_HI="#00FFD8",BG="#040810",FG="rgba(218,238,230,0.93)";
+var DIM="rgba(140,185,168,0.52)";
+var FAINT="rgba(0,223,184,0.055)";
+var FONT="'Syne',sans-serif",MONO="'JetBrains Mono',monospace";
 
 /* =============================================
-   APP
-   ============================================= */
+APP
+============================================= */
 function App(){
 var _n=useState(new Date()),now=_n[0],setNow=_n[1];
 var _w=useState(7.0),wk=_w[0],setWk=_w[1];
@@ -230,12 +380,21 @@ var _we=useState(false),wkEdit=_we[0],setWkEdit=_we[1];
 
 useEffect(function(){var t=setInterval(function(){setNow(new Date());},1000);return function(){clearInterval(t);};},[]);
 useEffect(function(){
-  try{var r=localStorage.getItem("rx24-log");if(r)setLog(JSON.parse(r));}catch(e){}
-  try{var w=localStorage.getItem("rx24-wake");if(w)setWk(parseFloat(w));}catch(e){}
-  try{var s=localStorage.getItem("rx24-sleep");if(s)setSleepH(parseFloat(s));}catch(e){}
+/* v30 uses namespaced keys — never inherits stale v29 values */
+try{var r=localStorage.getItem("rx30-log");if(r)setLog(JSON.parse(r));}catch(e){}
+try{
+var w=localStorage.getItem("rx30-wake");
+if(w){
+var parsed=parseFloat(w);
+/* Sanity-guard: only accept 4–10.5h range */
+if(!isNaN(parsed)&&parsed>=4&&parsed<=10.5){setWk(parsed);}
+else{localStorage.removeItem("rx30-wake");}
+}
+}catch(e){}
+try{var s=localStorage.getItem("rx30-sleep");if(s)setSleepH(parseFloat(s));}catch(e){}
 },[]);
-useEffect(function(){try{localStorage.setItem("rx24-wake",wk);}catch(e){};},[wk]);
-useEffect(function(){try{localStorage.setItem("rx24-sleep",sleepH);}catch(e){};},[sleepH]);
+useEffect(function(){try{localStorage.setItem("rx30-wake",wk);}catch(e){};},[wk]);
+useEffect(function(){try{localStorage.setItem("rx30-sleep",sleepH);}catch(e){};},[sleepH]);
 
 var wo=wk-7.0;
 var cH=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
@@ -245,15 +404,15 @@ var pP=Math.min(1,(sH-cP.start)/(cP.end-cP.start));
 var mLeft=Math.round((cP.end-sH)*60);
 var mod=sdMod(sleepH);
 var isNight=cP.id>=8||cP.id<=2;
-var dimFactor=isNight?0.85:1;
+var dimFactor=isNight?0.88:1;
 
 var nextP=useMemo(function(){
-  var i=PHASES.findIndex(function(p){return p.id===cP.id;});
-  return PHASES[(i+1)%PHASES.length];
+var i=PHASES.findIndex(function(p){return p.id===cP.id;});
+return PHASES[(i+1)%PHASES.length];
 },[cP.id]);
 var mToNext=useMemo(function(){
-  var away=((nextP.start+wo)-cH+24)%24;
-  if(away<0.01)away+=24;return Math.round(away*60);
+var away=((nextP.start+wo)-cH+24)%24;
+if(away<0.01)away+=24;return Math.round(away*60);
 },[nextP,wo,cH]);
 
 var aScore=useCallback(function(act){return Math.round((act.align?act.align[cP.id-1]||0:50)*mod);},[cP.id,mod]);
@@ -266,401 +425,750 @@ var dStr=now.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"}
 var hData=useMemo(function(){var d=[];for(var i=0;i<48;i++){var t=i*0.5;d.push({hr:fmtT(t+wo),cortisol:Math.round(cortisol(t)*100),temp:Math.round(bodyTemp(t)*100),melatonin:Math.round(melatonin(t)*100),composite:Math.round(composite(t)*100)});}return d;},[wo]);
 
 var resonance=useMemo(function(){
-  if(log.length<4)return null;
-  var agg={};log.forEach(function(e){if(!agg[e.phase])agg[e.phase]={sum:0,n:0};agg[e.phase].sum+=e.focus;agg[e.phase].n++;});
-  var best=null,bestAvg=0;
-  Object.keys(agg).forEach(function(k){var a=agg[k].sum/agg[k].n;if(a>bestAvg){bestAvg=a;best=k;}});
-  var pBest=PHASES.find(function(p){return p.name===best;})||PHASES[0];
-  var match=Math.max(0,100-Math.abs(pBest.id-4)*15);
-  return{phase:best,phaseObj:pBest,avgFocus:Math.round(bestAvg*20),match:match,n:log.length};
+if(log.length<4)return null;
+var agg={};log.forEach(function(e){if(!agg[e.phase])agg[e.phase]={sum:0,n:0};agg[e.phase].sum+=e.focus;agg[e.phase].n++;});
+var best=null,bestAvg=0;
+Object.keys(agg).forEach(function(k){var a=agg[k].sum/agg[k].n;if(a>bestAvg){bestAvg=a;best=k;}});
+var pBest=PHASES.find(function(p){return p.name===best;})||PHASES[0];
+var match=Math.max(0,100-Math.abs(pBest.id-4)*15);
+return{phase:best,phaseObj:pBest,avgFocus:Math.round(bestAvg*20),match:match,n:log.length};
 },[log]);
 
 function addEntry(){
-  var e={phase:cP.name,time:tFull,ts:new Date().toISOString(),energy:ent.energy,focus:ent.focus,mood:ent.mood,note:ent.note};
-  var nl=[e].concat(log).slice(0,80);setLog(nl);
-  try{localStorage.setItem("rx24-log",JSON.stringify(nl));}catch(x){}
-  setEnt({energy:3,focus:3,mood:3,note:""});setModal(false);
-  setSaveFlash(true);setTimeout(function(){setSaveFlash(false);},700);
+var e={phase:cP.name,time:tFull,ts:new Date().toISOString(),energy:ent.energy,focus:ent.focus,mood:ent.mood,note:ent.note};
+var nl=[e].concat(log).slice(0,80);setLog(nl);
+try{localStorage.setItem("rx30-log",JSON.stringify(nl));}catch(x){}
+setEnt({energy:3,focus:3,mood:3,note:""});setModal(false);
+setSaveFlash(true);setTimeout(function(){setSaveFlash(false);},700);
 }
 function commitWake(){
-  var parts=wkInput.split(":");
-  if(parts.length===2){var hh=parseInt(parts[0]),mm=parseInt(parts[1]);
-    if(!isNaN(hh)&&!isNaN(mm)&&hh>=0&&hh<=23&&mm>=0&&mm<=59){var v=hh+mm/60;if(v>=4&&v<=10.5){setWk(v);}}}
-  setWkEdit(false);
+var parts=wkInput.split(":");
+if(parts.length===2){var hh=parseInt(parts[0]),mm=parseInt(parts[1]);
+if(!isNaN(hh)&&!isNaN(mm)&&hh>=0&&hh<=23&&mm>=0&&mm<=59){var v=hh+mm/60;if(v>=4&&v<=10.5){setWk(v);}}}
+setWkEdit(false);
 }
 function doExport(){
-  try{var hdr="Phase,Time,Energy,Focus,Mood,Note\n";
-  var rows=log.map(function(e){return[e.phase,e.time,e.energy,e.focus,e.mood,'"'+(e.note||"").replace(/"/g,'""')+'"'].join(",");}).join("\n");
-  var blob=new Blob([hdr+rows],{type:"text/csv"});var url=URL.createObjectURL(blob);
-  var a=document.createElement("a");a.href=url;a.download="resonance-log.csv";a.click();
-  setTimeout(function(){URL.revokeObjectURL(url);},1000);}catch(e){}
+try{var hdr="Phase,Time,Energy,Focus,Mood,Note\n";
+var rows=log.map(function(e){return[e.phase,e.time,e.energy,e.focus,e.mood,'\"'+(e.note||"").replace(/\"/g,'\"\"')+'\"'].join(",");}).join("\n");
+var blob=new Blob([hdr+rows],{type:"text/csv"});var url=URL.createObjectURL(blob);
+var a=document.createElement("a");a.href=url;a.download="resonance-log.csv";a.click();
+setTimeout(function(){URL.revokeObjectURL(url);},1000);}catch(e){}
 }
 
 /* =============================================
-   SVG CLOCK
-   ============================================= */
-var SZ=380,CX=190,CY=190,RPI=103,RPO=138,RWI=142,RWO=160,RICO=170;
+SVG CLOCK — refined geometry, same math
+============================================= */
+var SZ=380,CX=190,CY=190,RPI=104,RPO=136,RWI=142,RWO=160,RICO=170;
 
 var clockEl=(function(){
 var segs=[],ticks=[],icons=[];
-var rings=[[183,0.3,0.10],[178,0.4,0.06],[163,0.25,0.08],[140,0.25,0.07],[101,0.3,0.10]].map(function(r,i){return h("circle",{key:"r"+i,cx:CX,cy:CY,r:r[0],fill:"none",stroke:GLOW,strokeWidth:r[1],strokeOpacity:r[2]});});
-for(var i=0;i<72;i++){var deg=i*5,major=(i%6===0),mid=(i%3===0);var p1=toXY(CX,CY,91+(major?0:mid?2:4),deg),p2=toXY(CX,CY,100,deg);ticks.push(h("line",{key:"t"+i,x1:p1[0],y1:p1[1],x2:p2[0],y2:p2[1],stroke:major?"rgba(0,255,200,0.55)":mid?"rgba(0,255,200,0.22)":"rgba(0,255,200,0.09)",strokeWidth:major?1.5:mid?0.9:0.5}));}
-var cards=[0,6,12,18].map(function(hr){var xy=toXY(CX,CY,78,(hr/24)*360);return h("text",{key:"c"+hr,x:xy[0],y:xy[1]+3.5,textAnchor:"middle",fill:"rgba(0,255,200,0.4)",fontSize:9,fontFamily:FONT,fontWeight:500},fmtT(((hr+wo)%24+24)%24));});
 
-/* BUG FIX 2: midnight arc split */
-PHASES.forEach(function(p){
-  var s=((p.start+wo)%24+24)%24,e=((p.end+wo)%24+24)%24;
-  var active=p.id===cP.id,col=p.color;
-  var st={fill:active?col+"2a":"transparent",stroke:col,strokeWidth:active?1.4:0.6,strokeOpacity:active?0.95:0.28,style:{filter:active?"drop-shadow(0 0 8px "+col+") drop-shadow(0 0 4px "+col+")":"none",transition:"all 0.5s"}};
-  if(e>s){segs.push(h("path",Object.assign({key:"a"+p.id,d:arcP(CX,CY,RPI,RPO,s,e)},st)));}
-  else if(e===0){segs.push(h("path",Object.assign({key:"a"+p.id,d:arcP(CX,CY,RPI,RPO,s,24)},st)));}
-  else{segs.push(h("path",Object.assign({key:"a"+p.id+"A",d:arcP(CX,CY,RPI,RPO,s,24)},st)));segs.push(h("path",Object.assign({key:"a"+p.id+"B",d:arcP(CX,CY,RPI,RPO,0,e)},st)));}
-  if(active&&pP>0.001){var tot=e>s?e-s:(24-s)+e,pe=s+tot*pP;
-    if(pe<=24)segs.push(h("path",{key:"f"+p.id,d:arcP(CX,CY,RPI+2,RPO-2,s,pe),fill:col,fillOpacity:0.3,stroke:"none",style:{filter:"drop-shadow(0 0 6px "+col+")"}}));
-    else{segs.push(h("path",{key:"f"+p.id+"A",d:arcP(CX,CY,RPI+2,RPO-2,s,24),fill:col,fillOpacity:0.3,stroke:"none",style:{filter:"drop-shadow(0 0 6px "+col+")"}}));segs.push(h("path",{key:"f"+p.id+"B",d:arcP(CX,CY,RPI+2,RPO-2,0,pe-24),fill:col,fillOpacity:0.3,stroke:"none",style:{filter:"drop-shadow(0 0 6px "+col+")"}}));}}
+/* Refined concentric rings — thinner, more precise */
+var rings=[
+h("circle",{key:"r0",cx:CX,cy:CY,r:186,fill:"none",stroke:"rgba(0,223,184,0.04)",strokeWidth:1}),
+h("circle",{key:"r1",cx:CX,cy:CY,r:180,fill:"none",stroke:"rgba(0,223,184,0.06)",strokeWidth:0.5}),
+h("circle",{key:"r2",cx:CX,cy:CY,r:164,fill:"none",stroke:"rgba(0,223,184,0.05)",strokeWidth:0.5}),
+h("circle",{key:"r3",cx:CX,cy:CY,r:140,fill:"none",stroke:"rgba(0,223,184,0.04)",strokeWidth:0.5}),
+h("circle",{key:"r4",cx:CX,cy:CY,r:100,fill:"none",stroke:"rgba(0,223,184,0.06)",strokeWidth:0.5}),
+h("circle",{key:"r5",cx:CX,cy:CY,r:60,fill:"none",stroke:"rgba(0,223,184,0.08)",strokeWidth:0.5}),
+];
+
+/* Tick marks — crisp and precise */
+for(var i=0;i<72;i++){
+var deg=i*5,major=(i%6===0),mid=(i%3===0);
+var p1=toXY(CX,CY,91+(major?0:mid?3:5),deg),p2=toXY(CX,CY,99,deg);
+ticks.push(h("line",{key:"t"+i,x1:p1[0],y1:p1[1],x2:p2[0],y2:p2[1],
+stroke:major?"rgba(0,223,184,0.5)":mid?"rgba(0,223,184,0.18)":"rgba(0,223,184,0.07)",
+strokeWidth:major?1.2:mid?0.7:0.4}));
+}
+
+/* Cardinal hour labels */
+var cards=[0,6,12,18].map(function(hr){
+var xy=toXY(CX,CY,78,(hr/24)*360);
+return h("text",{key:"c"+hr,x:xy[0],y:xy[1]+3.5,textAnchor:"middle",
+fill:"rgba(0,223,184,0.32)",fontSize:8,fontFamily:FONT,fontWeight:600,letterSpacing:"0.05em"},
+fmtT(((hr+wo)%24+24)%24));
 });
-var wave=[h("path",{key:"w1",d:waveP(CX,CY,RWI,RWO,composite),fill:cP.color,fillOpacity:0.07,stroke:cP.color,strokeWidth:1.2,strokeOpacity:0.5,style:{filter:"drop-shadow(0 0 5px "+cP.glo+")"}}),h("path",{key:"w2",d:waveP(CX,CY,RWI-3,RWO-3,cortisol),fill:"none",stroke:"#fb923c",strokeWidth:0.6,strokeOpacity:0.2})];
-PHASES.forEach(function(p){var xy=toXY(CX,CY,RICO,((p.start+p.end)/2/24)*360),active=p.id===cP.id,col=p.color;icons.push(h("circle",{key:"ic"+p.id,cx:xy[0],cy:xy[1],r:active?20:15,fill:col,fillOpacity:active?0.28:0.09,stroke:col,strokeWidth:active?1.2:0.4,strokeOpacity:active?0.9:0.3,style:{filter:active?"drop-shadow(0 0 12px "+col+")":"none",transition:"all 0.4s"}}));icons.push(h("text",{key:"it"+p.id,x:xy[0],y:xy[1]+9,textAnchor:"middle",fontSize:active?28:20,style:{filter:active?"drop-shadow(0 0 10px "+col+")":"drop-shadow(0 0 2px rgba(255,255,255,0.2))",opacity:active?1:0.82,transition:"all 0.35s"}},p.sym));});
+
+/* Phase arc segments — midnight split handled */
+PHASES.forEach(function(p){
+var s=((p.start+wo)%24+24)%24,e=((p.end+wo)%24+24)%24;
+var active=p.id===cP.id,col=p.color;
+var st={
+fill:active?col+"22":"transparent",
+stroke:col,
+strokeWidth:active?1.6:0.5,
+strokeOpacity:active?1:0.24,
+style:{
+filter:active?"drop-shadow(0 0 10px "+col+") drop-shadow(0 0 5px "+col+")":"none",
+transition:"all 0.5s"
+}
+};
+if(e>s){segs.push(h("path",Object.assign({key:"a"+p.id,d:arcP(CX,CY,RPI,RPO,s,e)},st)));}
+else if(e===0){segs.push(h("path",Object.assign({key:"a"+p.id,d:arcP(CX,CY,RPI,RPO,s,24)},st)));}
+else{
+segs.push(h("path",Object.assign({key:"a"+p.id+"A",d:arcP(CX,CY,RPI,RPO,s,24)},st)));
+segs.push(h("path",Object.assign({key:"a"+p.id+"B",d:arcP(CX,CY,RPI,RPO,0,e)},st)));
+}
+/* Progress fill */
+if(active&&pP>0.001){
+var tot=e>s?e-s:(24-s)+e,pe=s+tot*pP;
+if(pe<=24){
+segs.push(h("path",{key:"f"+p.id,d:arcP(CX,CY,RPI+2,RPO-2,s,pe),
+fill:col,fillOpacity:0.35,stroke:"none",
+style:{filter:"drop-shadow(0 0 8px "+col+")"}}));
+} else {
+segs.push(h("path",{key:"f"+p.id+"A",d:arcP(CX,CY,RPI+2,RPO-2,s,24),fill:col,fillOpacity:0.35,stroke:"none",style:{filter:"drop-shadow(0 0 8px "+col+")"}}));
+segs.push(h("path",{key:"f"+p.id+"B",d:arcP(CX,CY,RPI+2,RPO-2,0,pe-24),fill:col,fillOpacity:0.35,stroke:"none",style:{filter:"drop-shadow(0 0 8px "+col+")"}}));
+}
+}
+});
+
+/* Composite wave */
+var wave=[
+h("path",{key:"w1",d:waveP(CX,CY,RWI,RWO,composite),
+fill:cP.color,fillOpacity:0.06,stroke:cP.color,strokeWidth:1.0,strokeOpacity:0.45,
+style:{filter:"drop-shadow(0 0 6px "+cP.glo+")"}}),
+h("path",{key:"w2",d:waveP(CX,CY,RWI-3,RWO-3,cortisol),
+fill:"none",stroke:"rgba(249,115,22,0.22)",strokeWidth:0.7}),
+];
+
+/* Phase emoji icons — cleaner sizing */
+PHASES.forEach(function(p){
+var xy=toXY(CX,CY,RICO,((p.start+p.end)/2/24)*360);
+var active=p.id===cP.id,col=p.color;
+icons.push(h("circle",{key:"ic"+p.id,cx:xy[0],cy:xy[1],r:active?19:14,
+fill:col,fillOpacity:active?0.22:0.07,
+stroke:col,strokeWidth:active?1:0.35,strokeOpacity:active?0.85:0.25,
+style:{filter:active?"drop-shadow(0 0 14px "+col+")":"none",transition:"all 0.4s"}}));
+icons.push(h("text",{key:"it"+p.id,x:xy[0],y:xy[1]+8,textAnchor:"middle",
+fontSize:active?26:18,
+style:{filter:active?"drop-shadow(0 0 12px "+col+")":"drop-shadow(0 0 2px rgba(255,255,255,0.1))",
+opacity:active?1:0.78,transition:"all 0.35s"}},p.sym));
+});
+
+/* Wake marker — gold/amber */
 var wa=hDeg(wk),wL=toXY(CX,CY,RPI-2,wa),wU=toXY(CX,CY,RPO+2,wa),wD=toXY(CX,CY,RICO+18,wa);
-var wakeM=[h("line",{key:"wl",x1:wL[0],y1:wL[1],x2:wU[0],y2:wU[1],stroke:"#fde68a",strokeWidth:2.5,style:{filter:"drop-shadow(0 0 5px rgba(253,230,138,0.9))"}}),h("circle",{key:"wd",cx:wD[0],cy:wD[1],r:5,fill:"#fde68a",style:{filter:"drop-shadow(0 0 10px rgba(253,230,138,1))"}})];
-var na=hDeg(cH),nT=toXY(CX,CY,RPO+1,na),nB=toXY(CX,CY,12,na),nS=toXY(CX,CY,RWO+3,na),nSI=toXY(CX,CY,RWO-4,na);
-var sL=toXY(CX,CY,RPO,na-1.2),sR=toXY(CX,CY,RPO,na+1.2);
-var needle=[h("polygon",{key:"sw",points:CX+","+CY+" "+sL[0]+","+sL[1]+" "+sR[0]+","+sR[1],fill:cP.color,fillOpacity:0.1}),h("line",{key:"nl",x1:nB[0],y1:nB[1],x2:nT[0],y2:nT[1],stroke:cP.color,strokeWidth:1.8,strokeLinecap:"round",style:{filter:"drop-shadow(0 0 8px "+cP.glo+")"}}),h("line",{key:"sc",x1:nSI[0],y1:nSI[1],x2:nS[0],y2:nS[1],stroke:GLOW,strokeWidth:2.5,strokeLinecap:"round",style:{filter:"drop-shadow(0 0 10px "+GLOW+")"}}),h("circle",{key:"cc",cx:CX,cy:CY,r:10,fill:cP.color,fillOpacity:0.18,stroke:cP.color,strokeWidth:1}),h("circle",{key:"cd",cx:CX,cy:CY,r:5,fill:cP.color,style:{filter:"drop-shadow(0 0 12px "+cP.glo+")"}})];
-var center=[h("circle",{key:"cO",cx:CX,cy:CY,r:58,fill:BG,stroke:GLOW,strokeWidth:0.8,strokeOpacity:0.15}),h("circle",{key:"cI",cx:CX,cy:CY,r:54,fill:"none",stroke:cP.color,strokeWidth:0.4,strokeOpacity:0.35}),h("circle",{key:"cG",cx:CX,cy:CY,r:58,fill:"url(#cgrad)"}),h("text",{key:"cp",x:CX,y:CY-18,textAnchor:"middle",fill:cP.color,fontSize:9,fontFamily:FONT,fontWeight:600,letterSpacing:"0.15em"},cP.name.toUpperCase()),h("text",{key:"ct",x:CX,y:CY+4,textAnchor:"middle",fill:FG,fontSize:20,fontFamily:FONT,fontWeight:700,letterSpacing:"0.04em"},tStr),h("text",{key:"ci",x:CX,y:CY+19,textAnchor:"middle",fill:"rgba(0,255,200,0.22)",fontSize:8,fontFamily:FONT,letterSpacing:"0.14em"},"PHASE "+cP.id+" \u00B7 9")];
-var corners=[["M22,22 l18,0 M22,22 l0,18"],["M358,22 l-18,0 M358,22 l0,18"],["M22,358 l18,0 M22,358 l0,-18"],["M358,358 l-18,0 M358,358 l0,-18"]].map(function(d,i){return h("path",{key:"cr"+i,d:d,stroke:GLOW+"18",strokeWidth:1,fill:"none"});});
+var wakeM=[
+h("line",{key:"wl",x1:wL[0],y1:wL[1],x2:wU[0],y2:wU[1],
+stroke:"rgba(251,191,36,0.9)",strokeWidth:2,
+style:{filter:"drop-shadow(0 0 6px rgba(251,191,36,0.8))"}}),
+h("circle",{key:"wd",cx:wD[0],cy:wD[1],r:4.5,fill:"rgba(251,191,36,0.95)",
+style:{filter:"drop-shadow(0 0 10px rgba(251,191,36,1))"}})
+];
+
+/* Now needle */
+var na=hDeg(cH),nT=toXY(CX,CY,RPO+2,na),nB=toXY(CX,CY,14,na);
+var nS=toXY(CX,CY,RWO+4,na),nSI=toXY(CX,CY,RWO-5,na);
+var sL=toXY(CX,CY,RPO,na-1.0),sR=toXY(CX,CY,RPO,na+1.0);
+var needle=[
+h("polygon",{key:"sw",points:CX+","+CY+" "+sL[0]+","+sL[1]+" "+sR[0]+","+sR[1],
+fill:cP.color,fillOpacity:0.08}),
+h("line",{key:"nl",x1:nB[0],y1:nB[1],x2:nT[0],y2:nT[1],
+stroke:cP.color,strokeWidth:1.6,strokeLinecap:"round",
+style:{filter:"drop-shadow(0 0 8px "+cP.glo+")"}}),
+h("line",{key:"sc",x1:nSI[0],y1:nSI[1],x2:nS[0],y2:nS[1],
+stroke:TEAL_HI,strokeWidth:2.5,strokeLinecap:"round",
+style:{filter:"drop-shadow(0 0 12px "+TEAL+")"}}),
+h("circle",{key:"cc",cx:CX,cy:CY,r:9,fill:cP.color,fillOpacity:0.16,stroke:cP.color,strokeWidth:0.8}),
+h("circle",{key:"cd",cx:CX,cy:CY,r:4,fill:cP.color,
+style:{filter:"drop-shadow(0 0 14px "+cP.glo+")"}})
+];
+
+/* Center display */
+var center=[
+h("circle",{key:"cO",cx:CX,cy:CY,r:57,fill:BG,stroke:TEAL,strokeWidth:0.5,strokeOpacity:0.12}),
+h("circle",{key:"cI",cx:CX,cy:CY,r:52,fill:"none",stroke:cP.color,strokeWidth:0.3,strokeOpacity:0.3}),
+h("circle",{key:"cG",cx:CX,cy:CY,r:57,fill:"url(#cgrad)"}),
+h("text",{key:"cPhase",x:CX,y:CY-20,textAnchor:"middle",fill:cP.color,fontSize:8,fontFamily:FONT,fontWeight:700,letterSpacing:"0.18em"},cP.name.toUpperCase()),
+h("text",{key:"cTime",x:CX,y:CY+5,textAnchor:"middle",fill:FG,fontSize:19,fontFamily:FONT,fontWeight:700,letterSpacing:"0.03em"},tStr),
+h("text",{key:"cSub",x:CX,y:CY+20,textAnchor:"middle",fill:"rgba(0,223,184,0.18)",fontSize:7,fontFamily:FONT,letterSpacing:"0.16em"},"PHASE "+cP.id+" · 9"),
+];
+
+/* Corner decorations */
+var corners=[["M20,20 l16,0 M20,20 l0,16"],["M360,20 l-16,0 M360,20 l0,16"],["M20,360 l16,0 M20,360 l0,-16"],["M360,360 l-16,0 M360,360 l0,-16"]].map(function(d,i){
+return h("path",{key:"cr"+i,d:d,stroke:"rgba(0,223,184,0.14)",strokeWidth:1.5,fill:"none"});
+});
 
 return h("div",{style:{position:"relative",width:"100%"}},
-  h("svg",{viewBox:"0 0 "+SZ+" "+SZ,width:"100%",style:{display:"block",maxWidth:"380px",margin:"0 auto"}},
-    h("defs",null,h("radialGradient",{id:"cgrad",cx:"50%",cy:"50%",r:"50%"},h("stop",{offset:"0%",stopColor:cP.color,stopOpacity:"0.06"}),h("stop",{offset:"100%",stopColor:"transparent"})),h("radialGradient",{id:"bgr",cx:"50%",cy:"50%",r:"50%"},h("stop",{offset:"0%",stopColor:"#0d1a28"}),h("stop",{offset:"60%",stopColor:"#060a12"}),h("stop",{offset:"100%",stopColor:BG}))),
-    h("circle",{cx:CX,cy:CY,r:SZ/2,fill:BG}),h("circle",{cx:CX,cy:CY,r:SZ/2,fill:"url(#bgr)"}),h("circle",{cx:CX,cy:CY,r:130,fill:cP.color,fillOpacity:0.04}),
-    rings,ticks,cards,segs,wave,wakeM,icons,needle,center,corners));
+h("svg",{viewBox:"0 0 "+SZ+" "+SZ,width:"100%",style:{display:"block",maxWidth:"380px",margin:"0 auto"}},
+h("defs",null,
+h("radialGradient",{id:"cgrad",cx:"50%",cy:"50%",r:"50%"},
+h("stop",{offset:"0%",stopColor:cP.color,stopOpacity:"0.05"}),
+h("stop",{offset:"100%",stopColor:"transparent"})),
+h("radialGradient",{id:"bgr",cx:"50%",cy:"50%",r:"50%"},
+h("stop",{offset:"0%",stopColor:"#0b1628"}),
+h("stop",{offset:"55%",stopColor:"#07101e"}),
+h("stop",{offset:"100%",stopColor:BG}))),
+h("circle",{cx:CX,cy:CY,r:SZ/2,fill:BG}),
+h("circle",{cx:CX,cy:CY,r:SZ/2,fill:"url(#bgr)"}),
+h("circle",{cx:CX,cy:CY,r:128,fill:cP.color,fillOpacity:0.025}),
+rings,ticks,cards,segs,wave,wakeM,icons,needle,center,corners));
 })();
 
 /* =============================================
-   TAB: NOW -- simplified, one purpose: "what should I do?"
-   ============================================= */
+TAB: NOW
+============================================= */
 function renderNow(){
-  var top3=sorted.slice(0,3);
-  var upcoming=[];
-  var cpIdx=PHASES.findIndex(function(p){return p.id===cP.id;});
-  var orderedNext=[].concat(PHASES.slice(cpIdx+1),PHASES.slice(0,cpIdx));
-  orderedNext.forEach(function(p){var away=((p.start+wo)-cH+24)%24;if(away<0.01)away+=24;upcoming.push({p:p,away:away});});
-  var debtCol=sleepH>=7.5?"#34d399":sleepH>=6?"#fb923c":"#f87171";
-  var wakePresets=[5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10];
-  return h("div",{className:"rise",style:{padding:"0 14px",opacity:dimFactor}},
-    clockEl,
-    /* Phase banner */
-    h("div",{className:saveFlash?"card flash-save":"card",style:{borderColor:cP.color+"28",background:cP.color+"08",marginTop:4}},
-      h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}},
-        h("div",{style:{flex:1}},
-          h("p",{style:{fontSize:16,fontWeight:700,color:cP.color,margin:"0 0 4px",textShadow:"0 0 20px "+cP.color+"60"}},cP.sym+" "+cP.name),
-          h("p",{style:{fontSize:11,color:DIM,margin:0,lineHeight:1.6}},cP.desc)),
-        h("div",{style:{textAlign:"right",flexShrink:0,marginLeft:14}},
-          h("div",{style:{fontSize:18,fontWeight:700,color:cP.color,fontFamily:MONO}},Math.round(pP*100)+"%"),
-          h("div",{style:{fontSize:9,color:DIM,marginTop:2}},mLeft+"m left"),
-          h("div",{style:{fontSize:9,color:"rgba(255,255,255,0.2)",marginTop:2}},fmtT(cP.start+wo)+"\u2013"+fmtT(cP.end+wo)))),
-      h("div",{className:"pbar"},h("div",{className:"pbar-fill",style:{width:(pP*100)+"%",background:cP.color,boxShadow:"0 0 10px "+cP.color+"60"}})),
-      h("div",{style:{display:"flex",gap:6,flexWrap:"wrap",marginTop:10}},
-        cP.best.map(function(a){return h("span",{key:"b"+a,style:{fontSize:9,padding:"5px 11px",background:cP.color+"12",color:cP.color,border:"1px solid "+cP.color+"25",clipPath:"polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)",fontFamily:FONT}},"\u2713 "+a);}),
-        cP.avoid.map(function(a){return h("span",{key:"v"+a,style:{fontSize:9,padding:"5px 11px",background:"rgba(248,113,113,0.08)",color:"#f87171",border:"1px solid rgba(248,113,113,0.2)",clipPath:"polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)",fontFamily:FONT}},"\u00D7 "+a);}))),
-    /* Wake Time Card */
-    h("div",{className:"card"},
-      h("span",{className:"lbl"},"Wake Time"),
-      h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}},
-        h("button",{className:"step-btn",onClick:function(){setWk(function(v){return Math.max(4,Math.round((v-0.25)*4)/4);});}},"\u2212"),
-        h("div",{style:{textAlign:"center",flex:1}},
-          wkEdit
-            ?h("input",{className:"wake-input",autoFocus:true,value:wkInput,onChange:function(e){setWkInput(e.target.value);},onBlur:commitWake,onKeyDown:function(e){if(e.key==="Enter")commitWake();}})
-            :h("div",{onClick:function(){setWkInput(fmtT(wk));setWkEdit(true);},style:{cursor:"pointer"}},
-              h("div",{style:{fontSize:28,fontWeight:700,color:GLOW,fontFamily:MONO,letterSpacing:"0.04em"}},fmtT(wk)),
-              h("div",{style:{fontSize:9,color:"rgba(0,255,200,0.25)",marginTop:2}},"tap to type")),
-          h("div",{style:{fontSize:9,color:DIM,marginTop:3,fontFamily:FONT,letterSpacing:"0.1em"}},
-            (function(){var p=phaseAt(((wk-wo)%24+24)%24);return p.sym+" wake into "+p.name;})())),
-        h("button",{className:"step-btn",onClick:function(){setWk(function(v){return Math.min(10.5,Math.round((v+0.25)*4)/4);});}},"+")
-      ),
-      h("div",{style:{display:"flex",gap:5,flexWrap:"wrap"}},
-        wakePresets.map(function(t){var act=Math.abs(wk-t)<0.13;
-          return h("button",{key:t,className:"chip",onClick:function(){setWk(t);},
-            style:{background:act?"rgba(0,255,200,0.15)":FAINT,color:act?GLOW:DIM,
-              border:"1px solid "+(act?"rgba(0,255,200,0.35)":"rgba(0,255,200,0.1)")}},fmtT12(t));}))),
-    /* Sleep Card */
-    h("div",{className:"card"},
-      h("span",{className:"lbl"},"Sleep Last Night"),
-      h("div",{style:{display:"flex",alignItems:"center",gap:12}},
-        h("input",{type:"range",min:4,max:11,step:0.5,value:sleepH,onChange:function(e){setSleepH(parseFloat(e.target.value));},style:{flex:1,accentColor:debtCol,height:36}}),
-        h("div",{style:{textAlign:"right",minWidth:80}},
-          h("div",{style:{fontSize:18,fontWeight:700,color:debtCol,fontFamily:MONO}},sleepH+"h"),
-          h("div",{style:{fontSize:10,color:sleepH>=7.5?DIM:"#f87171",marginTop:2}},sleepH>=7.5?"Rested":Math.max(0,8-sleepH).toFixed(1)+"h debt"))),
-      sleepH<7.5&&h("div",{style:{marginTop:8,padding:"8px 12px",background:"rgba(248,113,113,0.06)",border:"1px solid rgba(248,113,113,0.15)",fontSize:10,color:"#f87171",clipPath:"polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%)"}},"\u26A0 Sleep debt \u2212"+Math.round((1-mod)*100)+"% to all scores (Walker 2017)")),
-    /* Top 3 */
-    h("div",{className:"card card-accent"},
-      h("span",{className:"lbl",style:{color:GLOW}},"Optimal Now"),
-      mod<1&&h("div",{style:{fontSize:10,color:"#f87171",marginBottom:8}},"\u26A0 Scores adjusted for sleep debt"),
-      top3.map(function(act,i){
-        var sc=aScore(act),col=sCol(sc),tier=sc>=75?"high":sc>=40?"mid":"low";
-        return h("div",{key:act.name,style:{display:"flex",alignItems:"center",gap:12,padding:"12px 0",borderBottom:i<2?"1px solid rgba(0,255,200,0.06)":"none"}},
-          h("span",{style:{fontSize:22,width:30,textAlign:"center",lineHeight:1}},act.icon),
-          h("div",{style:{flex:1}},
-            h("div",{style:{fontSize:12,fontWeight:600,color:FG}},act.name),
-            h("div",{style:{fontSize:10,color:DIM,marginTop:2,lineHeight:1.4}},act.adapt[tier].split(".")[0]+".")),
-          h("div",{style:{fontSize:16,fontWeight:700,color:col,fontFamily:MONO,minWidth:38,textAlign:"right"}},sc+"%"));}),
-      h("button",{className:"chip",onClick:function(){setTab("plan");},style:{width:"100%",marginTop:10,background:FAINT,color:GLOW,border:"1px solid rgba(0,255,200,0.15)"}},"See all activities \u2192")),
-    /* Incoming Phases */
-    h("div",{className:"card"},
-      h("span",{className:"lbl"},"Incoming"),
-      upcoming.slice(0,3).map(function(item,i){
-        var p=item.p,away=item.away,hh=Math.floor(away),mm=Math.round((away-hh)*60);
-        return h("div",{key:p.id,style:{display:"flex",alignItems:"center",gap:12,padding:"8px 0",borderBottom:i<2?"1px solid rgba(0,255,200,0.05)":"none"}},
-          h("div",{style:{width:3,height:26,background:p.color,boxShadow:"0 0 8px "+p.color+"50",flexShrink:0}}),
-          h("div",{style:{flex:1}},
-            h("div",{style:{fontSize:12,fontWeight:500,color:FG}},p.sym+" "+p.name),
-            h("div",{style:{fontSize:10,color:DIM,marginTop:1}},p.desc.slice(0,42)+"...")),
-          h("div",{style:{fontSize:11,color:DIM,fontFamily:MONO,textAlign:"right"}},hh>0?hh+"h "+mm+"m":mm+"m"));}))
-  );
+var top3=sorted.slice(0,3);
+var upcoming=[];
+var cpIdx=PHASES.findIndex(function(p){return p.id===cP.id;});
+var orderedNext=[].concat(PHASES.slice(cpIdx+1),PHASES.slice(0,cpIdx));
+orderedNext.forEach(function(p){
+var away=((p.start+wo)-cH+24)%24;
+if(away<0.01)away+=24;
+upcoming.push({p:p,away:away});
+});
+var debtCol=sleepH>=7.5?"#00DFB8":sleepH>=6?"#F97316":"#F43F5E";
+var wakePresets=[5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10];
+
+return h("div",{className:"rise",style:{padding:"0 14px",opacity:dimFactor}},
+clockEl,
+
+/* ── Phase Banner ── */
+h("div",{
+  className:saveFlash?"card card-phase flash-save":"card card-phase",
+  style:{borderLeftColor:cP.color,borderColor:"rgba(0,223,184,0.07)",marginTop:4,
+    background:"rgba(11,22,40,0.92)"}},
+  h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}},
+    h("div",{style:{flex:1}},
+      h("p",{style:{fontSize:17,fontWeight:800,color:cP.color,margin:"0 0 5px",fontFamily:FONT,
+        textShadow:"0 0 24px "+cP.color+"55"}},cP.sym+" "+cP.name),
+      h("p",{style:{fontSize:11,color:DIM,margin:0,lineHeight:1.65,fontWeight:400}},cP.desc)),
+    h("div",{style:{textAlign:"right",flexShrink:0,marginLeft:16}},
+      h("div",{style:{fontSize:20,fontWeight:700,color:cP.color,fontFamily:MONO}},Math.round(pP*100)+"%"),
+      h("div",{style:{fontSize:9,color:DIM,marginTop:2,fontFamily:FONT,letterSpacing:"0.1em"}},mLeft+"m left"),
+      h("div",{style:{fontSize:9,color:"rgba(255,255,255,0.15)",marginTop:2,fontFamily:MONO}},
+        fmtT(cP.start+wo)+"–"+fmtT(cP.end+wo)))),
+  h("div",{className:"pbar"},
+    h("div",{className:"pbar-fill",style:{width:(pP*100)+"%",background:cP.color,
+      boxShadow:"0 0 12px "+cP.color+"70"}})),
+  h("div",{style:{display:"flex",gap:6,flexWrap:"wrap",marginTop:12}},
+    cP.best.map(function(a){
+      return h("span",{key:"b"+a,className:"tag",
+        style:{background:cP.color+"14",color:cP.color,border:"1px solid "+cP.color+"28"}},
+        "✓ "+a);}),
+    cP.avoid.map(function(a){
+      return h("span",{key:"v"+a,className:"tag",
+        style:{background:"rgba(244,63,94,0.08)",color:"#F43F5E",border:"1px solid rgba(244,63,94,0.2)"}},
+        "× "+a);}))
+),
+
+/* ── Wake Time ── */
+h("div",{className:"card"},
+  h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}},
+    h("span",{className:"lbl",style:{margin:0}},"Wake Time"),
+    h("button",{
+      onClick:function(){setWk(7.0);},
+      style:{fontSize:9,color:"rgba(0,223,184,0.38)",fontFamily:FONT,fontWeight:700,
+        letterSpacing:"0.12em",textTransform:"uppercase",padding:"4px 10px",
+        border:"1px solid rgba(0,223,184,0.14)",borderRadius:4,
+        background:"rgba(0,223,184,0.03)",cursor:"pointer"}},
+      "↺ Reset 7am")),
+  h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}},
+    h("button",{className:"step-btn",onClick:function(){setWk(function(v){return Math.max(4,Math.round((v-0.25)*4)/4);});}},"\u2212"),
+    h("div",{style:{textAlign:"center",flex:1}},
+      wkEdit
+        ?h("input",{className:"wake-input",autoFocus:true,value:wkInput,
+            onChange:function(e){setWkInput(e.target.value);},
+            onBlur:commitWake,
+            onKeyDown:function(e){if(e.key==="Enter")commitWake();}})
+        :h("div",{onClick:function(){setWkInput(fmtT(wk));setWkEdit(true);},style:{cursor:"pointer"}},
+          h("div",{style:{fontSize:30,fontWeight:600,color:TEAL_HI,fontFamily:MONO,letterSpacing:"0.04em"}},fmtT(wk)),
+          h("div",{style:{fontSize:8,color:"rgba(0,223,184,0.22)",marginTop:3,letterSpacing:"0.12em",fontFamily:FONT,textTransform:"uppercase"}},"tap to edit")),
+      h("div",{style:{fontSize:9,color:DIM,marginTop:4,fontFamily:FONT,letterSpacing:"0.1em"},
+        dangerouslySetInnerHTML:{__html: phaseAt(((wk-wo)%24+24)%24).sym+" wake into "+phaseAt(((wk-wo)%24+24)%24).name}})),
+    h("button",{className:"step-btn",onClick:function(){setWk(function(v){return Math.min(10.5,Math.round((v+0.25)*4)/4);});}},"+")
+  ),
+  /* Sanity warning: if stored wake time is > 2h from a plausible range, flag it */
+  (wk>9)&&h("div",{style:{
+    marginBottom:10,padding:"8px 12px",
+    background:"rgba(249,115,22,0.06)",
+    border:"1px solid rgba(249,115,22,0.18)",borderLeft:"3px solid rgba(249,115,22,0.5)",
+    borderRadius:6,fontSize:10,color:"#F97316",lineHeight:1.55,fontFamily:FONT}},
+    "⚠ Wake time set to "+fmtT(wk)+" — tap ↺ Reset if this doesn't match your actual wake time. All phases shift with it."),
+  h("div",{style:{display:"flex",gap:5,flexWrap:"wrap"}},
+    wakePresets.map(function(t){
+      var act=Math.abs(wk-t)<0.13;
+      return h("button",{key:t,className:"chip",onClick:function(){setWk(t);},
+        style:{background:act?"rgba(0,223,184,0.13)":FAINT,
+          color:act?TEAL_HI:DIM,
+          border:"1px solid "+(act?"rgba(0,223,184,0.35)":"rgba(0,223,184,0.08)")}},
+        fmtT12(t));
+    }))
+),
+
+/* ── Sleep ── */
+h("div",{className:"card"},
+  h("span",{className:"lbl"},"Sleep Last Night"),
+  h("div",{style:{display:"flex",alignItems:"center",gap:14}},
+    h("input",{type:"range",min:4,max:11,step:0.5,value:sleepH,
+      onChange:function(e){setSleepH(parseFloat(e.target.value));},
+      style:{flex:1,height:36,accentColor:debtCol}}),
+    h("div",{style:{textAlign:"right",minWidth:80}},
+      h("div",{style:{fontSize:20,fontWeight:700,color:debtCol,fontFamily:MONO}},sleepH+"h"),
+      h("div",{style:{fontSize:10,color:sleepH>=7.5?DIM:"#F43F5E",marginTop:2,fontFamily:FONT}},
+        sleepH>=7.5?"Rested":Math.max(0,8-sleepH).toFixed(1)+"h debt"))),
+  sleepH<7.5&&h("div",{style:{marginTop:10,padding:"9px 13px",
+    background:"rgba(244,63,94,0.06)",
+    border:"1px solid rgba(244,63,94,0.14)",borderLeft:"3px solid rgba(244,63,94,0.5)",
+    borderRadius:6,fontSize:10,color:"#F43F5E",lineHeight:1.5}},
+    "⚠ Sleep debt — all scores reduced by "+Math.round((1-mod)*100)+"% (Walker 2017)")
+),
+
+/* ── Top 3 Optimal ── */
+h("div",{className:"card card-accent"},
+  h("span",{className:"lbl",style:{color:TEAL}},"Optimal Right Now"),
+  mod<1&&h("div",{style:{fontSize:10,color:"#F43F5E",marginBottom:10,fontFamily:FONT}},
+    "⚠ Scores adjusted for sleep debt"),
+  top3.map(function(act,i){
+    var sc=aScore(act),col=sCol(sc),tier=sc>=75?"high":sc>=40?"mid":"low";
+    return h("div",{key:act.name,style:{
+      display:"flex",alignItems:"center",gap:12,
+      padding:"13px 0",
+      borderBottom:i<2?"1px solid rgba(0,223,184,0.05)":"none"}},
+      h("div",{style:{width:40,height:40,flexShrink:0,display:"flex",alignItems:"center",
+        justifyContent:"center",fontSize:20,
+        background:col+"10",border:"1px solid "+col+"18",borderRadius:8}},act.icon),
+      h("div",{style:{flex:1}},
+        h("div",{style:{fontSize:13,fontWeight:700,color:FG,fontFamily:FONT}},act.name),
+        h("div",{style:{fontSize:10,color:DIM,marginTop:3,lineHeight:1.5}},
+          act.adapt[tier].split(".")[0]+".")),
+      h("div",{style:{textAlign:"right"}},
+        h("div",{style:{fontSize:17,fontWeight:700,color:col,fontFamily:MONO}},sc+"%"),
+        h("div",{className:"pbar",style:{width:44,marginTop:5}},
+          h("div",{className:"pbar-fill",style:{width:sc+"%",background:col}}))));}),
+  h("button",{className:"chip",onClick:function(){setTab("plan");},
+    style:{width:"100%",marginTop:12,background:FAINT,color:TEAL,
+      border:"1px solid rgba(0,223,184,0.14)"}},
+    "See all activities →")
+),
+
+/* ── Incoming Phases ── */
+h("div",{className:"card"},
+  h("span",{className:"lbl"},"Incoming"),
+  upcoming.slice(0,3).map(function(item,i){
+    var p=item.p,away=item.away,hh=Math.floor(away),mm=Math.round((away-hh)*60);
+    return h("div",{key:p.id,style:{
+      display:"flex",alignItems:"center",gap:12,
+      padding:"10px 0",
+      borderBottom:i<2?"1px solid rgba(0,223,184,0.04)":"none"}},
+      h("div",{style:{width:3,height:32,background:p.color,
+        boxShadow:"0 0 8px "+p.color+"50",flexShrink:0,borderRadius:2}}),
+      h("div",{style:{flex:1}},
+        h("div",{style:{fontSize:12,fontWeight:600,color:FG}},p.sym+" "+p.name),
+        h("div",{style:{fontSize:10,color:DIM,marginTop:2,lineHeight:1.4}},
+          p.desc.slice(0,44)+"…")),
+      h("div",{style:{fontSize:11,color:DIM,fontFamily:MONO,textAlign:"right",minWidth:40}},
+        hh>0?hh+"h "+mm+"m":mm+"m"));}))
+);
 }
 
 /* =============================================
-   TAB: PLAN -- all activities + context
-   ============================================= */
+TAB: PLAN
+============================================= */
 function renderPlan(){
-  return h("div",{className:"rise",style:{padding:"0 16px"}},
-    /* Context chips */
-    h("div",{style:{display:"flex",flexWrap:"wrap",gap:8,marginBottom:14}},
-      CTXS.map(function(ctx){var sel=selC&&selC.id===ctx.id;
-        return h("button",{key:ctx.id,className:"chip",onClick:function(){setSelC(sel?null:ctx);},
-          style:{background:sel?"rgba(0,255,200,0.12)":FAINT,color:sel?GLOW:DIM,
-            border:"1px solid "+(sel?"rgba(0,255,200,0.3)":"rgba(0,255,200,0.1)")}},ctx.icon+" "+ctx.label);})),
-    /* All activities */
-    sorted.map(function(act){
-      var sc=aScore(act),sel=selA&&selA.name===act.name,col=sCol(sc),tier=sc>=75?"high":sc>=40?"mid":"low";
-      var boosted=selC&&selC.boost.indexOf(act.name)>=0;
-      return h("button",{key:act.name,onClick:function(){setSelA(sel?null:act);},
-        style:{width:"100%",display:"flex",alignItems:"center",gap:14,padding:"14px 16px",textAlign:"left",marginBottom:8,
-          background:sel?col+"0c":"rgba(0,255,200,0.015)",border:"1px solid "+(sel?col+"30":"rgba(0,255,200,0.07)"),
-          borderLeft:"4px solid "+(sel?col:col+"50"),borderRadius:8,transition:"all 0.18s",position:"relative"}},
-        h("div",{style:{width:44,height:44,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",background:col+"12",border:"1px solid "+col+"20",borderRadius:8,fontSize:22}},act.icon),
-        h("div",{style:{flex:1,minWidth:0}},
-          h("div",{style:{display:"flex",alignItems:"center",gap:6}},
-            h("span",{style:{fontSize:13,fontWeight:600,color:sel?FG:DIM}},act.name),
-            boosted&&h("span",{style:{fontSize:9,background:"rgba(0,255,200,0.1)",color:GLOW,padding:"2px 6px",borderRadius:3}},"\u2191")),
-          sel&&h("div",{style:{fontSize:11,color:DIM,marginTop:6,lineHeight:1.55}},act.adapt[tier]),
-          sel&&sc<75&&sorted[0].name!==act.name&&h("div",{style:{fontSize:11,color:GLOW,marginTop:6}},"\u2192 Better now: "+sorted[0].icon+" "+sorted[0].name+" ("+aScore(sorted[0])+"%)") ),
-        h("div",{style:{textAlign:"right",flexShrink:0}},
-          h("div",{style:{fontSize:18,fontWeight:700,color:col,fontFamily:MONO}},sc+"%"),
-          h("div",{className:"pbar",style:{width:52,marginTop:6}},h("div",{className:"pbar-fill",style:{width:sc+"%",background:col}}))));
-    })
-  );
+return h("div",{className:"rise",style:{padding:"0 14px"}},
+/* Context chips */
+h("div",{style:{display:"flex",flexWrap:"wrap",gap:7,marginBottom:14}},
+CTXS.map(function(ctx){
+var sel=selC&&selC.id===ctx.id;
+return h("button",{key:ctx.id,className:"chip",onClick:function(){setSelC(sel?null:ctx);},
+style:{background:sel?"rgba(0,223,184,0.12)":FAINT,
+color:sel?TEAL_HI:DIM,
+border:"1px solid "+(sel?"rgba(0,223,184,0.3)":"rgba(0,223,184,0.08)")}},
+ctx.icon+" "+ctx.label);})),
+/* All activities */
+sorted.map(function(act){
+var sc=aScore(act),sel=selA&&selA.name===act.name,col=sCol(sc);
+var tier=sc>=75?"high":sc>=40?"mid":"low";
+var boosted=selC&&selC.boost.indexOf(act.name)>=0;
+return h("button",{key:act.name,onClick:function(){setSelA(sel?null:act);},
+style:{
+width:"100%",display:"flex",alignItems:"center",gap:12,
+padding:"13px 14px",textAlign:"left",marginBottom:8,
+background:sel?col+"0a":"rgba(0,223,184,0.018)",
+border:"1px solid "+(sel?col+"25":"rgba(0,223,184,0.06)"),
+borderLeft:"3px solid "+(sel?col:col+"40"),
+borderRadius:10,transition:"all 0.18s",position:"relative"}},
+h("div",{style:{
+width:42,height:42,flexShrink:0,
+display:"flex",alignItems:"center",justifyContent:"center",
+background:col+"10",border:"1px solid "+col+"18",
+borderRadius:8,fontSize:20}},act.icon),
+h("div",{style:{flex:1,minWidth:0}},
+h("div",{style:{display:"flex",alignItems:"center",gap:7,marginBottom:sel?6:0}},
+h("span",{style:{fontSize:12,fontWeight:700,color:sel?FG:DIM,fontFamily:FONT}},act.name),
+boosted&&h("span",{style:{fontSize:8,background:"rgba(0,223,184,0.1)",
+color:TEAL,padding:"2px 7px",borderRadius:3,letterSpacing:"0.1em",fontFamily:FONT,fontWeight:700}},"↑ CONTEXT")),
+sel&&h("div",{style:{fontSize:11,color:DIM,lineHeight:1.6}},act.adapt[tier]),
+sel&&sc<75&&sorted[0].name!==act.name&&h("div",{
+style:{fontSize:11,color:TEAL,marginTop:6,fontFamily:FONT}},
+"→ Better now: "+sorted[0].icon+" "+sorted[0].name+" ("+aScore(sorted[0])+"%)")),
+h("div",{style:{textAlign:"right",flexShrink:0}},
+h("div",{style:{fontSize:17,fontWeight:700,color:col,fontFamily:MONO}},sc+"%"),
+h("div",{className:"pbar",style:{width:48,marginTop:6}},
+h("div",{className:"pbar-fill",style:{width:sc+"%",background:col}}))));
+})
+);
 }
 
 /* =============================================
-   TAB: YOU -- personal data + tracking
-   ============================================= */
+TAB: YOU
+============================================= */
 function renderYou(){
-  var bm=[
-    {name:"Cortisol",val:cortisol(sH),color:"#fb923c"},
-    {name:"Core Temp",val:bodyTemp(sH),color:"#f87171"},
-    {name:"Melatonin",val:melatonin(sH),color:"#818cf8"},
-    {name:"F(t)",val:composite(sH),color:GLOW}
-  ];
-  function gauge(val,col,label){var r=28,circ=2*Math.PI*r;
-    return h("div",{style:{textAlign:"center"}},
-      h("svg",{width:68,height:68,viewBox:"0 0 68 68"},
-        h("circle",{cx:34,cy:34,r:r,fill:"none",stroke:"rgba(255,255,255,0.05)",strokeWidth:5}),
-        h("circle",{cx:34,cy:34,r:r,fill:"none",stroke:col,strokeWidth:5,strokeLinecap:"round",strokeDasharray:circ,strokeDashoffset:circ*(1-val),transform:"rotate(-90 34 34)",style:{filter:"drop-shadow(0 0 6px "+col+")",transition:"stroke-dashoffset 1s"}}),
-        h("text",{x:34,y:38,textAnchor:"middle",fill:col,fontSize:13,fontFamily:MONO,fontWeight:500},Math.round(val*100)+"%")),
-      h("div",{style:{fontSize:10,color:FG,fontWeight:600,marginTop:2}},label));}
+var bm=[
+{name:"Cortisol",val:cortisol(sH),color:"#F97316"},
+{name:"Core Temp",val:bodyTemp(sH),color:"#F43F5E"},
+{name:"Melatonin",val:melatonin(sH),color:"#9B6DFF"},
+{name:"F(t)",val:composite(sH),color:TEAL}
+];
 
-  return h("div",{className:"rise",style:{padding:"0 16px"}},
-    /* Track button -- prominent CTA */
-    h("button",{className:"btn btn-primary",onClick:function(){setModal(true);},style:{width:"100%",marginBottom:14,fontSize:13}},"\u271A  Log How You Feel"),
-    /* Biomarkers */
-    h("div",{className:"card"},
-      h("span",{className:"lbl",style:{color:cP.color}},"Biomarkers \u2014 "+cP.name),
-      h("div",{style:{fontSize:9,color:"rgba(0,255,200,0.25)",marginBottom:10}},"Normalized 0\u2013100% relative activation, not physiological units"),
-      h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:6}},bm.map(function(b){return gauge(b.val,b.color,b.name);}))),
-    /* Personal Resonance */
-    resonance
-      ?h("div",{className:"card card-accent"},
-        h("span",{className:"lbl",style:{color:GLOW}},"Personal Resonance"),
-        h("div",{style:{display:"flex",alignItems:"center",gap:14}},
-          (function(){var mc=resonance.match>=80?GLOW:resonance.match>=60?"#fb923c":"#f87171",r=30,circ=2*Math.PI*r;
-            return h("svg",{width:70,height:70,viewBox:"0 0 70 70"},
-              h("circle",{cx:35,cy:35,r:r,fill:"none",stroke:"rgba(255,255,255,0.05)",strokeWidth:5}),
-              h("circle",{cx:35,cy:35,r:r,fill:"none",stroke:mc,strokeWidth:5,strokeLinecap:"round",strokeDasharray:circ,strokeDashoffset:circ*(1-resonance.match/100),transform:"rotate(-90 35 35)",style:{filter:"drop-shadow(0 0 8px "+mc+")"}}),
-              h("text",{x:35,y:39,textAnchor:"middle",fill:mc,fontSize:14,fontFamily:MONO,fontWeight:700},resonance.match+"%"));})(),
-          h("div",{style:{flex:1}},
-            h("div",{style:{fontSize:12,fontWeight:600,color:FG}},resonance.phaseObj.sym+" "+resonance.phase+" is your peak"),
-            h("div",{style:{fontSize:11,color:DIM,marginTop:4}},"Avg focus: "+resonance.avgFocus+"% \u00B7 "+resonance.n+" entries"))))
-      :h("div",{className:"card"},
-        h("div",{style:{textAlign:"center",padding:"16px 0",color:DIM}},
-          h("div",{style:{fontSize:11}},"Log 4+ entries to unlock your Personal Resonance score"))),
-    /* Phase Timeline */
-    h("div",{className:"card"},
-      h("span",{className:"lbl"},"Phase Sequence"),
-      PHASES.map(function(p){
-        var isNow=p.id===cP.id,past=sH>p.end&&!isNow,prog=isNow?pP:past?1:0;
-        return h("div",{key:p.id,style:{display:"flex",alignItems:"center",gap:10,padding:"7px 0",opacity:past?0.25:1,borderLeft:"2px solid "+(isNow?p.color:p.color+"15"),paddingLeft:10}},
-          h("span",{style:{fontSize:14,width:20}},p.sym),
-          h("div",{style:{flex:1}},
-            h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:3}},
-              h("span",{style:{fontSize:11,fontWeight:isNow?600:400,color:isNow?FG:DIM}},p.name),
-              h("span",{style:{fontSize:9,color:"rgba(0,255,200,0.2)",fontFamily:MONO}},fmtT(p.start+wo)+"\u2013"+fmtT(p.end+wo))),
-            h("div",{className:"pbar"},h("div",{className:"pbar-fill",style:{width:(prog*100)+"%",background:p.color}}))),
-          isNow&&h("span",{style:{fontSize:8,color:p.color,fontWeight:700,letterSpacing:"0.1em"}},"LIVE"));})),
-    /* 24h Chart */
-    h("div",{className:"card"},
-      h("span",{className:"lbl"},"24h Waveform"),
-      h(RC.ResponsiveContainer,{width:"100%",height:130},
-        h(RC.AreaChart,{data:hData,margin:{top:6,right:4,bottom:4,left:-28}},
-          h(RC.XAxis,{dataKey:"hr",tick:{fontSize:8,fill:"rgba(0,255,200,0.25)",fontFamily:FONT},axisLine:false,tickLine:false,interval:7}),
-          h(RC.YAxis,{tick:false,axisLine:false}),
-          h(RC.Tooltip,{contentStyle:{background:"#070810",border:"1px solid rgba(0,255,200,0.18)",borderRadius:4,fontSize:10,fontFamily:FONT},labelStyle:{color:DIM}}),
-          h(RC.Area,{type:"monotone",dataKey:"cortisol",name:"Cortisol",stroke:"#fb923c",fill:"none",strokeWidth:1.2,dot:false}),
-          h(RC.Area,{type:"monotone",dataKey:"temp",name:"Temp",stroke:"#f87171",fill:"none",strokeWidth:1.2,dot:false}),
-          h(RC.Area,{type:"monotone",dataKey:"melatonin",name:"Melatonin",stroke:"#818cf8",fill:"none",strokeWidth:1.2,dot:false}),
-          h(RC.Area,{type:"monotone",dataKey:"composite",name:"F(t)",stroke:GLOW,fill:GLOW,fillOpacity:0.06,strokeWidth:2,dot:false}))),
-      h("div",{style:{display:"flex",gap:14,justifyContent:"center",marginTop:6}},
-        [["Cortisol","#fb923c"],["Temp","#f87171"],["Melatonin","#818cf8"],["F(t)",GLOW]].map(function(p){return h("span",{key:p[0],style:{fontSize:9,color:p[1],fontFamily:FONT}},"\u25CF "+p[0]);}))),
-    /* Energy Log */
-    h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}},
-      h("span",{style:{fontSize:13,fontWeight:600,color:FG}},"Energy Log"),
-      log.length>0&&h("button",{className:"btn btn-ghost btn-sm",onClick:doExport},"\u2193 CSV")),
-    log.length>0?log.slice(0,5).map(function(e,i){
-      var ep=PHASES.find(function(p){return p.name===e.phase;})||PHASES[0];
-      return h("div",{key:i,className:"card",style:{padding:"12px 14px"}},
-        h("div",{style:{display:"flex",alignItems:"center",gap:10}},
-          h("span",{style:{fontSize:16}},ep.sym),
-          h("div",{style:{flex:1}},
-            h("div",{style:{display:"flex",justifyContent:"space-between"}},
-              h("span",{style:{fontSize:11,fontWeight:600,color:FG}},e.phase),
-              h("span",{style:{fontSize:9,color:"rgba(0,255,200,0.2)",fontFamily:MONO}},e.time)),
-            h("div",{style:{display:"flex",gap:12,marginTop:3}},
-              [["\u26A1",e.energy,"#fb923c"],["\uD83C\uDFAF",e.focus,GLOW],["\uD83D\uDE0A",e.mood,"#a78bfa"]].map(function(a){return h("span",{key:a[0],style:{fontSize:10,color:a[2],fontFamily:MONO}},a[0]+" "+a[1]+"/5");})))));}):
-      h("div",{style:{textAlign:"center",padding:"20px 0",color:DIM,fontSize:11}},"No entries yet. Tap the button above to start tracking.")
-  );
+function gauge(val,col,label){
+var r=26,circ=2*Math.PI*r;
+return h("div",{style:{textAlign:"center"}},
+h("svg",{width:64,height:64,viewBox:"0 0 64 64"},
+h("circle",{cx:32,cy:32,r:r,fill:"none",stroke:"rgba(255,255,255,0.04)",strokeWidth:4.5}),
+h("circle",{cx:32,cy:32,r:r,fill:"none",stroke:col,strokeWidth:4.5,strokeLinecap:"round",
+strokeDasharray:circ,strokeDashoffset:circ*(1-val),
+transform:"rotate(-90 32 32)",
+style:{filter:"drop-shadow(0 0 8px "+col+"80)",transition:"stroke-dashoffset 1.1s cubic-bezier(0.25,1,0.5,1)"}}),
+h("text",{x:32,y:36,textAnchor:"middle",fill:col,fontSize:12,fontFamily:MONO,fontWeight:500},
+Math.round(val*100)+"%")),
+h("div",{style:{fontSize:9,color:DIM,fontWeight:700,marginTop:3,letterSpacing:"0.1em",textTransform:"uppercase",fontFamily:FONT}},label));
+}
+
+return h("div",{className:"rise",style:{padding:"0 14px"}},
+/* Track CTA */
+h("button",{className:"btn btn-primary",onClick:function(){setModal(true);},
+style:{width:"100%",marginBottom:12}},
+"✚  Log Current State"),
+
+/* Biomarkers */
+h("div",{className:"card"},
+  h("span",{className:"lbl",style:{color:cP.color}},"Biomarkers — "+cP.name),
+  h("div",{style:{fontSize:9,color:"rgba(0,223,184,0.2)",marginBottom:12,fontFamily:FONT,letterSpacing:"0.08em"}},
+    "Normalized 0–100% relative activation, not physiological units"),
+  h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:8}},
+    bm.map(function(b){return gauge(b.val,b.color,b.name);}))),
+
+/* Personal Resonance */
+resonance
+  ?h("div",{className:"card card-accent"},
+    h("span",{className:"lbl",style:{color:TEAL}},"Personal Resonance"),
+    h("div",{style:{display:"flex",alignItems:"center",gap:16}},
+      (function(){
+        var mc=resonance.match>=80?TEAL:resonance.match>=60?"#F97316":"#F43F5E";
+        var r=28,circ=2*Math.PI*r;
+        return h("svg",{width:66,height:66,viewBox:"0 0 66 66"},
+          h("circle",{cx:33,cy:33,r:r,fill:"none",stroke:"rgba(255,255,255,0.04)",strokeWidth:5}),
+          h("circle",{cx:33,cy:33,r:r,fill:"none",stroke:mc,strokeWidth:5,strokeLinecap:"round",
+            strokeDasharray:circ,strokeDashoffset:circ*(1-resonance.match/100),
+            transform:"rotate(-90 33 33)",
+            style:{filter:"drop-shadow(0 0 10px "+mc+")"}}),
+          h("text",{x:33,y:37,textAnchor:"middle",fill:mc,fontSize:13,fontFamily:MONO,fontWeight:600},
+            resonance.match+"%"));
+      })(),
+      h("div",{style:{flex:1}},
+        h("div",{style:{fontSize:13,fontWeight:700,color:FG,fontFamily:FONT}},
+          resonance.phaseObj.sym+" "+resonance.phase+" is your peak"),
+        h("div",{style:{fontSize:11,color:DIM,marginTop:5,lineHeight:1.5}},
+          "Avg focus: "+resonance.avgFocus+"% · "+resonance.n+" entries"))))
+  :h("div",{className:"card"},
+    h("div",{style:{textAlign:"center",padding:"18px 0"}},
+      h("div",{style:{fontSize:24,marginBottom:8}},"○"),
+      h("div",{style:{fontSize:11,color:DIM,fontFamily:FONT}},"Log 4+ entries to unlock Personal Resonance"))),
+
+/* Phase Timeline */
+h("div",{className:"card"},
+  h("span",{className:"lbl"},"Phase Sequence"),
+  PHASES.map(function(p){
+    var isNow=p.id===cP.id,past=sH>p.end&&!isNow,prog=isNow?pP:past?1:0;
+    return h("div",{key:p.id,style:{
+      display:"flex",alignItems:"center",gap:10,padding:"8px 0",
+      opacity:past?0.22:1,
+      borderLeft:"2px solid "+(isNow?p.color:p.color+"12"),paddingLeft:10,
+      transition:"opacity 0.3s"}},
+      h("span",{style:{fontSize:13,width:20,textAlign:"center"}},p.sym),
+      h("div",{style:{flex:1}},
+        h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:4}},
+          h("span",{style:{fontSize:11,fontWeight:isNow?700:400,color:isNow?FG:DIM,fontFamily:FONT}},p.name),
+          h("span",{style:{fontSize:9,color:"rgba(0,223,184,0.18)",fontFamily:MONO}},
+            fmtT(p.start+wo)+"–"+fmtT(p.end+wo))),
+        h("div",{className:"pbar"},
+          h("div",{className:"pbar-fill",style:{width:(prog*100)+"%",background:p.color}}))),
+      isNow&&h("span",{style:{fontSize:7,color:p.color,fontWeight:700,letterSpacing:"0.16em",fontFamily:FONT}},"LIVE"));})),
+
+/* 24h Waveform */
+h("div",{className:"card"},
+  h("span",{className:"lbl"},"24h Waveform"),
+  h(RC.ResponsiveContainer,{width:"100%",height:130},
+    h(RC.AreaChart,{data:hData,margin:{top:6,right:4,bottom:4,left:-28}},
+      h(RC.XAxis,{dataKey:"hr",tick:{fontSize:7,fill:"rgba(0,223,184,0.22)",fontFamily:FONT},axisLine:false,tickLine:false,interval:7}),
+      h(RC.YAxis,{tick:false,axisLine:false}),
+      h(RC.Tooltip,{contentStyle:{background:"#0a1525",border:"1px solid rgba(0,223,184,0.15)",borderRadius:6,fontSize:10,fontFamily:FONT},labelStyle:{color:DIM}}),
+      h(RC.Area,{type:"monotone",dataKey:"cortisol",name:"Cortisol",stroke:"#F97316",fill:"none",strokeWidth:1.2,dot:false}),
+      h(RC.Area,{type:"monotone",dataKey:"temp",name:"Temp",stroke:"#F43F5E",fill:"none",strokeWidth:1.2,dot:false}),
+      h(RC.Area,{type:"monotone",dataKey:"melatonin",name:"Melatonin",stroke:"#9B6DFF",fill:"none",strokeWidth:1.2,dot:false}),
+      h(RC.Area,{type:"monotone",dataKey:"composite",name:"F(t)",stroke:TEAL_HI,fill:TEAL_HI,fillOpacity:0.05,strokeWidth:2,dot:false}))),
+  h("div",{style:{display:"flex",gap:16,justifyContent:"center",marginTop:8}},
+    [["Cortisol","#F97316"],["Temp","#F43F5E"],["Melatonin","#9B6DFF"],["F(t)",TEAL_HI]].map(function(p){
+      return h("span",{key:p[0],style:{fontSize:9,color:p[1],fontFamily:FONT,letterSpacing:"0.08em"}},
+        "● "+p[0]);}))),
+
+/* Energy Log header */
+h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,paddingTop:4}},
+  h("span",{style:{fontSize:13,fontWeight:700,color:FG,fontFamily:FONT}},"Energy Log"),
+  log.length>0&&h("button",{className:"btn btn-ghost btn-sm",onClick:doExport},"↓ CSV")),
+log.length>0
+  ?log.slice(0,5).map(function(e,i){
+    var ep=PHASES.find(function(p){return p.name===e.phase;})||PHASES[0];
+    return h("div",{key:i,className:"card",style:{padding:"12px 14px",borderLeft:"3px solid "+ep.color+"50",marginBottom:8}},
+      h("div",{style:{display:"flex",alignItems:"center",gap:10}},
+        h("span",{style:{fontSize:16}},ep.sym),
+        h("div",{style:{flex:1}},
+          h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:4}},
+            h("span",{style:{fontSize:11,fontWeight:700,color:FG,fontFamily:FONT}},e.phase),
+            h("span",{style:{fontSize:9,color:"rgba(0,223,184,0.2)",fontFamily:MONO}},e.time)),
+          h("div",{style:{display:"flex",gap:14}},
+            [["⚡",e.energy,"#F97316"],["🎯",e.focus,TEAL],["😊",e.mood,"#9B6DFF"]].map(function(a){
+              return h("span",{key:a[0],style:{fontSize:10,color:a[2],fontFamily:MONO}},
+                a[0]+" "+a[1]+"/5");})))));})
+  :h("div",{style:{textAlign:"center",padding:"24px 0",color:DIM,fontSize:11,fontFamily:FONT}},
+    "No entries yet. Tap Log Current State to begin.")
+);
 }
 
 /* =============================================
-   TAB: SCIENCE -- all content intact
-   ============================================= */
+TAB: SCIENCE — all content intact
+============================================= */
 function renderScience(){
-  var artD=[[1,"0.0\u00B0","12.7\u00B0",12.7],[2,"40.1\u00B0","38.8\u00B0",1.3],[3,"82.0\u00B0","64.0\u00B0",18.0],[4,"128.3\u00B0","136.5\u00B0",8.2],[5,"171.1\u00B0","164.0\u00B0",7.1],[6,"196.2\u00B0","199.4\u00B0",3.2],[7,"237.2\u00B0","224.8\u00B0",12.4],[8,"270.0\u00B0","267.6\u00B0",2.4],[9,"317.6\u00B0","326.2\u00B0",8.6]];
-  var mae=artD.reduce(function(s,r){return s+r[3];},0)/artD.length;
-  var effD=((40-mae)/mae).toFixed(2);
-  return h("div",{className:"rise",style:{padding:"0 16px"}},
-    h("div",{className:"card card-accent"},
-      h("span",{className:"lbl",style:{color:GLOW}},"The Discovery"),
-      h("h2",{style:{fontSize:18,fontWeight:700,color:FG,margin:"0 0 12px",fontFamily:FONT}},"Mathematics Validates Art"),
-      h("p",{style:{fontSize:12,lineHeight:1.75,color:DIM,margin:"0 0 8px"}},"H.A. Marouf derived this 9-phase model from hormonal mathematics using published biochemical parameters. F(t) was computed from three biological oscillators with asymmetric, empirically-fitted Fourier harmonics."),
-      h("p",{style:{fontSize:12,lineHeight:1.75,color:DIM,margin:"0 0 16px"}},"Phase boundaries were then compared against independent automatic mandala drawings \u2014 created through meditative practice as a wholly separate process \u2014 yielding statistically significant alignment."),
-      h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:6}},
-        [{stat:"8.2\u00B0",sub:"MAE",c:GLOW},{stat:"p=.003",sub:"Monte Carlo",c:"#a78bfa"},{stat:"d="+effD,sub:"Effect Size",c:"#60a5fa"},{stat:"R\u00B2=0.80",sub:"vs Chance",c:"#fb923c"}].map(function(s){
-          return h("div",{key:s.sub,style:{textAlign:"center",padding:"12px 4px",background:s.c+"09",border:"1px solid "+s.c+"20",borderRadius:4}},
-            h("div",{style:{fontSize:14,fontWeight:700,color:s.c,fontFamily:MONO}},s.stat),
-            h("div",{style:{fontSize:8,color:DIM,marginTop:4,letterSpacing:"0.1em"}},s.sub));}))),
-    h("div",{className:"card"},
-      h("span",{className:"lbl"},"Artwork vs Model Boundaries"),
-      h("div",{style:{overflowX:"auto"}},
-        h("table",{className:"sci-table"},
-          h("thead",null,h("tr",null,["#","Phase","Art","Model","Err",""].map(function(t,i){return h("th",{key:i},t);}))),
-          h("tbody",null,artD.map(function(r){
-            var err=r[3],good=err<=5,ok=err<=10,col=good?GLOW:ok?"#fb923c":"#f87171";
-            return h("tr",{key:r[0]},
-              h("td",{style:{color:PHASES[r[0]-1].color,fontWeight:700}},r[0]),
-              h("td",{style:{color:DIM}},PHASES[r[0]-1].name.split(" ")[0]),
-              h("td",{style:{color:DIM}},r[1]),h("td",{style:{color:"#60a5fa"}},r[2]),
-              h("td",{style:{color:col,fontWeight:700}},r[3].toFixed(1)+"\u00B0"),
-              h("td",{style:{color:col}},good?"\u2713":ok?"\u2248":"\u25B3"));})))),
-      h("div",{style:{marginTop:10,padding:"8px 12px",background:FAINT,borderRadius:4,fontSize:10,color:DIM,lineHeight:1.55}},"MAE = 8.2\u00B0 vs 40\u00B0 random baseline. Asymmetric model \u221244% error vs symmetric (14.6\u00B0). Activity alignment arrays are heuristically tuned to F(t), not derived from the Fourier formalism.")),
-    h("div",{className:"card"},
-      h("span",{className:"lbl"},"Asymmetric Fourier Model"),
-      h("div",{style:{padding:"14px",background:FAINT,border:"1px solid rgba(0,255,200,0.08)",borderRadius:4,fontFamily:MONO,fontSize:11,lineHeight:2.1}},
-        h("div",{style:{color:GLOW,fontWeight:600,fontSize:12}},"F(t) = 0.5\u00B7C(t) + 0.3\u00B7T(t) + 0.2\u00B7M(t)"),
-        h("div",{style:{color:DIM,fontSize:9,marginBottom:8}},"// uncoupled phase angles per harmonic"),
-        h("div",null,h("span",{style:{color:"#fb923c"}},"C(t)"),h("span",{style:{color:DIM}}," = \u03A3 a\u2099\u00B7cos(2\u03C0n(t\u2212\u03C6\u2099)/24)")),
-        h("div",{style:{fontSize:9,color:"rgba(0,255,200,0.3)",marginLeft:18}},"\u03C6\u2081=10.5h \u03C6\u2082=9.0h \u03C6\u2083=8.4h \u03C6\u2084=8.5h"),
-        h("div",{style:{fontSize:9,color:"rgba(0,255,200,0.2)",marginLeft:18,marginBottom:6}},"4h rise : 16h decay \u2014 uncoupled phases capture 4:1 CAR asymmetry"),
-        h("div",null,h("span",{style:{color:"#f87171"}},"T(t)"),h("span",{style:{color:DIM}}," = \u03A3 b\u2099\u00B7cos(2\u03C0n(t\u2212\u03C8\u2099)/24)")),
-        h("div",{style:{fontSize:9,color:"rgba(0,255,200,0.25)",marginLeft:18,marginBottom:6}},"\u03C8\u2081=16.5h \u03C8\u2082=17.8h \u03C8\u2083=8.7h"),
-        h("div",null,h("span",{style:{color:"#818cf8"}},"M(t)"),h("span",{style:{color:DIM}}," = \u03A3 c\u2099\u00B7cos(2\u03C0n(t\u2212\u03B8\u2099)/24)")),
-        h("div",{style:{fontSize:9,color:"rgba(0,255,200,0.25)",marginLeft:18}},"\u03B8\u2081=2.0h \u03B8\u2082=2.0h \u03B8\u2083=1.8h"),
-        h("div",{style:{marginTop:10,paddingTop:8,borderTop:"1px solid rgba(0,255,200,0.08)",color:"rgba(0,255,200,0.25)",fontSize:9}},"10 harmonics \u2192 17 critical features \u2192 9 phase boundaries"),
-        h("div",{style:{color:"rgba(0,255,200,0.25)",fontSize:9}},"200k Monte Carlo \u00B7 p = 0.003 \u00B7 MAE = 8.2\u00B0 \u00B7 d = "+effD))),
-    h("div",{className:"card",style:{borderColor:"rgba(251,146,60,0.18)"}},
-      h("span",{className:"lbl",style:{color:"#fb923c"}},"Why Asymmetric?"),
-      h("p",{style:{fontSize:12,lineHeight:1.75,color:DIM,margin:"0 0 8px"}},"Standard cosinor locks all harmonics to the same acrophase, producing symmetric waveforms. But cortisol\u2019s Awakening Response doubles in 30\u201345 min while decay takes 12+ hours \u2014 a 4:1 asymmetry ratio."),
-      h("p",{style:{fontSize:12,lineHeight:1.75,color:DIM,margin:"0 0 8px"}},"Uncoupling each harmonic\u2019s phase angle allows the Fourier series to capture this. Higher harmonics shift earlier, steepening the morning rise."),
-      h("p",{style:{fontSize:12,lineHeight:1.75,color:DIM,margin:0}},"DLMO varies \u00B190 min between individuals (Burgess 2008). Use the wake time setting to calibrate to your chronotype.")),
-    h("div",{className:"card"},
-      h("span",{className:"lbl"},"Validation Protocol"),
-      [{n:"1",t:"Derivation from published data",d:"Phase boundaries computed from F(t) critical features using published parameters (Weitzman 1971; Veldhuis 1989; Debono 2009; Refinetti 2010; Lewy 1999).",c:GLOW},
-       {n:"2",t:"Independent artwork",d:"9-fold automatic mandala drawings created through meditative practice. Sector angles measured independently.",c:"#60a5fa"},
-       {n:"3",t:"Statistical comparison",d:"Model vs artwork: MAE = 8.2\u00B0. Monte Carlo 200k random sets: p = 0.003. Effect size d = "+effD+" (large).",c:"#a78bfa"},
-       {n:"4",t:"Sensitivity analysis",d:"Symmetric model MAE = 14.6\u00B0. Asymmetric correction reduces error 44% by resolving cortisol\u2019s steep rise vs slow decay.",c:"#fb923c"}
-      ].map(function(item){
-        return h("div",{key:item.n,style:{display:"flex",gap:12,marginBottom:14}},
-          h("div",{style:{width:28,height:28,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,background:item.c+"10",color:item.c,border:"1px solid "+item.c+"25",borderRadius:5}},item.n),
-          h("div",null,h("p",{style:{fontSize:12,fontWeight:600,color:FG,margin:"0 0 3px"}},item.t),h("p",{style:{fontSize:11,color:DIM,margin:0,lineHeight:1.55}},item.d)));}),
-      h("p",{style:{fontSize:8,color:"rgba(0,255,200,0.2)",borderTop:"1px solid rgba(0,255,200,0.06)",paddingTop:10,margin:0,fontFamily:MONO}},
-        "Weitzman 1971 \u00B7 Veldhuis 1989 \u00B7 Debono 2009 \u00B7 Refinetti 2010 \u00B7 Lewy 1999 \u00B7 Burgess 2008 \u00B7 Walker 2017"))
-  );
+var artD=[
+[1,"0.0°","12.7°",12.7],[2,"40.1°","38.8°",1.3],[3,"82.0°","64.0°",18.0],
+[4,"128.3°","136.5°",8.2],[5,"171.1°","164.0°",7.1],[6,"196.2°","199.4°",3.2],
+[7,"237.2°","224.8°",12.4],[8,"270.0°","267.6°",2.4],[9,"317.6°","326.2°",8.6]
+];
+var mae=artD.reduce(function(s,r){return s+r[3];},0)/artD.length;
+var effD=((40-mae)/mae).toFixed(2);
+
+return h("div",{className:"rise",style:{padding:"0 14px"}},
+
+/* Discovery card */
+h("div",{className:"card card-accent",style:{borderLeft:"3px solid "+TEAL}},
+  h("span",{className:"lbl",style:{color:TEAL}},"The Discovery"),
+  h("h2",{style:{fontSize:18,fontWeight:800,color:FG,margin:"0 0 14px",fontFamily:FONT,letterSpacing:"-0.01em"}},
+    "Mathematics Validates Art"),
+  h("p",{style:{fontSize:12,lineHeight:1.75,color:DIM,margin:"0 0 8px",fontWeight:400}},
+    "H.A. Marouf derived this 9-phase model from hormonal mathematics using published biochemical parameters. F(t) was computed from three biological oscillators with asymmetric, empirically-fitted Fourier harmonics."),
+  h("p",{style:{fontSize:12,lineHeight:1.75,color:DIM,margin:"0 0 18px",fontWeight:400}},
+    "Phase boundaries were then compared against independent automatic mandala drawings — created through meditative practice as a wholly separate process — yielding statistically significant alignment."),
+  h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:7}},
+    [{stat:"8.2°",sub:"MAE",c:TEAL},{stat:"p=.003",sub:"Monte Carlo",c:"#9B6DFF"},
+     {stat:"d="+effD,sub:"Effect Size",c:"#38BDF8"},{stat:"R²=0.80",sub:"vs Chance",c:"#F97316"}
+    ].map(function(s){
+      return h("div",{key:s.sub,className:"stat-badge",style:{borderColor:s.c+"22"}},
+        h("div",{style:{fontSize:15,fontWeight:700,color:s.c,fontFamily:MONO}},s.stat),
+        h("div",{style:{fontSize:8,color:DIM,marginTop:5,letterSpacing:"0.12em",fontFamily:FONT,textTransform:"uppercase"}},s.sub));}))),
+
+/* Artwork vs Model */
+h("div",{className:"card"},
+  h("span",{className:"lbl"},"Artwork vs Model Boundaries"),
+  h("div",{style:{overflowX:"auto"}},
+    h("table",{className:"sci-table"},
+      h("thead",null,h("tr",null,["#","Phase","Artwork","Model","Error",""].map(function(t,i){return h("th",{key:i},t);}))),
+      h("tbody",null,artD.map(function(r){
+        var err=r[3],good=err<=5,ok=err<=10,col=good?TEAL:ok?"#F97316":"#F43F5E";
+        return h("tr",{key:r[0]},
+          h("td",{style:{color:PHASES[r[0]-1].color,fontWeight:700}},r[0]),
+          h("td",{style:{color:DIM,fontFamily:FONT,fontSize:10}},PHASES[r[0]-1].name.split(" ")[0]),
+          h("td",{style:{color:DIM}},r[1]),
+          h("td",{style:{color:"#38BDF8"}},r[2]),
+          h("td",{style:{color:col,fontWeight:700}},r[3].toFixed(1)+"°"),
+          h("td",{style:{color:col,fontSize:13}},good?"✓":ok?"≈":"△"));})))),
+  h("div",{style:{marginTop:10,padding:"9px 13px",background:FAINT,borderRadius:"var(--radius-sm)",
+    fontSize:10,color:DIM,lineHeight:1.6,fontFamily:FONT}},
+    "MAE = 8.2° vs 40° random baseline. Asymmetric model −44% error vs symmetric (14.6°). Activity alignment arrays are heuristically tuned to F(t), not derived from the Fourier formalism.")),
+
+/* Fourier model */
+h("div",{className:"card"},
+  h("span",{className:"lbl"},"Asymmetric Fourier Model"),
+  h("div",{style:{padding:"16px",background:"rgba(7,16,30,0.9)",
+    border:"1px solid rgba(0,223,184,0.07)",borderRadius:"var(--radius-sm)",
+    fontFamily:MONO,fontSize:11,lineHeight:2.1}},
+    h("div",{style:{color:TEAL_HI,fontWeight:600,fontSize:13,marginBottom:4}},
+      "F(t) = 0.5·C(t) + 0.3·T(t) + 0.2·M(t)"),
+    h("div",{style:{color:DIM,fontSize:9,marginBottom:10,letterSpacing:"0.05em"}},
+      "// uncoupled phase angles per harmonic"),
+    h("div",null,
+      h("span",{style:{color:"#F97316"}},"C(t)"),
+      h("span",{style:{color:DIM}}," = Σ aₙ·cos(2πn(t−φₙ)/24)")),
+    h("div",{style:{fontSize:9,color:"rgba(0,223,184,0.28)",marginLeft:20}},
+      "φ₁=10.5h φ₂=9.0h φ₃=8.4h φ₄=8.5h"),
+    h("div",{style:{fontSize:9,color:"rgba(0,223,184,0.18)",marginLeft:20,marginBottom:8}},
+      "4h rise : 16h decay — uncoupled phases capture 4:1 CAR asymmetry"),
+    h("div",null,
+      h("span",{style:{color:"#F43F5E"}},"T(t)"),
+      h("span",{style:{color:DIM}}," = Σ bₙ·cos(2πn(t−ψₙ)/24)")),
+    h("div",{style:{fontSize:9,color:"rgba(0,223,184,0.22)",marginLeft:20,marginBottom:8}},
+      "ψ₁=16.5h ψ₂=17.8h ψ₃=8.7h"),
+    h("div",null,
+      h("span",{style:{color:"#9B6DFF"}},"M(t)"),
+      h("span",{style:{color:DIM}}," = Σ cₙ·cos(2πn(t−θₙ)/24)")),
+    h("div",{style:{fontSize:9,color:"rgba(0,223,184,0.22)",marginLeft:20}},
+      "θ₁=2.0h θ₂=2.0h θ₃=1.8h"),
+    h("div",{style:{marginTop:12,paddingTop:10,borderTop:"1px solid rgba(0,223,184,0.07)",
+      color:"rgba(0,223,184,0.22)",fontSize:9}},
+      "10 harmonics → 17 critical features → 9 phase boundaries"),
+    h("div",{style:{color:"rgba(0,223,184,0.18)",fontSize:9}},
+      "200k Monte Carlo · p = 0.003 · MAE = 8.2° · d = "+effD))),
+
+/* Why Asymmetric */
+h("div",{className:"card",style:{borderLeft:"3px solid rgba(249,115,22,0.5)"}},
+  h("span",{className:"lbl",style:{color:"#F97316"}},"Why Asymmetric?"),
+  h("p",{style:{fontSize:12,lineHeight:1.75,color:DIM,margin:"0 0 8px"}},
+    "Standard cosinor locks all harmonics to the same acrophase, producing symmetric waveforms. But cortisol's Awakening Response doubles in 30–45 min while decay takes 12+ hours — a 4:1 asymmetry ratio."),
+  h("p",{style:{fontSize:12,lineHeight:1.75,color:DIM,margin:"0 0 8px"}},
+    "Uncoupling each harmonic's phase angle allows the Fourier series to capture this. Higher harmonics shift earlier, steepening the morning rise."),
+  h("p",{style:{fontSize:12,lineHeight:1.75,color:DIM,margin:0}},
+    "DLMO varies ±90 min between individuals (Burgess 2008). Use the wake time setting to calibrate to your chronotype.")),
+
+/* Validation Protocol */
+h("div",{className:"card"},
+  h("span",{className:"lbl"},"Validation Protocol"),
+  [{n:"1",t:"Derivation from published data",c:TEAL,
+    d:"Phase boundaries computed from F(t) critical features using published parameters (Weitzman 1971; Veldhuis 1989; Debono 2009; Refinetti 2010; Lewy 1999)."},
+   {n:"2",t:"Independent artwork",c:"#38BDF8",
+    d:"9-fold automatic mandala drawings created through meditative practice. Sector angles measured independently."},
+   {n:"3",t:"Statistical comparison",c:"#9B6DFF",
+    d:"Model vs artwork: MAE = 8.2°. Monte Carlo 200k random sets: p = 0.003. Effect size d = "+effD+" (large)."},
+   {n:"4",t:"Sensitivity analysis",c:"#F97316",
+    d:"Symmetric model MAE = 14.6°. Asymmetric correction reduces error 44% by resolving cortisol's steep rise vs slow decay."}
+  ].map(function(item){
+    return h("div",{key:item.n,style:{display:"flex",gap:12,marginBottom:14}},
+      h("div",{style:{
+        width:28,height:28,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",
+        fontSize:11,fontWeight:700,background:item.c+"10",color:item.c,
+        border:"1px solid "+item.c+"25",borderRadius:5,fontFamily:FONT}},item.n),
+      h("div",null,
+        h("p",{style:{fontSize:12,fontWeight:700,color:FG,margin:"0 0 3px",fontFamily:FONT}},item.t),
+        h("p",{style:{fontSize:11,color:DIM,margin:0,lineHeight:1.6}},item.d)));}),
+  h("p",{style:{fontSize:8,color:"rgba(0,223,184,0.18)",borderTop:"1px solid rgba(0,223,184,0.06)",
+    paddingTop:10,margin:0,fontFamily:MONO,lineHeight:1.8}},
+    "Weitzman 1971 · Veldhuis 1989 · Debono 2009 · Refinetti 2010 · Lewy 1999 · Burgess 2008 · Walker 2017"))
+);
 }
 
 /* =============================================
-   TRACK MODAL
-   ============================================= */
-var trackModal=modal&&h("div",{onClick:function(e){if(e.target===e.currentTarget)setModal(false);},style:{position:"fixed",inset:0,zIndex:100,display:"flex",alignItems:"flex-end",justifyContent:"center",background:"rgba(1,1,3,0.88)",backdropFilter:"blur(14px)"}},
-  h("div",{className:"slide-up",style:{width:"100%",maxWidth:480,padding:24,background:"linear-gradient(180deg,#0b0e16,#010103)",border:"1px solid rgba(0,255,200,0.14)",borderBottom:"none",borderRadius:"16px 16px 0 0"}},
-    h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}},
-      h("div",null,h("h3",{style:{fontSize:16,fontWeight:700,color:FG,margin:0}},"Track State"),h("p",{style:{fontSize:10,color:DIM,margin:"4px 0 0"}},cP.sym+" "+cP.name+" \u00B7 "+tFull)),
-      h("button",{className:"btn btn-ghost btn-sm",onClick:function(){setModal(false);},style:{minWidth:40}},"\u00D7")),
-    [{k:"energy",l:"Energy",c:"#fb923c"},{k:"focus",l:"Focus",c:GLOW},{k:"mood",l:"Mood",c:"#a78bfa"}].map(function(item){
-      return h("div",{key:item.k,style:{marginBottom:18}},
-        h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:8}},
-          h("span",{style:{fontSize:12,color:DIM,fontWeight:500}},item.l),
-          h("span",{style:{fontSize:14,color:item.c,fontWeight:700,fontFamily:MONO}},ent[item.k]+"/5")),
-        h("div",{style:{display:"flex",gap:8}},
-          [1,2,3,4,5].map(function(v){var upd={};upd[item.k]=v;
-            return h("button",{key:v,onClick:function(){setEnt(function(prev){return Object.assign({},prev,upd);});},
-              style:{flex:1,height:48,background:v<=ent[item.k]?item.c+"1a":"rgba(0,255,200,0.03)",
-                border:"1px solid "+(v<=ent[item.k]?item.c+"40":"rgba(0,255,200,0.08)"),
-                color:v<=ent[item.k]?item.c:"rgba(0,255,200,0.18)",fontSize:14,fontWeight:700,
-                borderRadius:6,touchAction:"manipulation"}},v);})));}),
-    h("textarea",{value:ent.note,onChange:function(e){var v=e.target.value;setEnt(function(prev){return Object.assign({},prev,{note:v});});},placeholder:"Note (optional)\u2026",style:{width:"100%",padding:12,background:"rgba(0,255,200,0.03)",border:"1px solid rgba(0,255,200,0.08)",borderRadius:6,fontSize:12,resize:"none",height:52,outline:"none",color:FG}}),
-    h("button",{className:"btn btn-primary",onClick:addEntry,style:{width:"100%",marginTop:14,fontSize:13}},"\u2713 Save Entry")));
+TRACK MODAL
+============================================= */
+var trackModal=modal&&h("div",{
+onClick:function(e){if(e.target===e.currentTarget)setModal(false);},
+style:{position:"fixed",inset:0,zIndex:100,display:"flex",alignItems:"flex-end",justifyContent:"center",
+background:"rgba(4,8,16,0.88)",backdropFilter:"blur(18px)"}},
+h("div",{className:"slide-up",style:{
+width:"100%",maxWidth:480,padding:"24px 20px",
+background:"linear-gradient(180deg,#0c1828 0%,#07101e 100%)",
+border:"1px solid rgba(0,223,184,0.12)",borderBottom:"none",
+borderRadius:"16px 16px 0 0",
+boxShadow:"0 -20px 60px rgba(0,0,0,0.5)"}},
+h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22}},
+h("div",null,
+h("h3",{style:{fontSize:17,fontWeight:800,color:FG,margin:0,fontFamily:FONT}},"Log Current State"),
+h("p",{style:{fontSize:10,color:DIM,margin:"4px 0 0",fontFamily:FONT}},
+cP.sym+" "+cP.name+" · "+tFull)),
+h("button",{className:"btn btn-ghost btn-sm",onClick:function(){setModal(false);},
+style:{minWidth:36,fontSize:16,padding:"4px 10px"}},"×")),
+[{k:"energy",l:"Energy",c:"#F97316"},{k:"focus",l:"Focus",c:TEAL},{k:"mood",l:"Mood",c:"#9B6DFF"}].map(function(item){
+return h("div",{key:item.k,style:{marginBottom:18}},
+h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:9}},
+h("span",{style:{fontSize:12,color:DIM,fontWeight:700,letterSpacing:"0.1em",fontFamily:FONT,textTransform:"uppercase"}},item.l),
+h("span",{style:{fontSize:15,color:item.c,fontWeight:700,fontFamily:MONO}},ent[item.k]+"/5")),
+h("div",{style:{display:"flex",gap:7}},
+[1,2,3,4,5].map(function(v){
+var upd={};upd[item.k]=v;var active=v<=ent[item.k];
+return h("button",{key:v,onClick:function(){setEnt(function(prev){return Object.assign({},prev,upd);});},
+style:{flex:1,height:46,
+background:active?item.c+"18":"rgba(0,223,184,0.02)",
+border:"1px solid "+(active?item.c+"45":"rgba(0,223,184,0.07)"),
+color:active?item.c:"rgba(0,223,184,0.16)",
+fontSize:14,fontWeight:700,borderRadius:6,
+touchAction:"manipulation",
+boxShadow:active?"0 0 14px "+item.c+"25":"none",
+transition:"all 0.15s"}},v);})));}),
+h("textarea",{value:ent.note,
+onChange:function(e){var v=e.target.value;setEnt(function(prev){return Object.assign({},prev,{note:v});});},
+placeholder:"Note (optional)…",
+style:{width:"100%",padding:12,
+background:"rgba(0,223,184,0.025)",border:"1px solid rgba(0,223,184,0.08)",
+borderRadius:"var(--radius-sm)",fontSize:12,resize:"none",height:52,outline:"none",color:FG,lineHeight:1.5}}),
+h("button",{className:"btn btn-primary",onClick:addEntry,
+style:{width:"100%",marginTop:14}},
+"✓  Save Entry"))
+);
 
 /* =============================================
-   ROOT
-   ============================================= */
-var TABS=[["now","Now","\u29D6"],["plan","Plan","\u26A1"],["you","You","\u2661"],["science","Science","\u2726"]];
+ROOT
+============================================= */
+var TABS=[["now","Now","◈"],["plan","Plan","⬡"],["you","You","◇"],["science","Science","⌬"]];
 
-return h("div",{style:{minHeight:"100vh",minHeight:"100dvh",fontFamily:FONT,background:BG,color:FG,paddingBottom:72,overflowX:"hidden"}},
-  /* Header */
-  h("div",{style:{paddingTop:"calc(env(safe-area-inset-top, 0px) + 14px)",paddingLeft:16,paddingRight:16,paddingBottom:10,display:"flex",justifyContent:"space-between",alignItems:"flex-start",background:"rgba(1,1,3,0.95)",backdropFilter:"blur(20px)",borderBottom:"1px solid rgba(0,255,200,0.08)",position:"sticky",top:0,zIndex:80}},
-    h("div",null,
-      h("h1",{style:{fontSize:18,fontWeight:700,color:GLOW,margin:0,letterSpacing:"0.16em",textShadow:"0 0 30px rgba(0,255,200,0.4)"}},"RESONANCE"),
-      h("div",{style:{display:"flex",alignItems:"center",gap:6,marginTop:4}},
-        h("span",{style:{width:6,height:6,borderRadius:"50%",background:cP.color,display:"inline-block",boxShadow:"0 0 8px "+cP.color}}),
-        h("span",{style:{fontSize:10,color:cP.color,fontFamily:MONO}},cP.name),
-        h("span",{style:{fontSize:10,color:"rgba(0,255,200,0.2)",fontFamily:MONO}},"\u00B7 "+mLeft+"m left"))),
-    h("div",{style:{display:"flex",alignItems:"center",gap:8}},
-      h("span",{style:{fontSize:10,color:"rgba(0,255,200,0.22)",fontFamily:MONO}},dStr),
-      h("button",{className:"chip",onClick:function(){setModal(true);},style:{background:"rgba(0,255,200,0.06)",border:"1px solid rgba(0,255,200,0.18)",color:GLOW}},"\u271A TRACK"))),
-  /* Tab content */
-  h("div",{key:tab,style:{paddingTop:8}},
-    tab==="now"&&renderNow(),
-    tab==="plan"&&renderPlan(),
-    tab==="you"&&renderYou(),
-    tab==="science"&&renderScience()),
-  /* Nav */
-  h("div",{className:"nav"},
-    TABS.map(function(t){var act=tab===t[0];return h("button",{key:t[0],className:"nav-btn"+(act?" active":""),onClick:function(){setTab(t[0]);}},h("div",{className:"nav-icon",style:{filter:act?"drop-shadow(0 0 8px "+GLOW+")":"none"}},t[2]),t[1].toUpperCase());})),
-  trackModal
+return h("div",{style:{
+minHeight:"100vh",minHeight:"100dvh",
+fontFamily:FONT,background:BG,color:FG,
+paddingBottom:72,overflowX:"hidden",maxWidth:480,margin:"0 auto"}},
+
+/* ── Header ── */
+h("div",{style:{
+paddingTop:"calc(env(safe-area-inset-top,0px) + 14px)",
+paddingLeft:16,paddingRight:16,paddingBottom:12,
+display:"flex",justifyContent:"space-between",alignItems:"flex-start",
+background:"rgba(4,8,16,0.97)",backdropFilter:"blur(24px)",
+borderBottom:"1px solid rgba(0,223,184,0.07)",
+position:"sticky",top:0,zIndex:80}},
+h("div",null,
+h("div",{style:{display:"flex",alignItems:"baseline",gap:8}},
+h("h1",{style:{fontSize:20,fontWeight:800,color:TEAL_HI,margin:0,
+letterSpacing:"0.14em",fontFamily:FONT,
+textShadow:"0 0 28px rgba(0,255,216,0.3)"}},"RESONANCE"),
+h("span",{style:{fontSize:8,color:"rgba(0,223,184,0.22)",fontFamily:FONT,fontWeight:600,letterSpacing:"0.2em"}},
+"v3.0")),
+h("div",{style:{display:"flex",alignItems:"center",gap:7,marginTop:4}},
+h("span",{className:"pulse",style:{width:5,height:5,borderRadius:"50%",
+background:cP.color,display:"inline-block",boxShadow:"0 0 8px "+cP.color}}),
+h("span",{style:{fontSize:10,color:cP.color,fontFamily:FONT,fontWeight:600}},cP.name),
+h("span",{style:{fontSize:10,color:"rgba(0,223,184,0.18)",fontFamily:MONO}},
+"· "+mLeft+"m"))),
+h("div",{style:{display:"flex",alignItems:"center",gap:9}},
+h("span",{style:{fontSize:10,color:"rgba(0,223,184,0.2)",fontFamily:MONO}},dStr),
+h("button",{className:"chip",onClick:function(){setModal(true);},
+style:{background:"rgba(0,223,184,0.07)",border:"1px solid rgba(0,223,184,0.18)",
+color:TEAL_HI,fontWeight:700,letterSpacing:"0.1em"}},
+"✚ LOG"))),
+
+/* ── Tab content ── */
+h("div",{key:tab,style:{paddingTop:6}},
+tab==="now"&&renderNow(),
+tab==="plan"&&renderPlan(),
+tab==="you"&&renderYou(),
+tab==="science"&&renderScience()),
+
+/* ── Navigation ── */
+h("div",{className:"nav"},
+TABS.map(function(t){
+var act=tab===t[0];
+return h("button",{key:t[0],className:"nav-btn"+(act?" active":""),
+onClick:function(){setTab(t[0]);}},
+h("div",{className:"nav-icon",
+style:{filter:act?"drop-shadow(0 0 10px "+TEAL+")":"none",
+color:act?TEAL_HI:"rgba(0,223,184,0.24)",transition:"all 0.2s"}},t[2]),
+h("span",{style:{fontFamily:FONT,fontSize:8,letterSpacing:"0.12em"}},t[1].toUpperCase()));})),
+
+trackModal
 );
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(h(App));
 })();
 </script>
+
 </body>
 </html>
