@@ -48,7 +48,7 @@ html,body{margin:0;padding:0;background:var(--bg);overflow-x:hidden;-webkit-over
 ::-webkit-scrollbar{width:2px}
 ::-webkit-scrollbar-thumb{background:rgba(0,223,184,0.12)}
 
-/* ── Noise + Grid Background ── */
+/* ── Ambient Background ── */
 body::before{
 content:"";pointer-events:none;position:fixed;inset:0;z-index:0;
 background-image:
@@ -70,14 +70,14 @@ mask-image:radial-gradient(ellipse at center,black 20%,transparent 80%);
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
 @keyframes pulseGlow{0%,100%{opacity:1}50%{opacity:0.45}}
-@keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
 @keyframes flashSave{0%{box-shadow:0 0 0 0 rgba(0,223,184,0.5)}50%{box-shadow:0 0 32px 12px rgba(0,223,184,0.18)}100%{box-shadow:none}}
-@keyframes rotateSlow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes setupNudge{0%,100%{border-color:rgba(0,223,184,0.09)}50%{border-color:rgba(251,191,36,0.3)}}
 .rise{animation:rise .32s cubic-bezier(0.16,1,0.3,1) both}
 .slide-up{animation:slideUp .38s cubic-bezier(0.16,1,0.3,1) both}
 .flash-save{animation:flashSave .7s ease-out}
 .pulse{animation:pulseGlow 1.4s ease infinite}
+.setup-nudge{animation:setupNudge 2.4s ease 3}
 
 /* ── Base elements ── */
 button{cursor:pointer;font-family:var(--font);border:none;background:none;color:var(--teal);-webkit-tap-highlight-color:transparent;transition:all .16s}
@@ -223,7 +223,6 @@ input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radi
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--teal);cursor:pointer;box-shadow:0 0 12px rgba(0,223,184,0.5)}
 input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--teal);cursor:pointer;border:none;box-shadow:0 0 12px rgba(0,223,184,0.5)}
 </style>
-
 </head>
 <body>
 <div id="root"></div>
@@ -235,8 +234,8 @@ var useState=React.useState,useEffect=React.useEffect,useMemo=React.useMemo,useC
 var RC=Recharts;
 
 /* =============================================
-PHASE DATA — unchanged, validated
-============================================= */
+   PHASE DATA — unchanged, validated
+   ============================================= */
 var PHASES=[
 {id:1,name:"Deep Rest",sym:"🌙",start:0,end:4.27,color:"#818cf8",glo:"rgba(129,140,248,0.6)",
 desc:"Melatonin dominant — neural restoration & memory consolidation",
@@ -309,8 +308,8 @@ var CTXS=[
 ];
 
 /* =============================================
-ASYMMETRIC FOURIER MODELS — H.A. Marouf 2024
-============================================= */
+   ASYMMETRIC FOURIER MODELS — H.A. Marouf 2024
+   ============================================= */
 function clamp(v){return Math.max(0.02,Math.min(0.98,v));}
 function cortisol(t){return clamp(0.3118+0.3528*Math.cos(2*Math.PI*(t-10.48)/24)+0.1596*Math.cos(2*Math.PI*2*(t-8.99)/24)+0.0709*Math.cos(2*Math.PI*3*(t-8.43)/24)+0.0320*Math.cos(2*Math.PI*4*(t-8.46)/24));}
 function bodyTemp(t){return clamp(0.4806+0.3997*Math.cos(2*Math.PI*(t-16.47)/24)+0.0122*Math.cos(2*Math.PI*2*(t-17.80)/24)+0.0465*Math.cos(2*Math.PI*3*(t-8.68)/24));}
@@ -319,8 +318,8 @@ function composite(t){return 0.5*cortisol(t)+0.3*bodyTemp(t)+0.2*melatonin(t);}
 function sdMod(hrs){return Math.max(0.60,1-0.05*Math.max(0,8-hrs));}
 
 /* =============================================
-GEOMETRY
-============================================= */
+   GEOMETRY
+   ============================================= */
 function hDeg(hr){return(hr/24)*360;}
 function toXY(cx,cy,r,deg){var rad=(deg-90)*Math.PI/180;return[cx+r*Math.cos(rad),cy+r*Math.sin(rad)];}
 function arcP(cx,cy,r1,r2,h1,h2){
@@ -354,16 +353,16 @@ function sCol(s){return s>=75?"#00DFB8":s>=40?"#F97316":"#F43F5E";}
 function sLbl(s){return s>=75?"Optimal":s>=40?"Moderate":"Low";}
 
 /* =============================================
-DESIGN TOKENS
-============================================= */
+   DESIGN TOKENS
+   ============================================= */
 var TEAL="#00DFB8",TEAL_HI="#00FFD8",BG="#040810",FG="rgba(218,238,230,0.93)";
 var DIM="rgba(140,185,168,0.52)";
 var FAINT="rgba(0,223,184,0.055)";
 var FONT="'Syne',sans-serif",MONO="'JetBrains Mono',monospace";
 
 /* =============================================
-APP
-============================================= */
+   APP
+   ============================================= */
 function App(){
 var _n=useState(new Date()),now=_n[0],setNow=_n[1];
 var _w=useState(7.0),wk=_w[0],setWk=_w[1];
@@ -377,17 +376,18 @@ var _en=useState({energy:3,focus:3,mood:3,note:""}),ent=_en[0],setEnt=_en[1];
 var _sf=useState(false),saveFlash=_sf[0],setSaveFlash=_sf[1];
 var _wi=useState(""),wkInput=_wi[0],setWkInput=_wi[1];
 var _we=useState(false),wkEdit=_we[0],setWkEdit=_we[1];
+var _wt=useState(false),wakeTouched=_wt[0],setWakeTouched=_wt[1];
 
 useEffect(function(){var t=setInterval(function(){setNow(new Date());},1000);return function(){clearInterval(t);};},[]);
 useEffect(function(){
-/* v30 uses namespaced keys — never inherits stale v29 values */
+/* v31 uses namespaced keys */
 try{var r=localStorage.getItem("rx30-log");if(r)setLog(JSON.parse(r));}catch(e){}
 try{
 var w=localStorage.getItem("rx30-wake");
 if(w){
 var parsed=parseFloat(w);
 /* Sanity-guard: only accept 4–10.5h range */
-if(!isNaN(parsed)&&parsed>=4&&parsed<=10.5){setWk(parsed);}
+if(!isNaN(parsed)&&parsed>=4&&parsed<=10.5){setWk(parsed);setWakeTouched(true);}
 else{localStorage.removeItem("rx30-wake");}
 }
 }catch(e){}
@@ -444,20 +444,21 @@ setSaveFlash(true);setTimeout(function(){setSaveFlash(false);},700);
 function commitWake(){
 var parts=wkInput.split(":");
 if(parts.length===2){var hh=parseInt(parts[0]),mm=parseInt(parts[1]);
-if(!isNaN(hh)&&!isNaN(mm)&&hh>=0&&hh<=23&&mm>=0&&mm<=59){var v=hh+mm/60;if(v>=4&&v<=10.5){setWk(v);}}}
+if(!isNaN(hh)&&!isNaN(mm)&&hh>=0&&hh<=23&&mm>=0&&mm<=59){var v=hh+mm/60;if(v>=4&&v<=10.5){setWk(v);setWakeTouched(true);}}}
 setWkEdit(false);
 }
+function touchWake(v){setWk(v);setWakeTouched(true);}
 function doExport(){
 try{var hdr="Phase,Time,Energy,Focus,Mood,Note\n";
-var rows=log.map(function(e){return[e.phase,e.time,e.energy,e.focus,e.mood,'\"'+(e.note||"").replace(/\"/g,'\"\"')+'\"'].join(",");}).join("\n");
+var rows=log.map(function(e){return[e.phase,e.time,e.energy,e.focus,e.mood,'"'+(e.note||"").replace(/"/g,'""')+'"'].join(",");}).join("\n");
 var blob=new Blob([hdr+rows],{type:"text/csv"});var url=URL.createObjectURL(blob);
 var a=document.createElement("a");a.href=url;a.download="resonance-log.csv";a.click();
 setTimeout(function(){URL.revokeObjectURL(url);},1000);}catch(e){}
 }
 
 /* =============================================
-SVG CLOCK — refined geometry, same math
-============================================= */
+   SVG CLOCK — refined geometry, same math
+   ============================================= */
 var SZ=380,CX=190,CY=190,RPI=104,RPO=136,RWI=142,RWO=160,RICO=170;
 
 var clockEl=(function(){
@@ -607,8 +608,8 @@ rings,ticks,cards,segs,wave,wakeM,icons,needle,center,corners));
 })();
 
 /* =============================================
-TAB: NOW
-============================================= */
+   TAB: NOW — v3.1 reordered: Setup → Clock → Status → Actions
+   ============================================= */
 function renderNow(){
 var top3=sorted.slice(0,3);
 var upcoming=[];
@@ -621,52 +622,28 @@ upcoming.push({p:p,away:away});
 });
 var debtCol=sleepH>=7.5?"#00DFB8":sleepH>=6?"#F97316":"#F43F5E";
 var wakePresets=[5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10];
+var isDefault=Math.abs(wk-7.0)<0.01&&!wakeTouched;
+var wakePhase=phaseAt(((wk-wo)%24+24)%24);
 
 return h("div",{className:"rise",style:{padding:"0 14px",opacity:dimFactor}},
-clockEl,
 
-/* ── Phase Banner ── */
-h("div",{
-  className:saveFlash?"card card-phase flash-save":"card card-phase",
-  style:{borderLeftColor:cP.color,borderColor:"rgba(0,223,184,0.07)",marginTop:4,
-    background:"rgba(11,22,40,0.92)"}},
-  h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}},
-    h("div",{style:{flex:1}},
-      h("p",{style:{fontSize:17,fontWeight:800,color:cP.color,margin:"0 0 5px",fontFamily:FONT,
-        textShadow:"0 0 24px "+cP.color+"55"}},cP.sym+" "+cP.name),
-      h("p",{style:{fontSize:11,color:DIM,margin:0,lineHeight:1.65,fontWeight:400}},cP.desc)),
-    h("div",{style:{textAlign:"right",flexShrink:0,marginLeft:16}},
-      h("div",{style:{fontSize:20,fontWeight:700,color:cP.color,fontFamily:MONO}},Math.round(pP*100)+"%"),
-      h("div",{style:{fontSize:9,color:DIM,marginTop:2,fontFamily:FONT,letterSpacing:"0.1em"}},mLeft+"m left"),
-      h("div",{style:{fontSize:9,color:"rgba(255,255,255,0.15)",marginTop:2,fontFamily:MONO}},
-        fmtT(cP.start+wo)+"–"+fmtT(cP.end+wo)))),
-  h("div",{className:"pbar"},
-    h("div",{className:"pbar-fill",style:{width:(pP*100)+"%",background:cP.color,
-      boxShadow:"0 0 12px "+cP.color+"70"}})),
-  h("div",{style:{display:"flex",gap:6,flexWrap:"wrap",marginTop:12}},
-    cP.best.map(function(a){
-      return h("span",{key:"b"+a,className:"tag",
-        style:{background:cP.color+"14",color:cP.color,border:"1px solid "+cP.color+"28"}},
-        "✓ "+a);}),
-    cP.avoid.map(function(a){
-      return h("span",{key:"v"+a,className:"tag",
-        style:{background:"rgba(244,63,94,0.08)",color:"#F43F5E",border:"1px solid rgba(244,63,94,0.2)"}},
-        "× "+a);}))
-),
+/* ═══════════════════════════════════════════
+   1. DAILY SETUP — first actions on open
+   ═══════════════════════════════════════════ */
 
 /* ── Wake Time ── */
-h("div",{className:"card"},
+h("div",{className:"card"+(isDefault?" setup-nudge":""),style:{marginTop:4}},
   h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}},
     h("span",{className:"lbl",style:{margin:0}},"Wake Time"),
     h("button",{
-      onClick:function(){setWk(7.0);},
+      onClick:function(){touchWake(7.0);},
       style:{fontSize:9,color:"rgba(0,223,184,0.38)",fontFamily:FONT,fontWeight:700,
         letterSpacing:"0.12em",textTransform:"uppercase",padding:"4px 10px",
         border:"1px solid rgba(0,223,184,0.14)",borderRadius:4,
         background:"rgba(0,223,184,0.03)",cursor:"pointer"}},
       "↺ Reset 7am")),
   h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}},
-    h("button",{className:"step-btn",onClick:function(){setWk(function(v){return Math.max(4,Math.round((v-0.25)*4)/4);});}},"\u2212"),
+    h("button",{className:"step-btn",onClick:function(){touchWake(Math.max(4,Math.round((wk-0.25)*4)/4));}},"\u2212"),
     h("div",{style:{textAlign:"center",flex:1}},
       wkEdit
         ?h("input",{className:"wake-input",autoFocus:true,value:wkInput,
@@ -675,12 +652,13 @@ h("div",{className:"card"},
             onKeyDown:function(e){if(e.key==="Enter")commitWake();}})
         :h("div",{onClick:function(){setWkInput(fmtT(wk));setWkEdit(true);},style:{cursor:"pointer"}},
           h("div",{style:{fontSize:30,fontWeight:600,color:TEAL_HI,fontFamily:MONO,letterSpacing:"0.04em"}},fmtT(wk)),
-          h("div",{style:{fontSize:8,color:"rgba(0,223,184,0.22)",marginTop:3,letterSpacing:"0.12em",fontFamily:FONT,textTransform:"uppercase"}},"tap to edit")),
-      h("div",{style:{fontSize:9,color:DIM,marginTop:4,fontFamily:FONT,letterSpacing:"0.1em"},
-        dangerouslySetInnerHTML:{__html: phaseAt(((wk-wo)%24+24)%24).sym+" wake into "+phaseAt(((wk-wo)%24+24)%24).name}})),
-    h("button",{className:"step-btn",onClick:function(){setWk(function(v){return Math.min(10.5,Math.round((v+0.25)*4)/4);});}},"+")
+          h("div",{style:{fontSize:8,color:"rgba(0,223,184,0.22)",marginTop:3,letterSpacing:"0.12em",fontFamily:FONT,textTransform:"uppercase"}},
+            isDefault?"set your wake time":"tap to edit")),
+      h("div",{style:{fontSize:9,color:DIM,marginTop:4,fontFamily:FONT,letterSpacing:"0.1em"}},
+        wakePhase.sym+" wake into "+wakePhase.name)),
+    h("button",{className:"step-btn",onClick:function(){touchWake(Math.min(10.5,Math.round((wk+0.25)*4)/4));}},"+")
   ),
-  /* Sanity warning: if stored wake time is > 2h from a plausible range, flag it */
+  /* Sanity warning */
   (wk>9)&&h("div",{style:{
     marginBottom:10,padding:"8px 12px",
     background:"rgba(249,115,22,0.06)",
@@ -690,7 +668,7 @@ h("div",{className:"card"},
   h("div",{style:{display:"flex",gap:5,flexWrap:"wrap"}},
     wakePresets.map(function(t){
       var act=Math.abs(wk-t)<0.13;
-      return h("button",{key:t,className:"chip",onClick:function(){setWk(t);},
+      return h("button",{key:t,className:"chip",onClick:function(){touchWake(t);},
         style:{background:act?"rgba(0,223,184,0.13)":FAINT,
           color:act?TEAL_HI:DIM,
           border:"1px solid "+(act?"rgba(0,223,184,0.35)":"rgba(0,223,184,0.08)")}},
@@ -716,7 +694,52 @@ h("div",{className:"card"},
     "⚠ Sleep debt — all scores reduced by "+Math.round((1-mod)*100)+"% (Walker 2017)")
 ),
 
-/* ── Top 3 Optimal ── */
+/* ═══════════════════════════════════════════
+   2. CLOCK — hero visual, now calibrated
+   ═══════════════════════════════════════════ */
+clockEl,
+
+/* ═══════════════════════════════════════════
+   3. PHASE BANNER — current status
+   ═══════════════════════════════════════════ */
+h("div",{
+  className:saveFlash?"card card-phase flash-save":"card card-phase",
+  style:{borderLeftColor:cP.color,borderColor:"rgba(0,223,184,0.07)",marginTop:4,
+    background:"rgba(11,22,40,0.92)"}},
+  h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}},
+    h("div",{style:{flex:1}},
+      h("p",{style:{fontSize:17,fontWeight:800,color:cP.color,margin:"0 0 5px",fontFamily:FONT,
+        textShadow:"0 0 24px "+cP.color+"55"}},cP.sym+" "+cP.name),
+      h("p",{style:{fontSize:11,color:DIM,margin:0,lineHeight:1.65,fontWeight:400}},cP.desc)),
+    h("div",{style:{textAlign:"right",flexShrink:0,marginLeft:16}},
+      h("div",{style:{fontSize:20,fontWeight:700,color:cP.color,fontFamily:MONO}},Math.round(pP*100)+"%"),
+      h("div",{style:{fontSize:9,color:DIM,marginTop:2,fontFamily:FONT,letterSpacing:"0.1em"}},mLeft+"m left"),
+      h("div",{style:{fontSize:9,color:"rgba(255,255,255,0.15)",marginTop:2,fontFamily:MONO}},
+        fmtT(cP.start+wo)+"–"+fmtT(cP.end+wo)))),
+  h("div",{className:"pbar"},
+    h("div",{className:"pbar-fill",style:{width:(pP*100)+"%",background:cP.color,
+      boxShadow:"0 0 12px "+cP.color+"70"}})),
+  /* Next phase preview line */
+  h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:10,paddingTop:8,
+    borderTop:"1px solid rgba(0,223,184,0.04)"}},
+    h("span",{style:{fontSize:10,color:DIM,fontFamily:FONT}},
+      "Next: "+nextP.sym+" "+nextP.name),
+    h("span",{style:{fontSize:10,color:nextP.color,fontFamily:MONO}},
+      "~"+fmtT12(((nextP.start+wo)%24+24)%24))),
+  h("div",{style:{display:"flex",gap:6,flexWrap:"wrap",marginTop:10}},
+    cP.best.map(function(a){
+      return h("span",{key:"b"+a,className:"tag",
+        style:{background:cP.color+"14",color:cP.color,border:"1px solid "+cP.color+"28"}},
+        "✓ "+a);}),
+    cP.avoid.map(function(a){
+      return h("span",{key:"v"+a,className:"tag",
+        style:{background:"rgba(244,63,94,0.08)",color:"#F43F5E",border:"1px solid rgba(244,63,94,0.2)"}},
+        "× "+a);}))
+),
+
+/* ═══════════════════════════════════════════
+   4. TOP ACTIVITIES — what to do now
+   ═══════════════════════════════════════════ */
 h("div",{className:"card card-accent"},
   h("span",{className:"lbl",style:{color:TEAL}},"Optimal Right Now"),
   mod<1&&h("div",{style:{fontSize:10,color:"#F43F5E",marginBottom:10,fontFamily:FONT}},
@@ -731,7 +754,10 @@ h("div",{className:"card card-accent"},
         justifyContent:"center",fontSize:20,
         background:col+"10",border:"1px solid "+col+"18",borderRadius:8}},act.icon),
       h("div",{style:{flex:1}},
-        h("div",{style:{fontSize:13,fontWeight:700,color:FG,fontFamily:FONT}},act.name),
+        h("div",{style:{display:"flex",alignItems:"center",gap:7}},
+          h("span",{style:{fontSize:13,fontWeight:700,color:FG,fontFamily:FONT}},act.name),
+          h("span",{style:{fontSize:8,color:col,fontFamily:FONT,fontWeight:700,letterSpacing:"0.08em",
+            background:col+"10",padding:"2px 7px",borderRadius:3,textTransform:"uppercase"}},sLbl(sc))),
         h("div",{style:{fontSize:10,color:DIM,marginTop:3,lineHeight:1.5}},
           act.adapt[tier].split(".")[0]+".")),
       h("div",{style:{textAlign:"right"}},
@@ -744,11 +770,14 @@ h("div",{className:"card card-accent"},
     "See all activities →")
 ),
 
-/* ── Incoming Phases ── */
+/* ═══════════════════════════════════════════
+   5. INCOMING PHASES — with arrival clock times
+   ═══════════════════════════════════════════ */
 h("div",{className:"card"},
   h("span",{className:"lbl"},"Incoming"),
   upcoming.slice(0,3).map(function(item,i){
     var p=item.p,away=item.away,hh=Math.floor(away),mm=Math.round((away-hh)*60);
+    var arrivalH=((p.start+wo)%24+24)%24;
     return h("div",{key:p.id,style:{
       display:"flex",alignItems:"center",gap:12,
       padding:"10px 0",
@@ -759,14 +788,17 @@ h("div",{className:"card"},
         h("div",{style:{fontSize:12,fontWeight:600,color:FG}},p.sym+" "+p.name),
         h("div",{style:{fontSize:10,color:DIM,marginTop:2,lineHeight:1.4}},
           p.desc.slice(0,44)+"…")),
-      h("div",{style:{fontSize:11,color:DIM,fontFamily:MONO,textAlign:"right",minWidth:40}},
-        hh>0?hh+"h "+mm+"m":mm+"m"));}))
+      h("div",{style:{textAlign:"right",minWidth:52}},
+        h("div",{style:{fontSize:11,color:DIM,fontFamily:MONO}},
+          hh>0?hh+"h "+mm+"m":mm+"m"),
+        h("div",{style:{fontSize:9,color:p.color,fontFamily:MONO,marginTop:2}},
+          "~"+fmtT12(arrivalH))));}))
 );
 }
 
 /* =============================================
-TAB: PLAN
-============================================= */
+   TAB: PLAN
+   ============================================= */
 function renderPlan(){
 return h("div",{className:"rise",style:{padding:"0 14px"}},
 /* Context chips */
@@ -814,8 +846,8 @@ h("div",{className:"pbar-fill",style:{width:sc+"%",background:col}}))));
 }
 
 /* =============================================
-TAB: YOU
-============================================= */
+   TAB: YOU
+   ============================================= */
 function renderYou(){
 var bm=[
 {name:"Cortisol",val:cortisol(sH),color:"#F97316"},
@@ -940,8 +972,8 @@ log.length>0
 }
 
 /* =============================================
-TAB: SCIENCE — all content intact
-============================================= */
+   TAB: SCIENCE — all content intact
+   ============================================= */
 function renderScience(){
 var artD=[
 [1,"0.0°","12.7°",12.7],[2,"40.1°","38.8°",1.3],[3,"82.0°","64.0°",18.0],
@@ -1059,8 +1091,8 @@ h("div",{className:"card"},
 }
 
 /* =============================================
-TRACK MODAL
-============================================= */
+   TRACK MODAL
+   ============================================= */
 var trackModal=modal&&h("div",{
 onClick:function(e){if(e.target===e.currentTarget)setModal(false);},
 style:{position:"fixed",inset:0,zIndex:100,display:"flex",alignItems:"flex-end",justifyContent:"center",
@@ -1107,8 +1139,8 @@ style:{width:"100%",marginTop:14}},
 );
 
 /* =============================================
-ROOT
-============================================= */
+   ROOT
+   ============================================= */
 var TABS=[["now","Now","◈"],["plan","Plan","⬡"],["you","You","◇"],["science","Science","⌬"]];
 
 return h("div",{style:{
@@ -1130,7 +1162,7 @@ h("h1",{style:{fontSize:20,fontWeight:800,color:TEAL_HI,margin:0,
 letterSpacing:"0.14em",fontFamily:FONT,
 textShadow:"0 0 28px rgba(0,255,216,0.3)"}},"RESONANCE"),
 h("span",{style:{fontSize:8,color:"rgba(0,223,184,0.22)",fontFamily:FONT,fontWeight:600,letterSpacing:"0.2em"}},
-"v3.0")),
+"v3.1")),
 h("div",{style:{display:"flex",alignItems:"center",gap:7,marginTop:4}},
 h("span",{className:"pulse",style:{width:5,height:5,borderRadius:"50%",
 background:cP.color,display:"inline-block",boxShadow:"0 0 8px "+cP.color}}),
@@ -1169,6 +1201,5 @@ trackModal
 ReactDOM.createRoot(document.getElementById("root")).render(h(App));
 })();
 </script>
-
 </body>
 </html>
