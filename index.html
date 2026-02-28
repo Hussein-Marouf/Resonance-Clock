@@ -704,7 +704,7 @@ html, body {
     <div id="tab-bar">
       <span class="live-dot"></span>
       <button class="tb mobile-only" id="tb-phase" data-pane="tp-phase">Phase</button>
-      <label class="tb tb-art" for="artwork-file" id="artwork-label"><span id="artwork-label-text">&#9651; Artwork</span></label>
+      <label class="tb tb-art" for="artwork-file" id="artwork-label"><span id="artwork-label-text">&#8683; Upload Artwork</span></label>
       <button class="tb" data-pane="tp-chrono">Chronotype</button>
       <button class="tb" data-pane="tp-sci">Science</button>
       <button class="tb" data-pane="tp-waves">Hormones</button>
@@ -1133,7 +1133,7 @@ function drawCentre(phase, t) {
 
       const isPast = i < phase;
       cx.save();
-        cx.globalAlpha = isPast ? 0.55 : 0.07;
+        cx.globalAlpha = isPast ? 0.78 : 0.07;
         cx.translate(OX, OY);
         cx.rotate(midA);
         cx.drawImage(mandalaImg, -dw / 2, -dh / 2, dw, dh);
@@ -1206,13 +1206,13 @@ function drawCentre(phase, t) {
 
   cx.restore(); // removes clip
 
-  // Phase-hued glow ring outside clip — BRIGHT
+  // Phase-hued glow ring — OUTSIDE artwork only
   const nb2 = 0.5 + 0.5 * Math.sin(t * 0.0019);
-  const ng2 = cx.createRadialGradient(OX, OY, clipR * 0.78, OX, OY, clipR * 1.15);
-  ng2.addColorStop(0, hs(h, s+10, l+10, 0.40 + nb2 * 0.18));
-  ng2.addColorStop(.6, hs(h, s, l, 0.12 + nb2 * 0.08));
+  const ng2 = cx.createRadialGradient(OX, OY, clipR, OX, OY, clipR * 1.18);
+  ng2.addColorStop(0, hs(h, s+10, l+10, 0.32 + nb2 * 0.12));
+  ng2.addColorStop(.5, hs(h, s, l, 0.10 + nb2 * 0.06));
   ng2.addColorStop(1, 'transparent');
-  cx.beginPath(); cx.arc(OX, OY, clipR * 1.15, 0, TP);
+  cx.beginPath(); cx.arc(OX, OY, clipR * 1.18, 0, TP);
   cx.fillStyle = ng2; cx.fill();
 
   // Ring border — more visible
