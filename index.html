@@ -1104,7 +1104,7 @@ function drawCentre(phase, t) {
   cx.arc(OX, OY, clipR, 0, TP);
   cx.clip();
 
-  // Very dark base — not pure black so artwork breathes
+  // Pure black base — lighten blend means max(black, artwork) = artwork
   cx.fillStyle = '#000';
   cx.fillRect(OX - clipR, OY - clipR, clipR * 2, clipR * 2);
 
@@ -1117,16 +1117,23 @@ function drawCentre(phase, t) {
 
     const times = getTimes();
 
-    // ── DRAW ALL 9 PHASES as rotated artwork ──
-    // Past phases: visible trace (builds the mandala)
-    // Active phase: full vivid (on top)
-    // Future phases: faint ghost preview
+    // ════════════════════════════════════════════════════════════
+    // MANDALA UNFOLD BLEND — adapted from v10 blend_layers():
+    //   Dark BG → lighten blend → per-pixel max(existing, new)
+    //   Bright pixels accumulate, dark pixels never overwrite.
+    //   Each rotated copy adds its bright regions without
+    //   destroying what's already there. This is how the mandala
+    //   builds up layer by layer.
     //
-    // Uses `phase` (which follows forced browsing) so tapping
-    // through phases visually builds the mandala composite.
+    //   source-over + alpha DARKENS artwork: px = src*α + black*(1-α)
+    //   lighten at α=1.0 PRESERVES artwork: px = max(existing, src)
+    // ════════════════════════════════════════════════════════════
 
+    cx.globalCompositeOperation = 'lighten';
+
+    // ── Past phases: full-strength traces that build the mandala ──
     for (let i = 0; i < 9; i++) {
-      if (i === phase) continue; // draw active last (on top)
+      if (i === phase) continue; // draw active last
 
       const sT = times[i], eT = times[(i + 1) % 9];
       let sA = (sT / TAU) * TP - Math.PI / 2;
@@ -1137,14 +1144,16 @@ function drawCentre(phase, t) {
 
       const isPast = i < phase;
       cx.save();
-        cx.globalAlpha = isPast ? 0.78 : 0.07;
+        // lighten + 1.0 alpha = pure per-pixel max (Mandala Unfold)
+        // Past phases at full strength, future at faint preview
+        cx.globalAlpha = isPast ? 1.0 : 0.06;
         cx.translate(OX, OY);
         cx.rotate(midA);
         cx.drawImage(mandalaImg, -dw / 2, -dh / 2, dw, dh);
       cx.restore();
     }
 
-    // ── Active phase — full vivid on top ──
+    // ── Active phase: vivid on top ──
     {
       const sT = times[phase], eT = times[(phase + 1) % 9];
       let sA = (sT / TAU) * TP - Math.PI / 2;
