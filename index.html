@@ -1097,16 +1097,14 @@ function commitTraceForPhase(phaseIdx, times) {
   if (eA <= sA) eA += TP;
   const midA = sA + (eA - sA) / 2;
 
-  // Draw trace stamp into persistent offscreen canvas
+  // Stamp artwork into persistent offscreen canvas at this phase angle
+  // source-over preserves true artwork colours; high alpha for clear visibility
   traceCtx.save();
     traceCtx.beginPath();
     traceCtx.arc(OX, OY, clipR, 0, TP);
     traceCtx.clip();
-
-    // Lighten blend: max(src, dst) per channel — prevents dark-bg erasure
-    // Same logic as Mandala Unfold v10 adaptive blend for dark backgrounds
-    traceCtx.globalCompositeOperation = 'lighten';
-    traceCtx.globalAlpha = 0.35;  // trace opacity — visible but not dominant
+    traceCtx.globalCompositeOperation = 'source-over';
+    traceCtx.globalAlpha = 0.55;
     traceCtx.translate(OX, OY);
     traceCtx.rotate(midA);
     traceCtx.drawImage(mandalaImg, -dw / 2, -dh / 2, dw, dh);
@@ -1125,8 +1123,8 @@ function drawCentre(phase, t) {
   cx.arc(OX, OY, clipR, 0, TP);
   cx.clip();
 
-  // Pure black base — critical for lighten blend
-  cx.fillStyle = '#000000';
+  // Very dark base — not pure black so artwork breathes
+  cx.fillStyle = 'rgba(4,12,6,0.97)';
   cx.fillRect(OX - clipR, OY - clipR, clipR * 2, clipR * 2);
 
   if (mandalaLoaded && mandalaImg && mandalaImg.naturalWidth > 0) {
@@ -1140,30 +1138,30 @@ function drawCentre(phase, t) {
     const livePh = whichPhase(new Date(), times);
 
     // ── TRACE ACCUMULATION ──
-    // Commit traces for all past phases (and current at midpoint)
+    // Commit traces for completed phases into the persistent offscreen canvas
     if (livePh !== lastTracePhase) {
-      // When phase changes, commit the PREVIOUS phase as a trace
       if (lastTracePhase >= 0 && lastTracePhase !== livePh) {
         commitTraceForPhase(lastTracePhase, times);
       }
-      // Also commit all phases before the current one (handles page reload mid-day)
+      // Handle page reload mid-day — commit all phases before current
       for (let i = 0; i < livePh; i++) {
         commitTraceForPhase(i, times);
       }
       lastTracePhase = livePh;
     }
 
-    // ── DRAW TRACE LAYER (accumulated ghosts) ──
+    // ── DRAW PERSISTENT TRACE LAYER (accumulated past-phase ghosts) ──
     if (traceCanvas && tracedPhases.size > 0) {
       cx.save();
-      cx.globalCompositeOperation = 'lighten';
-      cx.globalAlpha = 0.60;
+      cx.globalCompositeOperation = 'source-over';
+      cx.globalAlpha = 0.85;
       cx.drawImage(traceCanvas, 0, 0);
       cx.restore();
     }
 
-    // ── DRAW ALL 9 LAYERS ──
-    // Z-order: future (bottom) → past → active (top)
+    // ── DRAW LIVE LAYERS ──
+    // Z-order: future (bottom, faint ghost) → past (mid, clear) → active (top, vivid)
+    // source-over throughout — preserves true artwork colours
     const order = [];
     for (let i = 0; i < 9; i++) {
       const isActive = (i === phase);
@@ -1180,20 +1178,18 @@ function drawCentre(phase, t) {
       if (eA <= sA) eA += TP;
       const midA = sA + (eA - sA) / 2;
 
-      // Fixed opacities — no sine breathing on opacity (avoids false rotation)
-      // Active: prominent | Past: trace visible | Future: ghost hint
-      const opacity = isActive ? 0.80
-                    : isPast   ? 0.28
-                    :            0.05;
+      // Clear opacity hierarchy — artwork stays true-colour
+      const opacity = isActive ? 0.95
+                    : isPast   ? 0.50
+                    :            0.10;
 
       cx.save();
+        cx.globalCompositeOperation = 'source-over';
         cx.globalAlpha = opacity;
-        // Past phases use lighten to show as accumulated traces
-        if (isPast) cx.globalCompositeOperation = 'lighten';
         cx.translate(OX, OY);
         cx.rotate(midA);
         if (isActive) {
-          const pulse = 1.0 + 0.022 * Math.sin(t * 0.0017);
+          const pulse = 1.0 + 0.018 * Math.sin(t * 0.0017);
           cx.scale(pulse, pulse);
         }
         cx.drawImage(mandalaImg, -dw / 2, -dh / 2, dw, dh);
@@ -1234,7 +1230,6 @@ function drawCentre(phase, t) {
       cx.fillStyle = hs(CLR[i].h, CLR[i].s+8, CLR[i].l + 15, pa);
       cx.fill();
       if (isAct) {
-        // Active dot glow
         const dg = cx.createRadialGradient(OX + dr * Math.cos(midA), OY + dr * Math.sin(midA), 0,
           OX + dr * Math.cos(midA), OY + dr * Math.sin(midA), 14);
         dg.addColorStop(0, hs(CLR[i].h, CLR[i].s+15, CLR[i].l+20, 0.50));
@@ -1361,10 +1356,9 @@ function drawWaveCanvas(now) {
 // ════════════════════════════════════════════════════════════════
 function whichPhase(now, times) {
   const h = now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
-  const sh = (h-chronoOff+TAU)%TAU;
   for(let i=0;i<9;i++){
-    if(i<8){ if(sh>=times[i]&&sh<times[i+1]) return i; }
-    else { if(sh>=times[i]||sh<times[0]) return i; }
+    if(i<8){ if(h>=times[i]&&h<times[i+1]) return i; }
+    else { if(h>=times[i]||h<times[0]) return i; }
   } return 0;
 }
 
@@ -1373,8 +1367,9 @@ function whichPhase(now, times) {
 // ════════════════════════════════════════════════════════════════
 function fmtT(t) {
   t = ((t % TAU) + TAU) % TAU;
-  const hh = Math.floor(t) % 24;
-  const mm = Math.round((t % 1) * 60) % 60;
+  let hh = Math.floor(t) % 24;
+  let mm = Math.round((t % 1) * 60);
+  if(mm >= 60){ mm = 0; hh = (hh + 1) % 24; }
   return String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
 }
 
@@ -1834,13 +1829,12 @@ window.addEventListener('load', ()=>{
 // Keyboard support for wake picker
 document.addEventListener('keydown', function(e) {
   if(!document.getElementById('wake-overlay').classList.contains('open')) return;
-  e.preventDefault();
-  if(e.key === 'Escape') { closeWakePicker(); return; }
-  if(e.key === 'Enter')  { applyWakeTime(); return; }
-  if(e.key === 'ArrowUp')   { pickerM+=5; if(pickerM>=60){pickerM-=60;pickerH=(pickerH+1)%24;} updatePickerDisplay(); }
-  if(e.key === 'ArrowDown') { pickerM-=5; if(pickerM<0){pickerM+=60;pickerH=(pickerH+23)%24;} updatePickerDisplay(); }
-  if(e.key === 'ArrowRight'){ pickerH=(pickerH+1)%24; updatePickerDisplay(); }
-  if(e.key === 'ArrowLeft') { pickerH=(pickerH+23)%24; updatePickerDisplay(); }
+  if(e.key === 'Escape') { e.preventDefault(); closeWakePicker(); return; }
+  if(e.key === 'Enter')  { e.preventDefault(); applyWakeTime(); return; }
+  if(e.key === 'ArrowUp')   { e.preventDefault(); pickerM+=5; if(pickerM>=60){pickerM-=60;pickerH=(pickerH+1)%24;} updatePickerDisplay(); }
+  if(e.key === 'ArrowDown') { e.preventDefault(); pickerM-=5; if(pickerM<0){pickerM+=60;pickerH=(pickerH+23)%24;} updatePickerDisplay(); }
+  if(e.key === 'ArrowRight'){ e.preventDefault(); pickerH=(pickerH+1)%24; updatePickerDisplay(); }
+  if(e.key === 'ArrowLeft') { e.preventDefault(); pickerH=(pickerH+23)%24; updatePickerDisplay(); }
 });
 
 </script>
