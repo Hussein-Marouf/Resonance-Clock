@@ -44,10 +44,18 @@ html, body {
   backdrop-filter:blur(8px);
   pointer-events:all;
 }
+.hdr-brand { min-width:0; }
 .hdr-title {
   font-family:'Source Sans 3',sans-serif; font-weight:600;
   font-size:15px; letter-spacing:0.14em;
   color:rgba(228,205,140,1.0);
+}
+.hdr-tagline {
+  font-family:'Source Sans 3',sans-serif; font-weight:400;
+  font-size:11px; letter-spacing:0.06em;
+  color:rgba(240,218,110,0.70);
+  margin-top:1px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
 #hdr-clock {
@@ -106,37 +114,6 @@ html, body {
 }
 .ph-btn.active .ph-time { color:rgba(215,185,100,0.85); }
 
-/* ── TAGLINE ── */
-#tagline {
-  position:fixed; transform:translateX(-50%);
-  z-index:15; pointer-events:none;
-  display:flex; align-items:center; gap:14px;
-  white-space:nowrap;
-}
-#tagline::before,
-#tagline::after {
-  content:''; display:block;
-  width:40px; height:1px; flex-shrink:0;
-  background:linear-gradient(90deg, transparent, rgba(228,205,100,0.45), transparent);
-}
-#tagline-text {
-  font-family:'Source Sans 3',sans-serif;
-  font-size:14px; font-weight:500; letter-spacing:0.12em;
-  color:rgba(245,225,100,0.95);
-  text-shadow:0 0 20px rgba(228,200,80,0.35), 0 0 50px rgba(200,175,60,0.15);
-}
-/* ═══ MOBILE OVERHAUL ═══ */
-@media(max-width:900px){
-  /* Tagline */
-  #tagline { gap:10px; }
-  #tagline::before, #tagline::after { width:24px; }
-  #tagline-text { font-size:12px; letter-spacing:0.08em; }
-}
-@media(max-width:500px){
-  #tagline { white-space:normal; }
-  #tagline::before, #tagline::after { display:none; }
-  #tagline-text { font-size:11px; letter-spacing:0.05em; text-align:center; line-height:1.5; }
-}
 
 /* ── CENTER — text positioned BELOW the clock face ── */
 #center-area {
@@ -326,62 +303,41 @@ html, body {
 #sidebar-left::-webkit-scrollbar-track { background:transparent; }
 #sidebar-left::-webkit-scrollbar-thumb { background:rgba(140,165,130,0.18); border-radius:2px; }
 
-/* Responsive — desktop sidebar collapse */
+/* ═══ RESPONSIVE ═══ */
 @media(max-width:900px){
-  #shell {
-    grid-template-columns: 0 1fr 0;
-    grid-template-rows: 50px 1fr auto;
-  }
+  #shell { grid-template-columns:0 1fr 0; grid-template-rows:auto 1fr auto; }
   #sidebar-left, #sidebar-right { display:none; }
   #center-text { width:260px; }
   #ct-name { font-size:clamp(20px,5vw,32px); }
-
-  /* Bottom panel — generous space */
-  #tab-content { max-height:220px; padding:14px 16px 18px; }
+  #hdr { padding:0 14px; }
+  .hdr-tagline { font-size:10px; }
+  #tab-content { max-height:240px; padding:14px 16px 20px; }
   .tab-pane.on { gap:14px; }
-
-  /* Tab bar — bigger touch targets */
-  #tab-bar { padding:0 10px; }
-  .tb { font-size:11px; padding:12px 12px 10px; letter-spacing:0.12em; }
-
-  /* Phase strip — bigger dots */
+  #tab-bar { padding:0 8px; }
+  .tb { font-size:11px; padding:12px 10px 10px; letter-spacing:0.10em; }
   #phase-strip { gap:8px; padding:10px 12px 8px; }
   .ps-dot { width:36px; height:36px; font-size:13px; font-weight:500; }
+  #hdr-clock { font-size:18px; }
 }
-
-/* Medium phones */
 @media(max-width:600px){
-  #shell { grid-template-rows: 46px 1fr auto; }
-  #hdr { padding:0 10px; gap:6px; }
-  .hdr-title { font-size:13px; letter-spacing:0.08em; }
-  #hdr-clock { font-size:16px; }
+  #hdr { padding:0 10px; gap:4px; }
+  .hdr-title { font-size:12px; letter-spacing:0.06em; }
+  .hdr-tagline { display:none; }
+  #hdr-clock { font-size:15px; }
   #hdr-date { font-size:9px; }
-  #wake-btn { padding:5px 8px; gap:6px; }
+  #wake-btn { padding:4px 8px; gap:5px; }
   .wb-label { font-size:7px; }
-  #wake-time-display { font-size:13px; }
-  .wb-since { font-size:7px; }
-
-  #center-text { width:240px; }
-  #center-area { padding-bottom:8px; }
-  #ct-num { font-size:10px; }
-  #ct-range { font-size:12px; }
-  #ct-until { font-size:10px; }
+  #wake-time-display { font-size:12px; }
+  .wb-since { display:none; }
+  #center-area { padding-bottom:6px; }
+  #center-text { width:220px; }
+  #ct-num { font-size:10px; letter-spacing:0.14em; }
+  #ct-range { font-size:11px; }
+  .tb { font-size:10px; padding:10px 8px 8px; }
 }
-
-/* Small phones */
-@media(max-width:400px){
-  .hdr-title { font-size:11px; }
-  #hdr-clock { font-size:14px; }
-  #center-text { width:200px; }
-  .ps-dot { width:30px; height:30px; font-size:11px; }
-  .tb { font-size:10px; padding:10px 8px 8px; letter-spacing:0.08em; }
-}
-
-/* Short screens — keep phase info visible */
 @media(max-width:900px) and (max-height:700px){
   #tab-content { max-height:160px; }
-  #ct-range { display:none; }
-  #ct-until { display:none; }
+  #ct-range, #ct-until { display:none; }
 }
 
 /* ── WAKE BUTTON ── */
@@ -587,56 +543,13 @@ html, body {
   box-shadow:0 0 12px rgba(120,185,140,0.12);
 }
 
-/* ── ARTWORK UPLOAD BUTTON ── */
-#artwork-upload-wrap {
-  position:fixed; bottom:0; left:50%;
-  transform:translateX(-50%); z-index:400;
-  pointer-events:all;
+/* ── ARTWORK BUTTON (in tab bar) ── */
+.tb-art {
+  cursor:pointer; margin-left:auto;
+  color:rgba(148,200,162,0.70);
 }
-#artwork-label {
-  display:flex; align-items:center; gap:7px;
-  padding:8px 16px 8px 12px;
-  background:rgba(6,20,8,0.85);
-  border:1px solid rgba(140,188,152,0.30);
-  border-bottom:none; border-radius:6px 6px 0 0;
-  cursor:pointer; transition:all 0.22s;
-  backdrop-filter:blur(8px);
-}
-#artwork-label:hover {
-  background:rgba(10,30,12,0.92);
-  border-color:rgba(168,215,178,0.55);
-}
-#artwork-label svg {
-  width:14px; height:14px;
-  color:rgba(148,205,165,0.82); flex-shrink:0;
-}
-#artwork-label-text {
-  font-family:'Source Sans 3',sans-serif; font-size:10px;
-  letter-spacing:0.16em; text-transform:uppercase;
-  color:rgba(165,215,178,0.85); white-space:nowrap;
-}
-#artwork-loaded-name {
-  font-size:9px; letter-spacing:0.06em;
-  color:rgba(140,185,155,0.52); display:none; margin-top:1px;
-}
-#artwork-file { display:none; }
-#artwork-upload-wrap.loaded #artwork-label {
-  border-color:rgba(120,188,140,0.50);
-  background:rgba(6,24,10,0.70);
-}
-#artwork-upload-wrap.loaded #artwork-label svg { color:rgba(120,205,148,0.88); }
-#artwork-upload-wrap.loaded #artwork-loaded-name { display:block; }
-@media(max-width:900px){
-  #artwork-upload-wrap {
-    bottom:auto; top:50px; right:8px; left:auto; transform:none; z-index:20;
-  }
-  #artwork-label {
-    border-radius:4px; border:1px solid rgba(140,188,152,0.25);
-    padding:5px 10px 5px 8px; gap:5px;
-  }
-  #artwork-label svg { width:12px; height:12px; }
-  #artwork-label-text { font-size:9px; }
-}
+.tb-art:hover { color:rgba(190,225,195,0.90); }
+.tb-art.loaded { color:rgba(120,210,148,0.90); }
 
 /* ── ARTWORK STATUS TOAST ── */
 #art-toast {
@@ -698,7 +611,6 @@ html, body {
 </div>
 
 <canvas id="c"></canvas>
-<div id="tagline"><span id="tagline-text">The Clock that tells you where you are, not where the sun is</span></div>
 
 <div id="art-toast">Loading&#8230;</div>
 <button id="live-return" onclick="returnToLive()">&#8617; return to live</button>
@@ -707,8 +619,9 @@ html, body {
 
   <!-- HEADER -->
   <header id="hdr">
-    <div>
+    <div class="hdr-brand">
       <div class="hdr-title">Marouf Resonance Clock</div>
+      <div class="hdr-tagline">A clock based on your cycles, not the sun's</div>
     </div>
     <button id="wake-btn" title="Set your wake time">
       <svg class="wb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
@@ -791,6 +704,7 @@ html, body {
     <div id="tab-bar">
       <span class="live-dot"></span>
       <button class="tb mobile-only" id="tb-phase" data-pane="tp-phase">Phase</button>
+      <label class="tb tb-art" for="artwork-file" id="artwork-label"><span id="artwork-label-text">&#9651; Artwork</span></label>
       <button class="tb" data-pane="tp-chrono">Chronotype</button>
       <button class="tb" data-pane="tp-sci">Science</button>
       <button class="tb" data-pane="tp-waves">Hormones</button>
@@ -992,28 +906,18 @@ function resize() {
   const srw = (sbR && sbR.offsetWidth > 10) ? sbR.offsetWidth : 0;
 
   const availW = W - slw - srw;
-  // Reserve space for tagline on mobile (30px)
-  const isMobile = W <= 900;
-  const tagSpace = isMobile ? 34 : 0;
-  const availH = H - hh - bh - tagSpace;
+  const availH = H - hh - bh;
 
   OX = slw + availW / 2;
-  OY = hh + tagSpace + availH / 2;
+  OY = hh + availH / 2;
 
-  // Clock face — slightly smaller on mobile to leave breathing room
   const slot = Math.min(availW / 2, availH / 2) - 10;
-  R  = Math.max(slot / (isMobile ? 1.25 : 1.15), 80);
+  R  = Math.max(slot / 1.15, 80);
 
   // Re-init trace canvas on resize
   initTraceCanvas();
 
-  // Position tagline above the 12 o'clock mark, clear of hour labels
-  const tag = document.getElementById('tagline');
-  if(tag) {
-    const tagTop = OY - R * 1.08 - 44;
-    tag.style.top  = Math.max(hh + 4, tagTop) + 'px';
-    tag.style.left = OX + 'px';
-  }
+
 }
 resize();
 window.addEventListener('resize', () => { resize(); });
@@ -1171,14 +1075,13 @@ function commitTraceForPhase(phaseIdx, times) {
   if (eA <= sA) eA += TP;
   const midA = sA + (eA - sA) / 2;
 
-  // Stamp artwork into persistent offscreen canvas at this phase angle
-  // source-over preserves true artwork colours; high alpha for clear visibility
+  // Stamp artwork at full vivid opacity into persistent trace canvas
   traceCtx.save();
     traceCtx.beginPath();
     traceCtx.arc(OX, OY, clipR, 0, TP);
     traceCtx.clip();
     traceCtx.globalCompositeOperation = 'source-over';
-    traceCtx.globalAlpha = 0.55;
+    traceCtx.globalAlpha = 0.72;
     traceCtx.translate(OX, OY);
     traceCtx.rotate(midA);
     traceCtx.drawImage(mandalaImg, -dw / 2, -dh / 2, dw, dh);
@@ -1198,7 +1101,7 @@ function drawCentre(phase, t) {
   cx.clip();
 
   // Very dark base — not pure black so artwork breathes
-  cx.fillStyle = 'rgba(4,12,6,0.97)';
+  cx.fillStyle = 'rgba(6,14,8,0.95)';
   cx.fillRect(OX - clipR, OY - clipR, clipR * 2, clipR * 2);
 
   if (mandalaLoaded && mandalaImg && mandalaImg.naturalWidth > 0) {
@@ -1224,48 +1127,46 @@ function drawCentre(phase, t) {
       lastTracePhase = livePh;
     }
 
-    // ── DRAW PERSISTENT TRACE LAYER (accumulated past-phase ghosts) ──
+    // ── DRAW TRACE LAYER — completed phases as accumulated mandala ──
     if (traceCanvas && tracedPhases.size > 0) {
       cx.save();
       cx.globalCompositeOperation = 'source-over';
-      cx.globalAlpha = 0.85;
+      cx.globalAlpha = 1.0;
       cx.drawImage(traceCanvas, 0, 0);
       cx.restore();
     }
 
-    // ── DRAW LIVE LAYERS ──
-    // Z-order: future (bottom, faint ghost) → past (mid, clear) → active (top, vivid)
-    // source-over throughout — preserves true artwork colours
-    const order = [];
+    // ── DRAW FUTURE GHOSTS — faint preview of upcoming phase angles ──
     for (let i = 0; i < 9; i++) {
-      const isActive = (i === phase);
-      const isPast   = (i < livePh);
-      order.push({ i, isActive, isPast, z: isActive ? 2 : isPast ? 1 : 0 });
-    }
-    order.sort((a, b) => a.z - b.z);
-
-    for (const { i, isActive, isPast } of order) {
+      if (i === phase || i < livePh) continue; // skip active + past
       const sT = times[i], eT = times[(i + 1) % 9];
       let sA = (sT / TAU) * TP - Math.PI / 2;
       let eA = (eT / TAU) * TP - Math.PI / 2;
       if (i === 8 && eA <= sA) eA += TP;
       if (eA <= sA) eA += TP;
       const midA = sA + (eA - sA) / 2;
-
-      // Clear opacity hierarchy — artwork stays true-colour
-      const opacity = isActive ? 0.95
-                    : isPast   ? 0.50
-                    :            0.10;
-
       cx.save();
-        cx.globalCompositeOperation = 'source-over';
-        cx.globalAlpha = opacity;
+        cx.globalAlpha = 0.08;
         cx.translate(OX, OY);
         cx.rotate(midA);
-        if (isActive) {
-          const pulse = 1.0 + 0.018 * Math.sin(t * 0.0017);
-          cx.scale(pulse, pulse);
-        }
+        cx.drawImage(mandalaImg, -dw / 2, -dh / 2, dw, dh);
+      cx.restore();
+    }
+
+    // ── DRAW ACTIVE PHASE — full vivid artwork ──
+    {
+      const sT = times[phase], eT = times[(phase + 1) % 9];
+      let sA = (sT / TAU) * TP - Math.PI / 2;
+      let eA = (eT / TAU) * TP - Math.PI / 2;
+      if (phase === 8 && eA <= sA) eA += TP;
+      if (eA <= sA) eA += TP;
+      const midA = sA + (eA - sA) / 2;
+      const pulse = 1.0 + 0.015 * Math.sin(t * 0.0017);
+      cx.save();
+        cx.globalAlpha = 1.0;
+        cx.translate(OX, OY);
+        cx.rotate(midA);
+        cx.scale(pulse, pulse);
         cx.drawImage(mandalaImg, -dw / 2, -dh / 2, dw, dh);
       cx.restore();
     }
@@ -1796,6 +1697,25 @@ function frame(t) {
 
   drawCentre(ph,t);
   drawRing(t);
+
+  // ── Tagline above 12 o'clock ──
+  {
+    const tagY = OY - R * 1.08 - 22;
+    const hdrH = document.getElementById('hdr') ? document.getElementById('hdr').offsetHeight : 56;
+    if (tagY > hdrH + 8) {
+      const sz = Math.max(11, Math.min(15, R * 0.065));
+      cx.save();
+      cx.font = sz + "px 'Source Sans 3',sans-serif";
+      cx.textAlign = 'center';
+      cx.textBaseline = 'bottom';
+      cx.fillStyle = 'rgba(245,225,110,0.88)';
+      cx.shadowColor = 'rgba(220,190,60,0.25)';
+      cx.shadowBlur = 16;
+      cx.fillText("A clock based on your cycles, not the sun\u2019s", OX, tagY);
+      cx.restore();
+    }
+  }
+
   drawHand(now);
 
   if(document.getElementById('tp-waves').classList.contains('on'))
@@ -1872,16 +1792,12 @@ window.addEventListener('load', ()=>{
             img.onload = function() {
               mandalaImg    = img;
               mandalaLoaded = true;
-              // Reset trace canvas when new artwork loads
               initTraceCanvas();
               showToast('\u2713 Artwork loaded', 3000);
-              const wrap  = document.getElementById('artwork-upload-wrap');
-              const lname = document.getElementById('artwork-loaded-name');
-              const ltext = document.getElementById('artwork-label-text');
-              if (wrap)  wrap.classList.add('loaded');
-              if (lname) lname.textContent = file.name.length > 24 ? file.name.slice(0,22) + '\u2026' : file.name;
-              if (ltext) ltext.textContent = '\u2713 artwork loaded';
-              setTimeout(function() { if (wrap) wrap.style.display = 'none'; }, 4000);
+              var artBtn = document.getElementById('artwork-label');
+              var ltxt   = document.getElementById('artwork-label-text');
+              if (artBtn) artBtn.classList.add('loaded');
+              if (ltxt) ltxt.textContent = '\u2713 Loaded';
             };
             img.onerror = function() {
               showToast('\u26A0 Image failed \u2014 try JPEG/PNG', 4000);
@@ -1913,21 +1829,8 @@ document.addEventListener('keydown', function(e) {
 
 </script>
 
-<!-- ARTWORK UPLOAD (fixed bottom-centre, outside shell) -->
-<div id="artwork-upload-wrap">
-  <label id="artwork-label" for="artwork-file">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-      <polyline points="17 8 12 3 7 8"/>
-      <line x1="12" y1="3" x2="12" y2="15"/>
-    </svg>
-    <div>
-      <div id="artwork-label-text">Load artwork</div>
-      <div id="artwork-loaded-name">&mdash;</div>
-    </div>
-  </label>
-  <input type="file" id="artwork-file" accept="image/*">
-</div>
+<!-- Hidden file input for artwork -->
+<input type="file" id="artwork-file" accept="image/*" style="display:none">
 
 </body>
 </html>
