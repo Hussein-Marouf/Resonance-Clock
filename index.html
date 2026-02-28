@@ -546,10 +546,14 @@ html, body {
 /* ── ARTWORK BUTTON (in tab bar) ── */
 .tb-art {
   cursor:pointer; margin-left:auto;
-  color:rgba(148,200,162,0.70);
+  color:rgba(240,218,110,0.90);
+  border:1px solid rgba(240,218,110,0.35);
+  border-radius:3px;
+  padding:8px 14px !important;
+  font-weight:500;
 }
-.tb-art:hover { color:rgba(190,225,195,0.90); }
-.tb-art.loaded { color:rgba(120,210,148,0.90); }
+.tb-art:hover { color:rgba(255,235,130,1.0); border-color:rgba(240,218,110,0.55); }
+.tb-art.loaded { color:rgba(120,210,148,0.90); border-color:rgba(120,210,148,0.35); }
 
 /* ── ARTWORK STATUS TOAST ── */
 #art-toast {
@@ -704,7 +708,7 @@ html, body {
     <div id="tab-bar">
       <span class="live-dot"></span>
       <button class="tb mobile-only" id="tb-phase" data-pane="tp-phase">Phase</button>
-      <label class="tb tb-art" for="artwork-file" id="artwork-label"><span id="artwork-label-text">&#8683; Upload Artwork</span></label>
+      <label class="tb tb-art" for="artwork-file" id="artwork-label"><span id="artwork-label-text">&#9650; Upload Artwork</span></label>
       <button class="tb" data-pane="tp-chrono">Chronotype</button>
       <button class="tb" data-pane="tp-sci">Science</button>
       <button class="tb" data-pane="tp-waves">Hormones</button>
@@ -1784,7 +1788,7 @@ window.addEventListener('load', ()=>{
               var artBtn = document.getElementById('artwork-label');
               var ltxt   = document.getElementById('artwork-label-text');
               if (artBtn) artBtn.classList.add('loaded');
-              if (ltxt) ltxt.textContent = '\u2713 Loaded';
+              if (ltxt) ltxt.textContent = '\u2713 Artwork Loaded';
             };
             img.onerror = function() {
               showToast('\u26A0 Image failed \u2014 try JPEG/PNG', 4000);
