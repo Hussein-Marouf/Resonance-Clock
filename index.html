@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Resonance Clock · H.A. Marouf</title>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,600;1,400;1,600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<title>Marouf Resonance Clock</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
 html, body {
   width:100%; height:100%;
   background:#030c05;
-  font-family:'DM Mono', monospace;
+  font-family:'Source Sans 3',sans-serif;
   color:#d0c8a8;
   overflow:hidden;
   -webkit-font-smoothing:antialiased;
@@ -45,22 +45,18 @@ html, body {
   pointer-events:all;
 }
 .hdr-title {
-  font-family:'Bodoni Moda',serif; font-style:italic;
-  font-size:15px; letter-spacing:0.16em;
+  font-family:'Source Sans 3',sans-serif; font-weight:600;
+  font-size:15px; letter-spacing:0.14em;
   color:rgba(228,205,140,1.0);
 }
-.hdr-sub {
-  font-size:9px; letter-spacing:0.12em;
-  color:rgba(170,198,178,0.72); margin-top:2px;
-}
+
 #hdr-clock {
-  font-family:'DM Mono',monospace;
+  font-family:'Source Sans 3',sans-serif;
   font-size:22px; letter-spacing:0.08em;
   color:rgba(215,195,130,1.0);
 }
 #hdr-date {
-  font-size:10px; font-family:'Bodoni Moda',serif; font-style:italic;
-  color:rgba(188,215,188,0.80); margin-top:2px; text-align:right;
+  font-size:10px; font-family:'Source Sans 3',sans-serif; font-weight:400; color:rgba(188,215,188,0.80); margin-top:2px; text-align:right;
 }
 
 /* ── LEFT SIDEBAR — Phase List ── */
@@ -97,8 +93,7 @@ html, body {
 .ph-btn.active .ph-pip { transform:scale(1.6); }
 .ph-info { flex:1; min-width:0; }
 .ph-name {
-  font-family:'Bodoni Moda',serif; font-style:italic;
-  font-size:12.5px; color:rgba(200,225,205,0.92);
+  font-family:'Source Sans 3',sans-serif; font-weight:500; font-size:12.5px; color:rgba(200,225,205,0.92);
   display:block; line-height:1.25;
   transition:color 0.22s;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
@@ -110,6 +105,35 @@ html, body {
   transition:color 0.22s;
 }
 .ph-btn.active .ph-time { color:rgba(215,185,100,0.85); }
+
+/* ── TAGLINE ── */
+#tagline {
+  position:fixed; transform:translateX(-50%);
+  z-index:15; pointer-events:none;
+  display:flex; align-items:center; gap:14px;
+  white-space:nowrap;
+}
+#tagline::before,
+#tagline::after {
+  content:''; display:block;
+  width:40px; height:1px; flex-shrink:0;
+  background:linear-gradient(90deg, transparent, rgba(228,205,100,0.45), transparent);
+}
+#tagline-text {
+  font-family:'Source Sans 3',sans-serif;
+  font-size:13px; font-weight:400; letter-spacing:0.13em;
+  color:rgba(240,218,110,0.92);
+  text-shadow:0 0 18px rgba(228,200,80,0.25), 0 0 40px rgba(200,175,60,0.10);
+}
+@media(max-width:900px){
+  #tagline { gap:8px; }
+  #tagline::before, #tagline::after { width:20px; }
+  #tagline-text { font-size:10px; letter-spacing:0.08em; }
+}
+@media(max-width:500px){
+  #tagline::before, #tagline::after { display:none; }
+  #tagline-text { font-size:9px; white-space:normal; text-align:center; max-width:85vw; }
+}
 
 /* ── CENTER — text positioned BELOW the clock face ── */
 #center-area {
@@ -124,14 +148,14 @@ html, body {
   color:rgba(188,225,198,0.90); display:block; margin-bottom:6px;
 }
 #ct-name {
-  font-family:'Bodoni Moda',serif; font-style:italic; font-weight:600;
+  font-family:'Source Sans 3',sans-serif; font-weight:600;
   font-size:clamp(22px,5vw,40px); display:block; line-height:1;
   margin-bottom:6px; transition:opacity 0.5s, color 0.8s;
 }
 #ct-range {
   display:block; font-size:13px; letter-spacing:0.10em;
   color:rgba(215,228,218,0.90); margin-top:6px;
-  font-family:'DM Mono',monospace;
+  font-family:'Source Sans 3',sans-serif;
 }
 #ct-until {
   display:block; font-size:11px; letter-spacing:0.12em;
@@ -155,8 +179,7 @@ html, body {
   padding:12px;
 }
 #bio-text {
-  font-family:'Bodoni Moda',serif; font-style:italic;
-  font-size:13px; line-height:1.75;
+  font-family:'Source Sans 3',sans-serif; font-size:13px; line-height:1.75;
   color:rgba(192,220,198,0.88); transition:opacity 0.5s;
 }
 
@@ -168,7 +191,7 @@ html, body {
   border:1px solid rgba(148,178,152,0.22); border-radius:3px;
 }
 .stat-val {
-  font-family:'Bodoni Moda',serif; font-weight:600;
+  font-family:'Source Sans 3',sans-serif; font-weight:600;
   font-size:18px; line-height:1;
 }
 .stat-lbl {
@@ -192,7 +215,7 @@ html, body {
   padding:0 20px;
 }
 .tb {
-  font-family:'DM Mono',monospace;
+  font-family:'Source Sans 3',sans-serif;
   font-size:10px; letter-spacing:0.16em; text-transform:uppercase;
   padding:10px 16px 9px; border:none;
   border-bottom:2px solid transparent;
@@ -219,7 +242,7 @@ html, body {
 #tp-chrono { align-items:center; gap:24px; }
 .ctype-btns { display:flex; gap:5px; }
 .cb {
-  font-family:'DM Mono',monospace; font-size:10px;
+  font-family:'Source Sans 3',sans-serif; font-size:10px;
   letter-spacing:0.12em; text-transform:uppercase;
   padding:8px 16px; border:1px solid rgba(130,158,130,0.18);
   border-radius:3px; background:rgba(5,14,7,0.55);
@@ -256,14 +279,13 @@ html, body {
   box-shadow:0 0 12px rgba(200,162,65,1), 0 0 22px rgba(200,162,65,0.40);
 }
 .chrono-preview {
-  font-family:'Bodoni Moda',serif; font-style:italic;
-  font-size:17px; color:rgba(218,192,128,0.95);
+  font-family:'Source Sans 3',sans-serif; font-size:17px; color:rgba(218,192,128,0.95);
 }
 
 /* ── SCIENCE PANE ── */
 #tp-sci { align-items:flex-start; gap:16px; }
 .sci-eq {
-  font-family:'DM Mono',monospace; font-size:11px;
+  font-family:'Source Sans 3',sans-serif; font-size:11px;
   color:rgba(225,192,105,0.95);
   background:rgba(0,0,0,0.40);
   border-left:2px solid rgba(188,155,60,0.38);
@@ -272,8 +294,7 @@ html, body {
   border-radius:0 3px 3px 0; letter-spacing:0.02em;
 }
 .sci-note {
-  font-family:'Bodoni Moda',serif; font-style:italic;
-  font-size:12.5px; line-height:1.7;
+  font-family:'Source Sans 3',sans-serif; font-size:12.5px; line-height:1.7;
   color:rgba(182,210,188,0.85); max-width:440px;
 }
 
@@ -346,7 +367,7 @@ html, body {
   color:rgba(148,195,165,0.80); display:block; line-height:1; margin-bottom:3px;
 }
 #wake-time-display {
-  font-family:'Bodoni Moda',serif; font-size:16px; font-weight:600;
+  font-family:'Source Sans 3',sans-serif; font-size:16px; font-weight:600;
   color:rgba(185,230,195,1.0); display:block; line-height:1;
   letter-spacing:0.04em; transition:color 0.3s;
 }
@@ -370,7 +391,7 @@ html, body {
   width:32px; height:32px; border-radius:50%;
   border:1px solid rgba(145,178,152,0.38);
   display:flex; align-items:center; justify-content:center;
-  font-family:'DM Mono',monospace; font-size:10px;
+  font-family:'Source Sans 3',sans-serif; font-size:10px;
   letter-spacing:0.02em; cursor:pointer; transition:all 0.25s;
   background:rgba(8,22,10,0.75); color:rgba(175,210,182,0.85);
   pointer-events:all;
@@ -399,7 +420,7 @@ html, body {
   color:rgba(155,188,165,0.68); display:block; margin-bottom:3px;
 }
 .tc-val {
-  font-family:'Bodoni Moda',serif; font-size:16px; font-weight:600;
+  font-family:'Source Sans 3',sans-serif; font-size:16px; font-weight:600;
   display:block; line-height:1;
 }
 
@@ -413,7 +434,7 @@ html, body {
 #live-return {
   display:none; position:fixed; top:64px; left:50%;
   transform:translateX(-50%); z-index:300;
-  font-family:'DM Mono',monospace;
+  font-family:'Source Sans 3',sans-serif;
   font-size:10px; letter-spacing:0.14em; text-transform:uppercase;
   padding:7px 16px; border:1px solid rgba(130,188,148,0.30);
   border-radius:3px; background:rgba(5,18,8,0.78);
@@ -425,7 +446,6 @@ html, body {
 
 /* Header on narrow screens */
 @media(max-width:900px){
-  .hdr-sub { display:none; }
   #hdr-clock { font-size:18px; }
 }
 @media(max-width:600px){
@@ -453,8 +473,7 @@ html, body {
   pointer-events:all;
 }
 .wp-title {
-  font-family:'Bodoni Moda',serif; font-style:italic;
-  font-size:19px; color:rgba(200,178,120,0.90); margin-bottom:4px;
+  font-family:'Source Sans 3',sans-serif; font-size:19px; color:rgba(200,178,120,0.90); margin-bottom:4px;
 }
 .wp-sub {
   font-size:9px; letter-spacing:0.16em; text-transform:uppercase;
@@ -479,12 +498,12 @@ html, body {
 .wp-arrow:hover { color:rgba(175,220,185,0.88); background:rgba(255,255,255,0.04); }
 .wp-arrow:active { background:rgba(255,255,255,0.08); }
 .wp-digits {
-  font-family:'DM Mono',monospace; font-size:42px; font-weight:300;
+  font-family:'Source Sans 3',sans-serif; font-size:42px; font-weight:300;
   color:rgba(210,190,130,0.90); letter-spacing:0.02em;
   line-height:1; min-width:64px; text-align:center;
 }
 .wp-colon {
-  font-family:'DM Mono',monospace; font-size:38px; font-weight:300;
+  font-family:'Source Sans 3',sans-serif; font-size:38px; font-weight:300;
   color:rgba(140,165,140,0.30); margin:0 4px; padding-bottom:8px;
 }
 .wp-unit-label {
@@ -497,7 +516,7 @@ html, body {
   display:flex; gap:6px; flex-wrap:wrap; margin-bottom:22px;
 }
 .wp-preset {
-  font-family:'DM Mono',monospace; font-size:10px;
+  font-family:'Source Sans 3',sans-serif; font-size:10px;
   letter-spacing:0.10em; padding:7px 12px;
   border:1px solid rgba(130,158,130,0.18);
   border-radius:3px; background:rgba(5,14,7,0.55);
@@ -514,7 +533,7 @@ html, body {
 /* Action buttons */
 .wp-actions { display:flex; gap:10px; justify-content:flex-end; }
 .wp-cancel {
-  font-family:'DM Mono',monospace; font-size:10px;
+  font-family:'Source Sans 3',sans-serif; font-size:10px;
   letter-spacing:0.14em; text-transform:uppercase;
   padding:9px 18px; border:1px solid rgba(130,158,130,0.15);
   border-radius:3px; background:transparent;
@@ -522,7 +541,7 @@ html, body {
 }
 .wp-cancel:hover { color:rgba(165,190,168,0.70); }
 .wp-confirm {
-  font-family:'DM Mono',monospace; font-size:10px;
+  font-family:'Source Sans 3',sans-serif; font-size:10px;
   letter-spacing:0.14em; text-transform:uppercase;
   padding:9px 22px; border:1px solid rgba(140,188,152,0.35);
   border-radius:3px; background:rgba(12,32,15,0.75);
@@ -559,7 +578,7 @@ html, body {
   color:rgba(148,205,165,0.82); flex-shrink:0;
 }
 #artwork-label-text {
-  font-family:'DM Mono',monospace; font-size:10px;
+  font-family:'Source Sans 3',sans-serif; font-size:10px;
   letter-spacing:0.16em; text-transform:uppercase;
   color:rgba(165,215,178,0.85); white-space:nowrap;
 }
@@ -579,7 +598,7 @@ html, body {
 #art-toast {
   display:none; position:fixed; top:68px; left:50%;
   transform:translateX(-50%); z-index:600;
-  font-family:'DM Mono',monospace;
+  font-family:'Source Sans 3',sans-serif;
   font-size:10px; letter-spacing:0.14em; text-transform:uppercase;
   padding:8px 18px; border-radius:4px;
   background:rgba(6,22,10,0.94);
@@ -635,6 +654,7 @@ html, body {
 </div>
 
 <canvas id="c"></canvas>
+<div id="tagline"><span id="tagline-text">The Clock that tells you where you are, not where the sun is</span></div>
 
 <div id="art-toast">Loading&#8230;</div>
 <button id="live-return" onclick="returnToLive()">&#8617; return to live</button>
@@ -644,8 +664,7 @@ html, body {
   <!-- HEADER -->
   <header id="hdr">
     <div>
-      <div class="hdr-title">The Resonance Clock</div>
-      <div class="hdr-sub">H.A. Marouf</div>
+      <div class="hdr-title">Marouf Resonance Clock</div>
     </div>
     <button id="wake-btn" title="Set your wake time">
       <svg class="wb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
@@ -737,10 +756,10 @@ html, body {
       <!-- PHASE (mobile only) -->
       <div class="tab-pane" id="tp-phase">
         <div style="width:100%">
-          <div style="font-family:'Bodoni Moda',serif;font-style:italic;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(165,200,172,0.78);margin-bottom:8px;" id="tp-phase-num">Phase 1 of 9</div>
-          <div style="font-family:'Bodoni Moda',serif;font-style:italic;font-size:24px;font-weight:600;margin-bottom:8px;transition:color 0.5s;" id="tp-phase-name">&mdash;</div>
-          <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.08em;color:rgba(215,188,105,0.88);margin-bottom:12px;" id="tp-phase-range">&mdash; &ndash; &mdash;</div>
-          <p style="font-family:'Bodoni Moda',serif;font-style:italic;font-size:13px;line-height:1.75;color:rgba(195,225,200,0.88);max-width:560px;" id="tp-phase-bio">&mdash;</p>
+          <div style="font-family:'Source Sans 3',sans-serif; font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(165,200,172,0.78);margin-bottom:8px;" id="tp-phase-num">Phase 1 of 9</div>
+          <div style="font-family:'Source Sans 3',sans-serif; font-size:24px;font-weight:600;margin-bottom:8px;transition:color 0.5s;" id="tp-phase-name">&mdash;</div>
+          <div style="font-family:'Source Sans 3',sans-serif;font-size:11px;letter-spacing:0.08em;color:rgba(215,188,105,0.88);margin-bottom:12px;" id="tp-phase-range">&mdash; &ndash; &mdash;</div>
+          <p style="font-family:'Source Sans 3',sans-serif; font-size:13px;line-height:1.75;color:rgba(195,225,200,0.88);max-width:560px;" id="tp-phase-bio">&mdash;</p>
         </div>
       </div>
 
@@ -940,6 +959,14 @@ function resize() {
 
   // Re-init trace canvas on resize
   initTraceCanvas();
+
+  // Position tagline above the 12 o'clock mark, clear of hour labels
+  const tag = document.getElementById('tagline');
+  if(tag) {
+    const tagTop = OY - R * 1.08 - 44;
+    tag.style.top  = Math.max(60, tagTop) + 'px';
+    tag.style.left = OX + 'px';
+  }
 }
 resize();
 window.addEventListener('resize', () => { resize(); });
@@ -1042,7 +1069,7 @@ function drawPetal(idx, startA, endA, breath, t, active) {
   cx.save();
   cx.translate(OX+nr*Math.cos(mid), OY+nr*Math.sin(mid));
   cx.rotate(mid+Math.PI/2);
-  cx.font = active ? `italic 600 ${Math.round(R*.07)}px 'Bodoni Moda'` : `${Math.round(R*.055)}px 'DM Mono'`;
+  cx.font = active ? `600 ${Math.round(R*.07)}px 'Source Sans 3'` : `${Math.round(R*.055)}px 'Source Sans 3'`;
   cx.textAlign='center'; cx.textBaseline='middle';
   cx.fillStyle = active ? hs(h,s+5,l,.95) : hs(h,s,l+5,.55);
   cx.fillText(idx+1, 0, 0); cx.restore();
@@ -1284,7 +1311,7 @@ function drawRing(t) {
       cx.save();
       cx.translate(OX+lr*Math.cos(a),OY+lr*Math.sin(a));
       cx.rotate(a+Math.PI/2);
-      cx.font="10px 'DM Mono'"; cx.textAlign='center'; cx.textBaseline='middle';
+      cx.font="10px 'Source Sans 3'"; cx.textAlign='center'; cx.textBaseline='middle';
       cx.fillStyle='rgba(228,200,115,0.92)';
       cx.fillText(String(i).padStart(2,'0'),0,0);
       cx.restore();
@@ -1342,7 +1369,7 @@ function drawWaveCanvas(now) {
     wct.beginPath(); wct.moveTo(x,2); wct.lineTo(x,WH-2);
     wct.strokeStyle=hs(h,s,l,.20); wct.lineWidth=.7; wct.stroke();
     wct.fillStyle=hs(h,s,l,.28);
-    wct.font="italic 9px 'Bodoni Moda'"; wct.textAlign='center';
+    wct.font="9px 'Source Sans 3'"; wct.textAlign='center';
     wct.fillText(i+1,x,WH-3);
   });
 
