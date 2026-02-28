@@ -121,18 +121,21 @@ html, body {
 }
 #tagline-text {
   font-family:'Source Sans 3',sans-serif;
-  font-size:13px; font-weight:400; letter-spacing:0.13em;
-  color:rgba(240,218,110,0.92);
-  text-shadow:0 0 18px rgba(228,200,80,0.25), 0 0 40px rgba(200,175,60,0.10);
+  font-size:14px; font-weight:500; letter-spacing:0.12em;
+  color:rgba(245,225,100,0.95);
+  text-shadow:0 0 20px rgba(228,200,80,0.35), 0 0 50px rgba(200,175,60,0.15);
 }
+/* ═══ MOBILE OVERHAUL ═══ */
 @media(max-width:900px){
-  #tagline { gap:8px; }
-  #tagline::before, #tagline::after { width:20px; }
-  #tagline-text { font-size:10px; letter-spacing:0.08em; }
+  /* Tagline */
+  #tagline { gap:10px; }
+  #tagline::before, #tagline::after { width:24px; }
+  #tagline-text { font-size:12px; letter-spacing:0.08em; }
 }
 @media(max-width:500px){
+  #tagline { white-space:normal; }
   #tagline::before, #tagline::after { display:none; }
-  #tagline-text { font-size:9px; white-space:normal; text-align:center; max-width:85vw; }
+  #tagline-text { font-size:11px; letter-spacing:0.05em; text-align:center; line-height:1.5; }
 }
 
 /* ── CENTER — text positioned BELOW the clock face ── */
@@ -231,10 +234,9 @@ html, body {
 /* Tab content */
 #tab-content {
   padding:12px 20px 14px;
-  max-height:155px; overflow-y:auto;
+  max-height:180px; overflow-y:auto;
   -webkit-overflow-scrolling:touch;
 }
-@media(max-height:700px){ #tab-content { max-height:115px; } }
 .tab-pane { display:none; }
 .tab-pane.on { display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap; }
 
@@ -324,19 +326,62 @@ html, body {
 #sidebar-left::-webkit-scrollbar-track { background:transparent; }
 #sidebar-left::-webkit-scrollbar-thumb { background:rgba(140,165,130,0.18); border-radius:2px; }
 
-/* Responsive */
+/* Responsive — desktop sidebar collapse */
 @media(max-width:900px){
-  #shell { grid-template-columns: 0 1fr 0; }
+  #shell {
+    grid-template-columns: 0 1fr 0;
+    grid-template-rows: 50px 1fr auto;
+  }
   #sidebar-left, #sidebar-right { display:none; }
   #center-text { width:260px; }
-  #ct-name { font-size:clamp(18px,5vw,30px); }
+  #ct-name { font-size:clamp(20px,5vw,32px); }
+
+  /* Bottom panel — generous space */
+  #tab-content { max-height:220px; padding:14px 16px 18px; }
+  .tab-pane.on { gap:14px; }
+
+  /* Tab bar — bigger touch targets */
+  #tab-bar { padding:0 10px; }
+  .tb { font-size:11px; padding:12px 12px 10px; letter-spacing:0.12em; }
+
+  /* Phase strip — bigger dots */
+  #phase-strip { gap:8px; padding:10px 12px 8px; }
+  .ps-dot { width:36px; height:36px; font-size:13px; font-weight:500; }
 }
-@media(max-width:900px) and (max-height:750px){
-  #ct-range, #ct-until { display:none; }
+
+/* Medium phones */
+@media(max-width:600px){
+  #shell { grid-template-rows: 46px 1fr auto; }
+  #hdr { padding:0 10px; gap:6px; }
+  .hdr-title { font-size:13px; letter-spacing:0.08em; }
+  #hdr-clock { font-size:16px; }
+  #hdr-date { font-size:9px; }
+  #wake-btn { padding:5px 8px; gap:6px; }
+  .wb-label { font-size:7px; }
+  #wake-time-display { font-size:13px; }
+  .wb-since { font-size:7px; }
+
+  #center-text { width:240px; }
+  #center-area { padding-bottom:8px; }
+  #ct-num { font-size:10px; }
+  #ct-range { font-size:12px; }
+  #ct-until { font-size:10px; }
 }
-@media(max-width:500px){
-  #center-area { padding-bottom:10px; }
-  #center-text { width:220px; }
+
+/* Small phones */
+@media(max-width:400px){
+  .hdr-title { font-size:11px; }
+  #hdr-clock { font-size:14px; }
+  #center-text { width:200px; }
+  .ps-dot { width:30px; height:30px; font-size:11px; }
+  .tb { font-size:10px; padding:10px 8px 8px; letter-spacing:0.08em; }
+}
+
+/* Short screens — keep phase info visible */
+@media(max-width:900px) and (max-height:700px){
+  #tab-content { max-height:160px; }
+  #ct-range { display:none; }
+  #ct-until { display:none; }
 }
 
 /* ── WAKE BUTTON ── */
@@ -443,18 +488,6 @@ html, body {
   pointer-events:all;
 }
 #live-return:hover { color:rgba(160,215,175,0.95); border-color:rgba(160,215,175,0.50); }
-
-/* Header on narrow screens */
-@media(max-width:900px){
-  #hdr-clock { font-size:18px; }
-}
-@media(max-width:600px){
-  #hdr { padding:0 12px; gap:8px; }
-  .hdr-title { font-size:12px; letter-spacing:0.10em; }
-  #wake-btn { padding:6px 10px; gap:7px; }
-  #wake-time-display { font-size:14px; }
-  #hdr-clock { font-size:16px; }
-}
 
 /* ── WAKE TIME PICKER MODAL ── */
 #wake-overlay {
@@ -593,6 +626,17 @@ html, body {
 }
 #artwork-upload-wrap.loaded #artwork-label svg { color:rgba(120,205,148,0.88); }
 #artwork-upload-wrap.loaded #artwork-loaded-name { display:block; }
+@media(max-width:900px){
+  #artwork-upload-wrap {
+    bottom:auto; top:50px; right:8px; left:auto; transform:none; z-index:20;
+  }
+  #artwork-label {
+    border-radius:4px; border:1px solid rgba(140,188,152,0.25);
+    padding:5px 10px 5px 8px; gap:5px;
+  }
+  #artwork-label svg { width:12px; height:12px; }
+  #artwork-label-text { font-size:9px; }
+}
 
 /* ── ARTWORK STATUS TOAST ── */
 #art-toast {
@@ -756,10 +800,10 @@ html, body {
       <!-- PHASE (mobile only) -->
       <div class="tab-pane" id="tp-phase">
         <div style="width:100%">
-          <div style="font-family:'Source Sans 3',sans-serif; font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(165,200,172,0.78);margin-bottom:8px;" id="tp-phase-num">Phase 1 of 9</div>
-          <div style="font-family:'Source Sans 3',sans-serif; font-size:24px;font-weight:600;margin-bottom:8px;transition:color 0.5s;" id="tp-phase-name">&mdash;</div>
-          <div style="font-family:'Source Sans 3',sans-serif;font-size:11px;letter-spacing:0.08em;color:rgba(215,188,105,0.88);margin-bottom:12px;" id="tp-phase-range">&mdash; &ndash; &mdash;</div>
-          <p style="font-family:'Source Sans 3',sans-serif; font-size:13px;line-height:1.75;color:rgba(195,225,200,0.88);max-width:560px;" id="tp-phase-bio">&mdash;</p>
+          <div style="font-family:'Source Sans 3',sans-serif;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(165,200,172,0.78);margin-bottom:8px;" id="tp-phase-num">Phase 1 of 9</div>
+          <div style="font-family:'Source Sans 3',sans-serif;font-size:26px;font-weight:600;margin-bottom:10px;transition:color 0.5s;" id="tp-phase-name">&mdash;</div>
+          <div style="font-family:'Source Sans 3',sans-serif;font-size:14px;letter-spacing:0.06em;color:rgba(215,188,105,0.88);margin-bottom:12px;" id="tp-phase-range">&mdash; &ndash; &mdash;</div>
+          <p style="font-family:'Source Sans 3',sans-serif;font-size:15px;line-height:1.7;color:rgba(195,225,200,0.88);max-width:560px;" id="tp-phase-bio">&mdash;</p>
         </div>
       </div>
 
@@ -948,14 +992,17 @@ function resize() {
   const srw = (sbR && sbR.offsetWidth > 10) ? sbR.offsetWidth : 0;
 
   const availW = W - slw - srw;
-  const availH = H - hh - bh;
+  // Reserve space for tagline on mobile (30px)
+  const isMobile = W <= 900;
+  const tagSpace = isMobile ? 34 : 0;
+  const availH = H - hh - bh - tagSpace;
 
   OX = slw + availW / 2;
-  OY = hh  + availH / 2;
+  OY = hh + tagSpace + availH / 2;
 
-  // Clock face fills most of the available space — generous sizing
+  // Clock face — slightly smaller on mobile to leave breathing room
   const slot = Math.min(availW / 2, availH / 2) - 10;
-  R  = Math.max(slot / 1.15, 80);
+  R  = Math.max(slot / (isMobile ? 1.25 : 1.15), 80);
 
   // Re-init trace canvas on resize
   initTraceCanvas();
@@ -964,7 +1011,7 @@ function resize() {
   const tag = document.getElementById('tagline');
   if(tag) {
     const tagTop = OY - R * 1.08 - 44;
-    tag.style.top  = Math.max(60, tagTop) + 'px';
+    tag.style.top  = Math.max(hh + 4, tagTop) + 'px';
     tag.style.left = OX + 'px';
   }
 }
